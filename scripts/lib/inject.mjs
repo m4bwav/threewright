@@ -24,9 +24,10 @@ function pageMain(cfg) {
   T.loaders = 0;
   T.errors = [];
   T.renderCalls = 0;
-  T.last = null; // { renderer, scene, camera } of the most recent main render
-  const cams = new Map(); // scene -> camera
+  T.last = null; // { renderer, scene } of the most recent main render
+  const cams = new Map(); // scene -> Map(camera -> { n, screen })
   const screenRenders = new Map(); // scene -> renders to the default framebuffer
+  const allRenders = new Map(); // scene -> renders to any target (post-processing draws the scene into one)
 
   function wrapRenderer(r) {
     if (r.__twWrapped || typeof r.render !== 'function') return;
@@ -35,14 +36,17 @@ function pageMain(cfg) {
     r.render = function (scene, camera) {
       T.renderCalls++;
       if (scene && scene.isScene && camera && camera.isCamera) {
-        cams.set(scene, camera);
-        // Count only renders to the screen: PMREM, shadow and post passes draw into targets.
+        allRenders.set(scene, (allRenders.get(scene) || 0) + 1);
+        // Screen renders win: PMREM, shadow and helper scenes draw into targets.
         let toScreen = true;
         try { toScreen = typeof this.getRenderTarget !== 'function' || this.getRenderTarget() === null; } catch { /* ignore */ }
-        if (toScreen) {
-          screenRenders.set(scene, (screenRenders.get(scene) || 0) + 1);
-          if (mainScene() === scene) T.last = { renderer: this, scene, camera };
-        }
+        if (toScreen) screenRenders.set(scene, (screenRenders.get(scene) || 0) + 1);
+        let m = cams.get(scene);
+        if (!m) cams.set(scene, (m = new Map()));
+        const u = m.get(camera) || { n: 0, screen: 0 };
+        u.n++; if (toScreen) u.screen++;
+        m.set(camera, u);
+        if (mainScene() === scene) T.last = { renderer: this, scene };
       }
       return orig.apply(this, arguments);
     };
@@ -88,11 +92,15 @@ function pageMain(cfg) {
 
   function descendants(o) { let n = 0; o.traverse(() => n++); return n; }
 
-  // The main scene is the one drawn to the screen most often (the animation loop),
-  // falling back to the largest rendered scene.
+  // The main scene is the one drawn to the screen most often (the animation loop);
+  // with post-processing the screen gets a quad, so next comes the scene rendered
+  // most often into any target (an environment is rendered once, the scene every
+  // frame), then the largest rendered scene.
   function mainScene() {
     let best = null, bestN = -1;
     for (const [s, n] of screenRenders) if (n > bestN) { best = s; bestN = n; }
+    if (best && bestN > 1) return best;
+    for (const [s, n] of allRenders) if (n > bestN) { best = s; bestN = n; }
     if (best) return best;
     for (const s of T.scenes) {
       if (!cams.has(s)) continue;
@@ -102,9 +110,37 @@ function pageMain(cfg) {
     return best;
   }
 
+  // Lights render the scene from their shadow cameras (WebGPURenderer does it
+  // through renderer.render), so those never count as the view camera.
+  function shadowCameras(scene) {
+    const s = new Set();
+    scene.traverse((o) => {
+      const sh = o.isLight && o.shadow;
+      if (!sh) return;
+      if (sh.camera) s.add(sh.camera);
+      if (Array.isArray(sh._cameras)) sh._cameras.forEach((c) => s.add(c)); // SunLight cascades
+    });
+    return s;
+  }
+
+  // The view camera: most screen renders, then most renders, then one that
+  // lives in the scene graph or is perspective (internal cameras are neither).
+  function cameraFor(scene) {
+    const m = cams.get(scene);
+    if (!m || !m.size) return null;
+    const skip = shadowCameras(scene);
+    let best = null, bestKey = -1;
+    for (const [c, u] of m) {
+      if (skip.has(c)) continue;
+      const key = u.screen * 1e9 + u.n * 4 + (c.parent ? 2 : 0) + (c.isPerspectiveCamera ? 1 : 0);
+      if (key > bestKey) { best = c; bestKey = key; }
+    }
+    return best || m.keys().next().value;
+  }
+
   function target() {
     const scene = mainScene() || T.scenes[0] || null;
-    const camera = scene ? cams.get(scene) || null : null;
+    const camera = scene ? cameraFor(scene) : null;
     const renderer = (T.last && T.last.renderer) || T.renderers[0] || null;
     return { scene, camera, renderer };
   }
@@ -203,11 +239,12 @@ function pageMain(cfg) {
     try { const s = r.domElement; i.canvas = s ? `${s.width}x${s.height}` : null; i.inDom = !!(s && s.isConnected); } catch { /* ignore */ }
     try { i.pixelRatio = r.getPixelRatio(); } catch { /* ignore */ }
     if (r.outputColorSpace !== undefined) i.outputColorSpace = r.outputColorSpace;
-    if (r.toneMapping !== undefined) i.toneMapping = r.toneMapping;
-    if (r.shadowMap) i.shadows = !!r.shadowMap.enabled;
+    if (r.toneMapping !== undefined) i.toneMapping = ['None', 'Linear', 'Reinhard', 'Cineon', 'ACESFilmic', 'Custom', 'AgX', 'Neutral'][r.toneMapping] || r.toneMapping;
+    if (r.shadowMap) i.shadows = r.shadowMap.enabled ? (['Basic', 'PCF', 'PCFSoft', 'VSM'][r.shadowMap.type] || true) : false;
     const info = r.info || {};
     const rd = info.render || {};
-    i.drawCalls = rd.calls ?? rd.drawCalls ?? null;
+    // WebGPURenderer: render.drawCalls is per frame and render.calls counts render() calls since start.
+    i.drawCalls = rd.drawCalls ?? rd.calls ?? null;
     i.triangles = rd.triangles ?? null;
     if (info.memory) { i.geometries = info.memory.geometries; i.textures = info.memory.textures; }
     if (info.programs) i.programs = info.programs.length;

@@ -1,0 +1,13 @@
+{
+  "name": "html-importmap",
+  "summary": "One HTML file, no build: WebGLRenderer, import map pinned to three 0.186.1, OrbitControls, RoomEnvironment lighting, shadows, Timer-driven animation",
+  "renderer": "webgl",
+  "three": "0.186.1",
+  "entry": "index.html",
+  "use_for": ["quick demos", "embeds", "3D in docs and artifacts", "the base for chart and turntable pages"],
+  "next": ["serve the folder with any static server (module imports do not load from file://)", "node <threewright>/scripts/tw.mjs check <dir>"],
+  "verified": [
+    { "date": "2026-09-26", "platform": "Linux container, Chromium 141, SwiftShader", "checks": "tw check OK, tw sheet, tw video (mp4, webm, gif, mov, canvas capture)" },
+    { "date": "2026-09-26", "platform": "Windows, Chrome, RTX GPU (recorded in ai-docs/HANDOFF.md)", "checks": "tw check OK" }
+  ]
+}

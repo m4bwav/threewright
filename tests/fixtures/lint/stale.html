@@ -1,0 +1,13 @@
+<!doctype html>
+<!-- A page written the way older tutorials show it. Every marked line is stale in r186. -->
+<script src="https://unpkg.com/three@0.150.0/build/three.min.js"></script>
+<script src="https://unpkg.com/three@0.150.0/examples/js/controls/OrbitControls.js"></script>
+<script>
+  // THREE.Geometry in a comment must not be reported
+  const renderer = new THREE.WebGLRenderer();
+  renderer.outputEncoding = THREE.sRGBEncoding;
+  renderer.physicallyCorrectLights = true;
+  const controls = new THREE.OrbitControls(camera, renderer.domElement);
+  const clock = new THREE.Clock();
+  const box = new THREE.BoxBufferGeometry(1, 1, 1);
+</script>

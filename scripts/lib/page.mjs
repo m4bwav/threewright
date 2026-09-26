@@ -6,11 +6,33 @@ import { dirname, relative, resolve, sep } from 'node:path';
 import { launch } from './cdp.mjs';
 import { serve } from './serve.mjs';
 import { injectScript } from './inject.mjs';
+import { createCdnResolver } from './cdn.mjs';
 
 export const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
 
-// Claude's image token cost is about width * height / 750 (Anthropic vision docs).
-export function imageTokens(w, h) { return Math.round((w * h) / 750); }
+// Claude's image cost (Anthropic vision docs, checked 2026-09-26): one visual token
+// per 28x28 patch, ceil(w/28) * ceil(h/28). Larger images are first scaled down,
+// keeping the aspect ratio, to the largest size within the tier's long-edge and
+// token limits: "high" is Claude 4.7 and later (2576 px, 4784 tokens), "standard"
+// every other model (1568 px, 1568 tokens). TW_IMAGE_TIER picks the default.
+export const IMAGE_TIERS = { high: { edge: 2576, tokens: 4784 }, standard: { edge: 1568, tokens: 1568 } };
+const patches = (w, h) => Math.ceil(w / 28) * Math.ceil(h / 28);
+
+export function imageFit(w, h, tier = process.env.TW_IMAGE_TIER || 'high') {
+  const t = IMAGE_TIERS[tier] || IMAGE_TIERS.high;
+  if (Math.max(w, h) <= t.edge && patches(w, h) <= t.tokens) return { width: w, height: h, tokens: patches(w, h), scaled: false };
+  const long = Math.max(w, h), ratio = Math.min(w, h) / long;
+  for (let L = Math.min(long, t.edge); L > 0; L--) {
+    const S = Math.max(1, Math.round(L * ratio));
+    if (patches(L, S) <= t.tokens) {
+      const [W, H] = w >= h ? [L, S] : [S, L];
+      return { width: W, height: H, tokens: patches(W, H), scaled: true };
+    }
+  }
+  return { width: 1, height: 1, tokens: 1, scaled: true };
+}
+
+export function imageTokens(w, h, tier) { return imageFit(w, h, tier).tokens; }
 
 export function parseSize(s, fallback = [960, 540]) {
   if (!s) return fallback;
@@ -21,7 +43,7 @@ export function parseSize(s, fallback = [960, 540]) {
 
 // Turn a file path or URL into something the browser can load.
 export async function resolveTarget(target, root) {
-  if (/^(https?|data|about):/i.test(target)) return { url: target, server: null };
+  if (/^(https?|data|about):/i.test(target)) return { url: target, server: null, base: null };
   const file = resolve(target);
   if (!existsSync(file)) throw new Error(`not found: ${target}`);
   const isDir = statSync(file).isDirectory();
@@ -29,15 +51,22 @@ export async function resolveTarget(target, root) {
   const rel = relative(base, isDir ? resolve(file, 'index.html') : file);
   if (rel.startsWith('..')) throw new Error(`--root ${base} must contain ${file}`);
   const server = await serve(base);
-  return { url: server.url + '/' + rel.split(sep).join('/'), server };
+  return { url: server.url + '/' + rel.split(sep).join('/'), server, base };
 }
 
 export async function openPage(target, opts = {}) {
   const [width, height] = parseSize(opts.size, [960, 540]);
   const dpr = Number(opts.dpr || 1);
-  const { url, server } = await resolveTarget(target, opts.root);
-  const browser = await launch({ width, height, gl: opts.gl || 'auto', webgpu: !!opts.webgpu, headless: !opts.headed });
+  const { url, server, base } = await resolveTarget(target, opts.root);
+  let browser;
+  try {
+    browser = await launch({ width, height, gl: opts.gl || 'auto', webgpu: !!opts.webgpu, headless: !opts.headed });
+  } catch (e) {
+    if (server) await server.close();
+    throw e;
+  }
   const page = await browser.newPage();
+  const cdn = createCdnResolver({ mode: opts.cdn || process.env.TW_CDN || 'auto', roots: [base] });
   const logs = { console: [], exceptions: [], network: [], counts: {} };
   const inflight = new Set();
   let lastNet = Date.now();
@@ -61,15 +90,14 @@ export async function openPage(target, opts = {}) {
       if (logs.counts[key] === 1) push(logs.console, { type: e.level === 'error' ? 'error' : 'warning', text: (e.text + (e.url ? ' ' + e.url : '')).slice(0, 600), source: e.source });
     }
   });
-  page.on('Network.requestWillBeSent', (p) => { inflight.add(p.requestId); lastNet = Date.now(); });
+  const urls = new Map();
+  page.on('Network.requestWillBeSent', (p) => { inflight.add(p.requestId); urls.set(p.requestId, p.request.url); lastNet = Date.now(); });
   page.on('Network.loadingFinished', (p) => { inflight.delete(p.requestId); lastNet = Date.now(); });
   page.on('Network.loadingFailed', (p) => {
     inflight.delete(p.requestId); lastNet = Date.now();
-    if (!p.canceled) push(logs.network, { failed: p.errorText, id: p.requestId });
+    if (!p.canceled) push(logs.network, { failed: p.errorText, url: urls.get(p.requestId) });
   });
-  const urls = new Map();
   page.on('Network.responseReceived', (p) => {
-    urls.set(p.requestId, p.response.url);
     if (p.response.status >= 400) push(logs.network, { status: p.response.status, url: p.response.url });
   });
 
@@ -80,16 +108,17 @@ export async function openPage(target, opts = {}) {
   await page.send('Emulation.setDeviceMetricsOverride', { width, height, deviceScaleFactor: dpr, mobile: false });
   if (opts.reducedMotion) await page.send('Emulation.setEmulatedMedia', { features: [{ name: 'prefers-reduced-motion', value: 'reduce' }] });
   await page.send('Page.addScriptToEvaluateOnNewDocument', { source: injectScript({ clock: !!opts.clock }) });
+  if (cdn.enabled) {
+    page.on('Fetch.requestPaused', (p) => { cdn.handle(page, p); });
+    await page.send('Fetch.enable', { patterns: cdn.patterns });
+  }
 
   const loaded = page.waitFor('Page.loadEventFired', opts.timeout || 60000);
   await page.send('Page.navigate', { url });
   await loaded;
 
-  // Name the failed request's URL where we know it.
-  for (const n of logs.network) if (n.id && urls.has(n.id)) n.url = urls.get(n.id);
-
   const ctx = {
-    browser, page, server, logs, url, width, height, dpr,
+    browser, page, server, logs, url, width, height, dpr, cdn,
     async networkIdle(quietMs = 500, maxMs = 20000) {
       const t0 = Date.now();
       while (Date.now() - t0 < maxMs) {
@@ -132,7 +161,8 @@ export async function screenshot(ctx, out, { canvasOnly = false } = {}) {
   writeFileSync(out, Buffer.from(data, 'base64'));
   const w = clip ? Math.round(clip.width * ctx.dpr) : ctx.width * ctx.dpr;
   const h = clip ? Math.round(clip.height * ctx.dpr) : ctx.height * ctx.dpr;
-  return { file: out, width: w, height: h, tokens: imageTokens(w, h) };
+  const fit = imageFit(w, h);
+  return { file: out, width: w, height: h, tokens: fit.tokens, seenAs: fit.scaled ? `${fit.width}x${fit.height}` : undefined };
 }
 
 // Console lines that are driver chatter, not problems in the page.

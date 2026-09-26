@@ -2,9 +2,32 @@
 // Node 22+ ships a global WebSocket; older Node is refused with a clear message.
 
 import { spawn } from 'node:child_process';
-import { existsSync, mkdtempSync, readFileSync, rmSync } from 'node:fs';
-import { tmpdir } from 'node:os';
+import { existsSync, mkdtempSync, readFileSync, readdirSync, rmSync } from 'node:fs';
+import { homedir, tmpdir } from 'node:os';
 import { join } from 'node:path';
+
+// Browsers that test tools download (Playwright, Puppeteer), newest build first.
+function toolBrowsers() {
+  const out = [];
+  const home = homedir();
+  const pw = [process.env.PLAYWRIGHT_BROWSERS_PATH,
+    process.platform === 'win32' ? join(process.env.LOCALAPPDATA || home, 'ms-playwright')
+      : process.platform === 'darwin' ? join(home, 'Library/Caches/ms-playwright') : join(home, '.cache/ms-playwright')];
+  const exe = process.platform === 'win32' ? ['chrome-win/chrome.exe', 'chrome-win64/chrome.exe']
+    : process.platform === 'darwin' ? ['chrome-mac/Chromium.app/Contents/MacOS/Chromium', 'chrome-mac-arm64/Chromium.app/Contents/MacOS/Chromium']
+      : ['chrome-linux/chrome', 'chrome-linux64/chrome'];
+  const newest = (dir, prefix) => {
+    try { return readdirSync(dir).filter((d) => d.startsWith(prefix)).sort((a, b) => b.localeCompare(a, 'en', { numeric: true })); } catch { return []; }
+  };
+  for (const root of pw) {
+    if (!root) continue;
+    for (const d of newest(root, 'chromium-')) for (const e of exe) out.push(join(root, d, e));
+  }
+  const pup = join(home, '.cache/puppeteer/chrome');
+  const pexe = process.platform === 'win32' ? ['chrome-win64/chrome.exe'] : process.platform === 'darwin' ? ['chrome-mac-arm64/Google Chrome for Testing.app/Contents/MacOS/Google Chrome for Testing', 'chrome-mac-x64/Google Chrome for Testing.app/Contents/MacOS/Google Chrome for Testing'] : ['chrome-linux64/chrome'];
+  for (const d of newest(pup, '')) for (const e of pexe) out.push(join(pup, d, e));
+  return out;
+}
 
 export function findChrome() {
   const env = process.env.TW_CHROME || process.env.CHROME_PATH || process.env.PUPPETEER_EXECUTABLE_PATH;
@@ -22,18 +45,34 @@ export function findChrome() {
     candidates.push('/Applications/Chromium.app/Contents/MacOS/Chromium');
     candidates.push('/Applications/Microsoft Edge.app/Contents/MacOS/Microsoft Edge');
   } else {
-    for (const p of ['/usr/bin/google-chrome', '/usr/bin/google-chrome-stable', '/usr/bin/chromium', '/usr/bin/chromium-browser', '/snap/bin/chromium', '/usr/bin/microsoft-edge']) candidates.push(p);
+    for (const p of ['/usr/bin/google-chrome', '/usr/bin/google-chrome-stable', '/opt/google/chrome/chrome', '/usr/bin/chromium', '/usr/bin/chromium-browser', '/snap/bin/chromium', '/usr/bin/microsoft-edge']) candidates.push(p);
   }
+  candidates.push(...toolBrowsers());
   return candidates.find((p) => existsSync(p)) || null;
 }
 
-// GL modes. "auto" lets Chrome pick (hardware GPU when headless can reach it).
-// "swiftshader" is the deterministic CPU path used for CI and pixel tests.
+// GL modes. "auto" lets Chrome pick the GPU and still allows the software
+// fallback, which Chrome no longer enables by itself (so GPU-less CI still gets WebGL).
+// "swiftshader" forces the deterministic CPU path used for pixel tests.
 export function glFlags(mode = 'auto', webgpu = false) {
   const f = [];
   if (mode === 'swiftshader') f.push('--use-angle=swiftshader', '--enable-unsafe-swiftshader');
   else if (mode === 'gpu') f.push('--enable-gpu', '--ignore-gpu-blocklist');
-  if (webgpu) f.push('--enable-unsafe-webgpu', '--ignore-gpu-blocklist');
+  else f.push('--enable-unsafe-swiftshader');
+  if (webgpu) {
+    f.push('--enable-unsafe-webgpu', '--ignore-gpu-blocklist');
+    if (process.platform === 'linux') f.push('--enable-features=Vulkan');
+  }
+  return f;
+}
+
+// Chrome's sandbox cannot start as root (containers, CI images); it also wants a
+// large /dev/shm, which Docker does not give by default.
+export function sandboxFlags() {
+  const f = [];
+  const root = typeof process.getuid === 'function' && process.getuid() === 0;
+  if (root || process.env.TW_NO_SANDBOX) f.push('--no-sandbox');
+  if (process.platform === 'linux') f.push('--disable-dev-shm-usage');
   return f;
 }
 
@@ -47,10 +86,15 @@ export async function launch({ width = 1280, height = 720, gl = 'auto', webgpu =
     '--remote-debugging-port=0',
     `--user-data-dir=${profile}`,
     '--no-first-run', '--no-default-browser-check', '--disable-extensions',
+    // No calls home: component updates, sync, field trials, translate.
+    '--disable-background-networking', '--disable-component-update', '--disable-sync',
+    '--disable-default-apps', '--metrics-recording-only', '--no-pings',
+    '--disable-features=Translate,OptimizationHints,MediaRouter',
     '--disable-background-timer-throttling', '--disable-renderer-backgrounding',
     '--disable-backgrounding-occluded-windows', '--hide-scrollbars', '--mute-audio',
     '--autoplay-policy=no-user-gesture-required',
     `--window-size=${width},${height}`,
+    ...sandboxFlags(),
     ...glFlags(gl, webgpu),
     ...extraArgs,
     'about:blank',
