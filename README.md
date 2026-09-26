@@ -57,7 +57,7 @@ Needs Node 22+ and Chrome or Chromium (Playwright and Puppeteer browsers are fou
 
 ## Tested where
 
-Windows 11 with Chrome 153 on an RTX 5060 Ti, where the WebGPU pages run on the real WebGPU backend, and a Linux container with Chromium 141 on SwiftShader, where three r186's WebGPU backend fails and the same pages run on the WebGL 2 fallback. Run `npm test`: unit tests, plus browser tests that check every template.
+Windows 11 with Chrome 153 on an RTX 5060 Ti, where the WebGPU pages run on the real WebGPU backend, and a Linux container with Chromium 141 on SwiftShader, where three r186's WebGPU backend fails and the same pages run on the WebGL 2 fallback. Run `npm test`: unit tests, plus browser tests that check every template. Templates with a build step (vite-ts, r3f, game-starter) are built and their `dist` checked when their own `node_modules` exists (`npm ci` in the template folder).
 
 ## Install
 

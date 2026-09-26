@@ -194,5 +194,10 @@ export function digestLogs(logs) {
   const noise = logs.console.length - real.length;
   const errors = real.filter((e) => e.type === 'error' || e.type === 'assert').map(fmt);
   const warnings = real.filter((e) => e.type === 'warning' || e.type === 'warn').map(fmt);
-  return { exceptions: logs.exceptions, errors, warnings, network: logs.network.map((n) => (n.status ? `${n.status} ${n.url}` : `${n.failed} ${n.url || ''}`.trim())), noise };
+  // Browsers ask for /favicon.ico on their own; a 404 there is not the page's fault.
+  const favicon = (n) => n.status === 404 && /^[^?#]*\/favicon\.ico([?#]|$)/.test(n.url || '');
+  const network = logs.network.filter((n) => !favicon(n));
+  // three's own deprecation warnings ("THREE.X: .y has been deprecated") mean stale API use.
+  const deprecations = warnings.filter((w) => /^THREE\./.test(w) && /deprecat/i.test(w));
+  return { exceptions: logs.exceptions, errors, warnings, deprecations, network: network.map((n) => (n.status ? `${n.status} ${n.url}` : `${n.failed} ${n.url || ''}`.trim())), noise: noise + logs.network.length - network.length };
 }

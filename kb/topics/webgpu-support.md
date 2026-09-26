@@ -44,7 +44,7 @@ related: [renderer-choice, webgpu-backend-check, headless-and-ci]
 
 ## Verify
 
-- `tw check <page>` prints `renderer: WebGPURenderer (WebGPU backend)` or `renderer: WebGPURenderer (WebGL2 fallback)`; use `--gl swiftshader` or the recipe in `webgpu-backend-check` to force and check the fallback path deliberately.
+- `tw check <page>` prints `renderer: WebGPURenderer (WebGPU)` or `renderer: WebGPURenderer (WebGL2 fallback)`; use `--gl swiftshader` or the recipe in `webgpu-backend-check` to force and check the fallback path deliberately.
 - `tw check <page> --eval "renderer.backend.compatibilityMode"` reports whether the adapter landed in compatibility mode; `true` means expect no MSAA.
 - `tw doctor` reports whether the local Chrome exposes a WebGPU adapter at all, which explains a fallback before you debug the page.
 

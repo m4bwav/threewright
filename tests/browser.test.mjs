@@ -11,6 +11,7 @@ import { dirname, join, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { findChrome } from '../scripts/lib/cdp.mjs';
 import { listTemplates } from '../scripts/lib/templates.mjs';
+import { cmdSpec } from '../scripts/lib/proc.mjs';
 
 const ROOT = resolve(dirname(fileURLToPath(import.meta.url)), '..');
 const TW = join(ROOT, 'scripts/tw.mjs');
@@ -37,6 +38,24 @@ for (const t of pageTemplates) {
     assert.ok(r.json.summary.scene && r.json.summary.scene.meshes > 0, 'a scene with meshes was observed');
     assert.ok(r.json.summary.camera, 'a camera was observed');
     assert.equal(r.code, 0);
+  });
+}
+
+// Templates with a build step: build, then check the built page. Runs only when the
+// template's own node_modules exists (npm ci in the template folder), so a plain
+// checkout stays fast.
+const buildTemplates = listTemplates(ROOT).filter((t) => existsSync(join(ROOT, t.path, 'package.json')));
+for (const t of buildTemplates) {
+  const dir = join(ROOT, t.path);
+  const noModules = !existsSync(join(dir, 'node_modules')) && `run npm ci in ${t.path} to test its build`;
+  test(`template ${t.name} builds and its dist passes tw check`, { skip: skip || noModules, timeout: 600000 }, () => {
+    const b = spawnSync(...cmdSpec('npm', ['run', 'build'], { cwd: dir, encoding: 'utf8', timeout: 300000 }));
+    assert.equal(b.status, 0, (b.stdout || '') + (b.stderr || ''));
+    const r = tw('check', join(dir, 'dist'), '--json', '--size', '640x360');
+    assert.ok(r.json, r.err || r.out);
+    const problems = [...r.json.logs.exceptions, ...r.json.logs.errors, ...r.json.logs.network, ...(r.json.summary.warn || [])];
+    assert.equal(r.json.ok, true, problems.join('\n'));
+    assert.ok(r.json.summary.scene && r.json.summary.scene.meshes > 0, 'a scene with meshes was observed');
   });
 }
 
@@ -70,4 +89,17 @@ test('scene prints a compact tree of the main scene', { skip, timeout: 300000 },
   assert.equal(r.code, 0, r.err);
   assert.match(r.out, /^Scene/m);
   assert.match(r.out, /Mesh "knot"/);
+});
+
+test('splat bounds come from the splat cloud, not its quad geometry', { skip, timeout: 300000 }, () => {
+  const r = tw('check', join(ROOT, 'templates/splats'), '--json', '--size', '480x270');
+  assert.equal(r.code, 0, r.err || r.out);
+  const [, sy] = r.json.summary.bounds.size.split(',').map(Number);
+  assert.ok(sy > 1, 'splat scene has height: ' + r.json.summary.bounds.size);
+});
+
+test('check --eval binds renderer from the page even when it is module scoped', { skip, timeout: 300000 }, () => {
+  const r = tw('check', join(ROOT, 'templates/html-importmap'), '--json', '--size', '480x270', '--eval', 'renderer.info.render.calls > 0');
+  assert.equal(r.code, 0, r.err || r.out);
+  assert.equal(r.json.eval, true);
 });

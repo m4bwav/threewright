@@ -4,6 +4,7 @@
 import { spawn } from 'node:child_process';
 import { readEntries } from './kb.mjs';
 import { listTemplates } from './templates.mjs';
+import { cmdSpec } from './proc.mjs';
 
 // -1, 0, 1 for semver-ish strings; prerelease sorts below its release.
 export function compareVersions(a, b) {
@@ -20,8 +21,7 @@ export function compareVersions(a, b) {
 
 function npmView(pkg) {
   return new Promise((resolveP) => {
-    const win = process.platform === 'win32';
-    const p = spawn(win ? 'npm.cmd' : 'npm', ['view', pkg, 'dist-tags', '--json'], { shell: win, stdio: ['ignore', 'pipe', 'ignore'] });
+    const p = spawn(...cmdSpec('npm', ['view', pkg, 'dist-tags', '--json'], { stdio: ['ignore', 'pipe', 'ignore'] }));
     let out = '';
     p.stdout.on('data', (d) => { out += d; });
     p.on('error', () => resolveP(null));

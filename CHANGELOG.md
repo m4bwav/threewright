@@ -5,6 +5,12 @@ Plugin versions. Skill-level changes are in each `skills/*/CHANGELOG.md`; the se
 ## Unreleased
 
 - `tw check --eval` binds `renderer`, `scene` and `camera` to the ones tw observed, so `--eval "renderer.info.render.calls"` works on pages that keep them module scoped (most do). The page's own globals still win.
+- `tw check` fails on three's own deprecation warnings (`THREE.X ... deprecated`), shown under their own heading; `--strict` also fails on any other console warning. Warnings from other libraries still only print by default.
+- `tw check` ignores a 404 for `/favicon.ico` (browsers request it on their own).
+- `tw check` bounds for `GaussianSplat` use the splat cloud, not its quad geometry.
+- npm is spawned without the Node 24 DEP0190 warning on Windows (`scripts/lib/proc.mjs`).
+- Browser tests build vite-ts, r3f and game-starter and check their `dist` when the template's `node_modules` exists.
+- New template: splats (r186 native `GaussianSplat`, generated sample scene), verified on WebGPU and on the WebGL 2 fallback.
 - WebGPU verified on the real backend (Windows, Chrome 153, RTX 5060 Ti): the html-webgpu template and the bloom-webgpu, tsl-custom-material and webgpu-backend-check recipes.
 - bloom-webgpu: lower emissive and bloom strength and add a directional light; the old values blew the whole frame out on both backends.
 

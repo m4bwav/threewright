@@ -14,6 +14,7 @@ import { dirname, join, resolve, sep } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { gunzipSync } from 'node:zlib';
 import { contentType } from './serve.mjs';
+import { cmdSpec } from './proc.mjs';
 
 const TW_ROOT = resolve(dirname(fileURLToPath(import.meta.url)), '../..');
 
@@ -95,8 +96,7 @@ export function untar(buf, dest) {
 function run(cmd, args, timeoutMs) {
   return new Promise((resolveP) => {
     let out = '', err = '';
-    const win = process.platform === 'win32';
-    const p = spawn(win ? cmd + '.cmd' : cmd, args, { shell: win, stdio: ['ignore', 'pipe', 'pipe'] });
+    const p = spawn(...cmdSpec(cmd, args, { stdio: ['ignore', 'pipe', 'pipe'] }));
     const t = setTimeout(() => { try { p.kill(); } catch { /* gone */ } }, timeoutMs);
     p.stdout.on('data', (d) => { out += d; });
     p.stderr.on('data', (d) => { err += d; });

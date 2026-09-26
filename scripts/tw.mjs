@@ -19,6 +19,7 @@ Verify a page (file, folder with index.html, or URL); text first, images on requ
   scene <page>          compact scene-graph tree (--depth 6 --max 80)
   check <page> --eval "<js>"   also print the value of an expression after the page settles
                         (renderer, scene and camera are bound to the main ones tw observed)
+  check <page> --strict        also fail on any console warning (three's own deprecation warnings always fail)
   shot <page> --out f.png [--canvas] [--alpha]   one screenshot; prints its token cost
   sheet <page> --out f.png [--views current,front,right,top]   several angles in one image
   video <page> --out f.mp4|.webm|.gif|.mov --seconds 5 --fps 30 [--alpha] [--frames-dir d]
@@ -81,10 +82,11 @@ function formatCheck(r) {
   sec('EXCEPTIONS', d.exceptions);
   sec('ERRORS', d.errors.concat(r.summary.errors || []));
   sec('FAILED REQUESTS', d.network);
-  sec('warnings', d.warnings);
+  sec('THREE DEPRECATIONS', d.deprecations || []);
+  sec('warnings', d.warnings.filter((w) => !(d.deprecations || []).includes(w)));
   sec('CHECK', [...(r.summary.warn || []), ...((r.pixels && r.pixels.warn) || [])]);
   sec('fix hints', r.hints);
-  L.push(r.ok ? 'result: OK (no exceptions, errors, failed requests or scene warnings)' : 'result: PROBLEMS FOUND');
+  L.push(r.ok ? 'result: OK (no exceptions, errors, failed requests, three deprecations or scene warnings)' : 'result: PROBLEMS FOUND');
   return L.join('\n');
 }
 
@@ -126,7 +128,7 @@ const commands = {
       const evaluated = a.eval ? await ctx.page.eval(evalWithTarget(String(a.eval))).catch(() => ctx.page.eval(String(a.eval))).catch((e) => 'eval failed: ' + e.message) : undefined;
       const logs = digestLogs(ctx.logs);
       const gl = await glString(ctx.page);
-      const ok = !logs.exceptions.length && !logs.errors.length && !logs.network.length && !(summary.errors || []).length && !(summary.warn || []).length && !(pixels && pixels.warn.length);
+      const ok = !logs.exceptions.length && !logs.errors.length && !logs.network.length && !logs.deprecations.length && !(a.strict && logs.warnings.length) && !(summary.errors || []).length && !(summary.warn || []).length && !(pixels && pixels.warn.length);
       const { hintsFor } = await import('./lib/hints.mjs');
       const hints = hintsFor([...logs.exceptions, ...logs.errors, ...logs.network, ...logs.warnings, ...(summary.errors || [])]);
       const r = { url: ctx.url, ok, gl, cdn: ctx.cdn.stats(), summary, pixels, logs, hints, ...(a.eval ? { eval: evaluated } : {}) };
@@ -210,7 +212,8 @@ const commands = {
       }
       try { rmSync(dir, { recursive: true, force: true }); } catch { /* ignore */ }
       const { spawnSync } = await import('node:child_process');
-      const npm = spawnSync(process.platform === 'win32' ? 'npm.cmd' : 'npm', ['--version'], { encoding: 'utf8', shell: process.platform === 'win32' });
+      const { cmdSpec } = await import('./lib/proc.mjs');
+      const npm = spawnSync(...cmdSpec('npm', ['--version'], { encoding: 'utf8' }));
       r.npm = npm.status === 0 ? npm.stdout.trim() : null;
       r.cache = (await import('./lib/cdn.mjs')).cacheRoot();
     }

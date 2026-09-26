@@ -34,10 +34,12 @@ related: [renderer-choice, loaders-and-assets, performance]
 
 ## Verify
 
-- `tw check <page>` reports the renderer/backend line; confirm it says `WebGPURenderer (WebGPU backend)` (or the WebGL 2 fallback deliberately, if that is the intent) before assuming a splat page is running the code path you think it is.
+- `tw check <page>` reports the renderer/backend line; confirm it says `WebGPURenderer (WebGPU)` (or the WebGL 2 fallback deliberately, if that is the intent) before assuming a splat page is running the code path you think it is.
+- tw's `bounds:` line uses `GaussianSplat.computeBoundingBox()`, which covers each splat's drawn extent. Before 2026-09-26 it read the splat's quad geometry and printed `size 4,4,0`.
 - `tw glb` does not read splat formats; use file size on disk plus the splat count your loader reports (most splat loaders expose a count after load) as the text-first check on scene weight, rather than a screenshot.
 - A visual check (`tw shot` or `tw sheet`) is appropriate once the load succeeded in text, since splat quality and artifacting are inherently visual questions.
 
 ## Notes
 
 - 2026-09-26: written from the scenarios research (section A5) and the direction research (section 4.1), with the r186 addon paths and class names checked against `node_modules/three/examples/jsm/objects/GaussianSplat.js` and `examples/jsm/loaders/` in the installed 0.186.1.
+- 2026-09-26: the `splats` template ran the native `GaussianSplat` with `SPLATLoader` on the real WebGPU backend (Chrome 153, RTX 5060 Ti) and on the WebGL 2 fallback (`--gl swiftshader`); both sorted and drew 24,000 splats correctly.

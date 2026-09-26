@@ -1,0 +1,12 @@
+{
+  "name": "splats",
+  "summary": "Gaussian splat viewer on the r186 native GaussianSplat (WebGPURenderer, WebGL 2 fallback): SPLATLoader, a generated 24,000-splat scene, load and error states, backend readout, auto-rotate off for reduced motion",
+  "renderer": "webgpu",
+  "three": "0.186.1",
+  "entry": "index.html",
+  "use_for": ["showing a small or medium splat capture on a page", "the base for mixing splats with TSL materials or node post-processing"],
+  "next": ["replace scene.splat with your capture and set SPLAT_URL (.ply, .spz and .ksplat have their own loaders)", "node <threewright>/scripts/tw.mjs check <dir> --webgpu", "large or streamed scenes: use Spark instead (tw kb show gaussian-splats)", "node make-splat.mjs rebuilds the sample file"],
+  "verified": [
+    { "date": "2026-09-26", "platform": "Windows 11, Chrome 153 headless, NVIDIA RTX 5060 Ti", "checks": "tw check --webgpu OK on the real WebGPU backend (page reports 24,000 splats), tw check --gl swiftshader OK on the WebGL 2 fallback, tw check --reduced-motion OK, tw lint clean, tw shot looked at on both backends: striped sphere, petal ring and ground disc, sorted correctly" }
+  ]
+}

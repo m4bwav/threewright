@@ -41,7 +41,7 @@ template: html-importmap
 
 ## Verify
 
-- `tw check <page>` prints the renderer on its second line, e.g. `renderer: WebGPURenderer (WebGPU backend)` or `renderer: WebGPURenderer (WebGL2 fallback)`; confirm it matches the renderer you intended.
+- `tw check <page>` prints the renderer on its second line, e.g. `renderer: WebGPURenderer (WebGPU)` or `renderer: WebGPURenderer (WebGL2 fallback)`; confirm it matches the renderer you intended.
 - `tw check <page> --eval "renderer.backend.isWebGPUBackend"` returns the actual backend in use (see `webgpu-backend-check`).
 - `tw lint <dir>` flags a WebGPU page that imports a WebGL-only post-processing or text library, or that constructs `ShaderMaterial`/`onBeforeCompile` alongside `WebGPURenderer` (rules `shadermaterial-on-webgpu`, `effectcomposer-on-webgpu`).
 

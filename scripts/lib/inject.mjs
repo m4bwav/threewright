@@ -302,7 +302,7 @@ function pageMain(cfg) {
       if (!g.boundingBox) { try { g.computeBoundingBox(); } catch { return; } }
       if (!g.boundingBox || g.boundingBox.isEmpty()) return;
       const b = g.boundingBox.clone().applyMatrix4(o.matrixWorld);
-      if (o.isInstancedMesh && typeof o.computeBoundingBox === 'function') { try { o.computeBoundingBox(); if (o.boundingBox) b.copy(o.boundingBox).applyMatrix4(o.matrixWorld); } catch { /* ignore */ } }
+      if ((o.isInstancedMesh || o.isGaussianSplat) && typeof o.computeBoundingBox === 'function') { try { o.computeBoundingBox(); if (o.boundingBox) b.copy(o.boundingBox).applyMatrix4(o.matrixWorld); } catch { /* ignore */ } }
       box = box ? box.union(b) : b;
     });
     return box;

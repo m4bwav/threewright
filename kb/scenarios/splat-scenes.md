@@ -33,7 +33,8 @@ template: html-webgpu
 
 ## Build
 
-- No dedicated splat-viewer template exists yet (`splats` is planned but not built). Start from `tw new html-webgpu <dir>` for the native r186 path, or `tw new html-importmap <dir>` plus `@sparkjsdev/spark` for the Spark path.
+- Native r186 path: `tw new splats <dir>` copies a verified viewer (`SPLATLoader`, `GaussianSplat`, load and error states, backend readout). Swap `scene.splat` for your capture. It was checked on the real WebGPU backend and on the WebGL 2 fallback on 2026-09-26.
+- Spark path: no template yet. Start from `tw new html-importmap <dir>` and add `@sparkjsdev/spark`.
 - Format choice on delivery: `.ply` is raw and huge (avoid shipping it to end users); `.spz` (Niantic, ZSTD-compressed, about 10x smaller than PLY) is the current default delivery format; `.sog` (PlayCanvas, WebP-based, 15 to 20x smaller than PLY, with a streamed LoD variant) is worth using when the `playcanvas/splat-transform` tool fits the pipeline; `.rad` is Spark 2.0's own streaming format; glTF with `KHR_gaussian_splatting` fits a pipeline that mixes meshes and splats in one asset.
 - Budget visible splats per device: roughly 0.5 to 1M on mobile, 2 to 3M on desktop (derived from Spark's own LoD budgets; treat as guidance, not a hard spec).
 - Sorting cost scales with splat count regardless of engine; a scene that looks fine at a fixed camera angle can still be slow once the viewer starts orbiting and the sort has to re-run continuously.
@@ -55,3 +56,4 @@ template: html-webgpu
 ## Notes
 
 - 2026-09-26: written from the 2026-09-26 research (scenarios-xr-and-testing A5, direction section 4.1). Spark's official WebGPU support, KHR_gaussian_splatting's compression companion extensions, and which delivery format wins are all flagged as likely to change.
+- 2026-09-26: the `splats` template now exists and is verified on WebGPU (Chrome 153, RTX 5060 Ti) and on the WebGL 2 fallback.

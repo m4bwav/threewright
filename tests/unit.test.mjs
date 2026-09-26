@@ -7,7 +7,8 @@ import { dirname, join, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
 import { parseArgs, list } from '../scripts/lib/args.mjs';
-import { imageFit, parseSize, evalWithTarget } from '../scripts/lib/page.mjs';
+import { imageFit, parseSize, evalWithTarget, digestLogs } from '../scripts/lib/page.mjs';
+import { cmdSpec, quoteWin } from '../scripts/lib/proc.mjs';
 import vm from 'node:vm';
 import { hintsFor } from '../scripts/lib/hints.mjs';
 import { safeJoin, contentType } from '../scripts/lib/serve.mjs';
@@ -273,4 +274,25 @@ test('eval: renderer, scene and camera come from the page globals, else from __t
   assert.equal(vm.runInContext(evalWithTarget('1 + 1 // trailing comment'), ctx), 2);
   delete ctx.__tw;
   assert.equal(vm.runInContext(evalWithTarget('typeof renderer'), ctx), 'undefined');
+});
+
+test('proc: Windows gets one quoted command string with shell, others get args', () => {
+  assert.deepEqual(cmdSpec('npm', ['view', 'three', '--json'], { stdio: 'pipe' }, 'linux'), ['npm', ['view', 'three', '--json'], { stdio: 'pipe' }]);
+  assert.deepEqual(cmdSpec('npm', ['pack', 'three@0.186.1', 'a b'], {}, 'win32'), ['npm.cmd pack three@0.186.1 "a b"', [], { shell: true }]);
+  assert.equal(quoteWin('say "hi"'), '"say ""hi"""');
+});
+
+test('digest: favicon 404 is noise, three deprecation warnings are singled out', () => {
+  const d = digestLogs({
+    console: [
+      { type: 'warning', text: 'THREE.Clock: This module has been deprecated. Please use THREE.Timer instead.' },
+      { type: 'warning', text: 'some library: deprecated option' },
+    ],
+    exceptions: [],
+    network: [{ status: 404, url: 'http://127.0.0.1:5173/favicon.ico' }, { status: 404, url: 'http://127.0.0.1:5173/model.glb' }],
+    counts: {},
+  });
+  assert.deepEqual(d.network, ['404 http://127.0.0.1:5173/model.glb']);
+  assert.equal(d.deprecations.length, 1);
+  assert.equal(d.warnings.length, 2);
 });
