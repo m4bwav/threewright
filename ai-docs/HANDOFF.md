@@ -8,7 +8,7 @@ An expansive evergreen three.js plugin: skills plus a knowledge base plus token-
 
 ## State (2026-09-26, after the fifth session; v0.4.0)
 
-Everything is on `main`, with no side branches. Tags `v0.1.0` to `v0.4.0` are pushed. No GitHub Release exists yet for any of them.
+Everything is on `main`, with no side branches. Tags `v0.1.0` to `v0.4.0` are pushed, each with a GitHub Release (notes from CHANGELOG.md; v0.4.0 is Latest).
 
 Done and verified:
 - CLI: see README and `node scripts/tw.mjs --help`. `npm test` passes 57/57 on Windows 11 with Chrome 153 and an RTX 5060 Ti. Browser tests build vite-ts, r3f and game-starter when their `node_modules` exists (`npm ci` in the template folder).
@@ -21,9 +21,8 @@ Done and verified:
 
 ## Not done (in order)
 
-1. Publish GitHub Releases for `v0.1.0` to `v0.4.0`. The agent's auto-mode classifier blocked `gh release create` again this session ("Create Public Surface"), so the owner runs it or allows it. Notes are the matching CHANGELOG.md sections, e.g. `sed -n '/^## 0.3.0/,/^## 0.2.0/p' CHANGELOG.md | sed '1d;$d' > n.md && gh release create v0.3.0 --title "threewright 0.3.0" --latest --notes-file n.md` (the `--latest` one is the newest tag, v0.4.0).
-2. Run each skill's evals from a fresh session after installing the plugin (a plugin installed mid-session is invisible to that session's Skill tool). Fill in the baselines and record the results in TESTS.md and evergreen.json.
-3. The tools research list is done except XR emulation (IWER `--xr quest3`), left for when an XR template exists.
+1. Run each skill's evals from a fresh session after installing the plugin (a plugin installed mid-session is invisible to that session's Skill tool). Fill in the baselines and record the results in TESTS.md and evergreen.json.
+2. The tools research list is done except XR emulation (IWER `--xr quest3`), left for when an XR template exists.
 
 ## Gotchas
 
@@ -38,4 +37,5 @@ Done and verified:
 - Release numbers from memory and from research notes were wrong several times: check npm tarballs (`npm pack three@<v> --dry-run --json`) or the installed source.
 - Bash heredocs on this machine turn `\\` into `\` even when quoted, and `\n` inside a heredoc-fed Python string became a real newline in tw.mjs this session. Write edit scripts with the Write tool, then run them.
 - Never stop a test server with `taskkill /IM python.exe`; kill it by PID.
+- Releases: `gh release create` is blocked by the agent's auto-mode classifier unless the owner explicitly says to run it; then use the CHANGELOG section as notes (`sed -n '/^## X.Y.Z/,/^## <previous>/p' CHANGELOG.md | sed '1d;$d'`) and `--latest` only on the newest tag.
 - No AI attribution anywhere: commits and files carry none.

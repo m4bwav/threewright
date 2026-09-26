@@ -43,3 +43,7 @@
 - Installed KTX-Software 4.4.2 per user from the signed GitHub release (`/S /D=%LOCALAPPDATA%\Programs\KTX-Software`, no admin; bin added to the user PATH). gltf-transform 4.5.0 `etc1s` and `uastc` ran against a generated textured quad; `validate` clean.
 - Built the remaining tools-research items: `sheet --sweep`, the `advanceTime(ms)` video driver, and sharing an existing `__THREE_DEVTOOLS__` hook. XR emulation stays open.
 - `npm test`: 57/57. Version 0.4.0.
+
+## 2026-09-26: releases published
+
+- On the owner's explicit request, created GitHub Releases for v0.1.0 to v0.4.0 with notes from CHANGELOG.md; v0.4.0 is Latest.
