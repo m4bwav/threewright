@@ -42,7 +42,7 @@ world.addBody(body);
 
 ## Pitfalls
 
-- No feature or security fixes since 2022; do not add it to a new project even for "just a quick physics toy" — Rapier's compat build is nearly as simple to set up and is actively maintained.
+- No feature or security fixes since 2022; do not add it to a new project even for "just a quick physics toy"; Rapier's compat build is nearly as simple to set up and is actively maintained.
 - `@react-three/cannon` and `use-cannon` inherit the same staleness; a React project should move to `@react-three/rapier` instead, not to a newer cannon wrapper (there is none).
 - If migrating an existing cannon-es project, expect to rewrite body and shape construction: Rapier's API (colliders, rigid-body descriptors) is not a drop-in replacement for cannon's `Body`/`Shape` classes.
 

@@ -29,10 +29,10 @@ template: html-importmap
 
 ## Build
 
-- Start from `tw new html-importmap <dir>` — the exemplar for exactly this deliverable, verified with `tw check`, `tw sheet` and `tw video`.
+- Start from `tw new html-importmap <dir>`; the exemplar for exactly this deliverable, verified with `tw check`, `tw sheet` and `tw video`.
 - Lighting must not depend on a runtime CDN fetch that could be blocked in a sandboxed preview: use `RoomEnvironment` through PMREM, or plain lights, rather than an HDR fetched from a third-party host at page load. This mirrors the same offline-safety rule the `react-three-fiber` entry gives for drei's `Environment preset`.
 - Keep the page's own asset footprint small: any GLB, texture or HDR referenced from the artifact needs to be fetchable from wherever the artifact is actually served; do not assume arbitrary cross-origin fetches will succeed in every viewing context.
-- If the artifact is meant to be screenshotted or described back to the model (a chart whose data matters), pair the canvas with a real HTML data table or a text summary in the same page, the same accessibility rule the `3d-chart-in-docs` scenario gives — this also means a reader who cannot see the canvas still gets the information.
+- If the artifact is meant to be screenshotted or described back to the model (a chart whose data matters), pair the canvas with a real HTML data table or a text summary in the same page, the same accessibility rule the `3d-chart-in-docs` scenario gives; this also means a reader who cannot see the canvas still gets the information.
 
 ## Pitfalls
 

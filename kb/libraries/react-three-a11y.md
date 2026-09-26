@@ -37,7 +37,7 @@ import { A11yUserPreferences, A11y } from '@react-three/a11y';
 ## Pitfalls
 
 - Its peer range (`fiber >=8`) predates R3F 9's changes; even if you wanted to use it, expect peer-dependency conflicts on a current project.
-- Do not treat its existence as evidence that "3D accessibility is solved" — it solved a narrow slice (focus rings and ARIA-like roles on R3F meshes) and has not kept pace with anything since.
+- Do not treat its existence as evidence that "3D accessibility is solved"; it solved a narrow slice (focus rings and ARIA-like roles on R3F meshes) and has not kept pace with anything since.
 
 ## Notes
 

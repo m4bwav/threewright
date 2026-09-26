@@ -34,7 +34,7 @@ template: html-importmap
 ## Build
 
 - No verified `scroll-hero` template exists yet (it is planned but not built). Start from `tw new html-importmap <dir>` for vanilla, or `tw new r3f <dir>` for React, and add the scroll stack by hand.
-- One persistent canvas, fixed behind the DOM — never one canvas per section.
+- One persistent canvas, fixed behind the DOM; never one canvas per section.
 - Drive a GSAP timeline from scroll progress; scrub camera position and material uniforms from it. Keep scroll logic out of the render loop itself; read a progress value inside the loop instead.
 - Sync Lenis to the GSAP ticker so only one `requestAnimationFrame` loop runs the whole page: `gsap.ticker.add((time) => lenis.raf(time * 1000))`, call `ScrollTrigger.update` on Lenis's `scroll` event, and set `gsap.ticker.lagSmoothing(0)`.
 - drei `ScrollControls` builds an HTML scroll container over the canvas; `pages` sets its height in viewport units, and `useScroll().range()`/`curve()` map sections to progress values.

@@ -29,7 +29,7 @@ version_checked: "4.1.1"
 
 ## Setup
 
-Versions checked 2026-09-26: `plotly.js` 4.1.1 (2026-09-14); `plotly.js-gl3d-dist-min` (3D-only bundle) and `plotly.js-dist-min` are separate npm packages built from the same source. v4.0.0 (2026-08-24) changed `hoveranywhere`/`clickanywhere` event values (date and category axes now return strings), removed mapbox traces, switched color parsing to culori, and changed the `geo.fitbounds` default — check any code migrating from 3.x against these.
+Versions checked 2026-09-26: `plotly.js` 4.1.1 (2026-09-14); `plotly.js-gl3d-dist-min` (3D-only bundle) and `plotly.js-dist-min` are separate npm packages built from the same source. v4.0.0 (2026-08-24) changed `hoveranywhere`/`clickanywhere` event values (date and category axes now return strings), removed mapbox traces, switched color parsing to culori, and changed the `geo.fitbounds` default; check any code migrating from 3.x against these.
 
 ```sh
 npm install plotly.js-gl3d-dist-min@4.1.1

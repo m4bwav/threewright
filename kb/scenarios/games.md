@@ -35,14 +35,14 @@ template: game-starter
 
 ## Build
 
-- `templates-wip/game-starter` (Vite, TypeScript, Rapier 0.21.0, tests) exists but is **unverified** — it has no `template.json` yet and has not passed `tw check`/`tw lint`/a looked-at `tw shot`. Read it for the intended shape, but confirm each piece against current `tw check` output before relying on it.
+- `templates-wip/game-starter` (Vite, TypeScript, Rapier 0.21.0, tests) exists but is **unverified**; it has no `template.json` yet and has not passed `tw check`/`tw lint`/a looked-at `tw shot`. Read it for the intended shape, but confirm each piece against current `tw check` output before relying on it.
 - Loop: accumulate real time, step physics in fixed ticks (`STEP = 1/60`, capped at `MAX_STEPS = 4`), render once per frame with interpolation between the last two states. Use `THREE.Timer` with `connect(document)`, never `THREE.Clock` (deprecated r183) or `setInterval`.
 - Physics: Rapier's `KinematicCharacterController` for the player (autostep, snap-to-ground, slope limits), dynamic bodies for props, colliders built from simplified collision meshes (never the render mesh). Use contact events and scene queries for gameplay collisions, never distance checks.
 - Input: a small action map (`moveX`, `moveY`, `jump`, `fire`, ...) sampled once per fixed tick from keyboard (`event.code`), gamepad (`navigator.getGamepads()` polled every frame, no change events), and touch (nipplejs on coarse pointers). Pointer lock only after a click; losing it means pause.
 - Assets: glTF only, optimized with `gltf-transform optimize` or `gltfpack`; clone skinned characters with `SkeletonUtils.clone`, never a plain `.clone()`. Credit CC0 sources (Kenney, Quaternius, Poly Haven) even when no attribution is legally required.
 - Seeded randomness only (mulberry32 or sfc32) in any code that affects gameplay or level generation; never `Math.random()` or `Date.now()` in simulation code.
 - Stay inside a performance preset: InstancedMesh/BatchedMesh for repeats, one shadow-casting `SunLight` (r186 addon) for outdoor scenes, `compileAsync` to warm shaders before play, no allocation in update code.
-- Test hooks: expose `window.__game` with `state()`, `pause(on)`, `step(n)`, `hash()` (a snapshot hash), `restart(seed)` and `perf()`. Freeze the clock **before** `page.goto()` (Playwright's `clock.install()` then `pauseAt()`) — pausing after load still lets real time leak into the first several ticks, which was measured to change the tick count and hash on reload.
+- Test hooks: expose `window.__game` with `state()`, `pause(on)`, `step(n)`, `hash()` (a snapshot hash), `restart(seed)` and `perf()`. Freeze the clock **before** `page.goto()` (Playwright's `clock.install()` then `pauseAt()`); pausing after load still lets real time leak into the first several ticks, which was measured to change the tick count and hash on reload.
 - Multiplayer, if needed: authoritative server (Colyseus 0.18 is the default choice), client prediction with input replay, snapshot interpolation for remote entities, never trust client positions.
 
 ## Pitfalls

@@ -29,7 +29,7 @@ version_checked: "0.52.5"
 
 ## Setup
 
-Versions checked 2026-09-26: `troika-three-text` 0.52.5 on `latest`; 0.53.0 exists but is untagged (adds `styleRanges` and Safari fixes) — install it explicitly by version if you need those fixes ahead of the next `latest` bump.
+Versions checked 2026-09-26: `troika-three-text` 0.52.5 on `latest`; 0.53.0 exists but is untagged (adds `styleRanges` and Safari fixes); install it explicitly by version if you need those fixes ahead of the next `latest` bump.
 
 ```sh
 npm install troika-three-text@0.52.5

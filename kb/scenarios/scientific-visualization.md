@@ -26,7 +26,7 @@ template: html-webgpu
 | need | first choice | when to hand-roll in three.js |
 |---|---|---|
 | volume rendering | `Data3DTexture` plus a raymarching shader (`webgl2_materials_texture3d` for WebGL2, a WebGPU volume node material for the WebGPU path) | custom transfer functions, integration with a larger scene |
-| clinical-grade neuroimaging | NiiVue (WebGL2, not three.js; specialist tool) | rarely — use the specialist tool |
+| clinical-grade neuroimaging | NiiVue (WebGL2, not three.js; specialist tool) | rarely; use the specialist tool |
 | molecular viewers | Mol* (the reference web viewer, its own WebGL renderer) or 3Dmol.js (lighter, forked from GLmol) | custom molecular art: instanced spheres and cylinders, or impostor sphere shaders, in three.js |
 | massive point clouds | Potree 1.8 (WebGL, three.js-based) via `potree-core` or `pnext/three-loader`; watch Potree-Next (WebGPU rewrite, not yet mature) | small to medium clouds that fit in memory as a single `THREE.Points` |
 

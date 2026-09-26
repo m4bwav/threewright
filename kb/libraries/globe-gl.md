@@ -25,7 +25,7 @@ version_checked: "2.46.2"
 ## Avoid it when
 
 - The globe must live inside a larger three.js scene you already own (custom camera rig, other objects sharing the renderer): use `three-globe` directly (globe.gl's underlying object) and add it to your own scene graph instead of letting globe.gl own the canvas.
-- WebGPU support is required: whether it is exposed is unverified — its `three-render-objects` dependency (1.42.0) has a `useWebGPU` option, but whether globe.gl surfaces it is unconfirmed. Treat this stack as WebGL until checked directly.
+- WebGPU support is required: whether it is exposed is unverified; its `three-render-objects` dependency (1.42.0) has a `useWebGPU` option, but whether globe.gl surfaces it is unconfirmed. Treat this stack as WebGL until checked directly.
 
 ## Setup
 

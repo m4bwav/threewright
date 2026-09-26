@@ -60,7 +60,7 @@ import { EffectComposer, Bloom, N8AO } from '@react-three/postprocessing';
 
 - v6's cap is `<0.187.0`; when three ships r187, this package needs a new release before it will install cleanly against it. Check the peer range against the exact `three` version in the project before assuming it works.
 - It replaces the renderer's own render call; do not also call `renderer.render(scene, camera)` directly once `composer.render()` is wired into the loop, or the scene renders twice.
-- `@react-three/postprocessing`'s `N8AO` depends on `n8ao`, which itself states it is "not yet compatible with WebGPU" — the whole chain is WebGL only.
+- `@react-three/postprocessing`'s `N8AO` depends on `n8ao`, which itself states it is "not yet compatible with WebGPU"; the whole chain is WebGL only.
 - Mixing this with three's own `EffectComposer` passes in the same pipeline is not supported; pick one post-processing system per scene.
 
 ## Notes

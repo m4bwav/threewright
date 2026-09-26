@@ -19,15 +19,15 @@ template: r3f
 
 - A page must show a single product model, let a visitor orbit it, and optionally view it in AR on their own device (furniture, footwear, jewelry, electronics).
 - The product has a small number of material or color variants baked into one GLB (`KHR_materials_variants`), such as a shoe in several colorways.
-- A real configurator needs rules and pricing beyond swapping textures: multiple parts, incompatible option combinations, a running price — that is a job for custom three.js or React Three Fiber, not `<model-viewer>`.
+- A real configurator needs rules and pricing beyond swapping textures: multiple parts, incompatible option combinations, a running price; that is a job for custom three.js or React Three Fiber, not `<model-viewer>`.
 
 ## Stack
 
 | need | first choice | when to hand-roll |
 |---|---|---|
 | show a GLB, allow AR, swap named variants | `@google/model-viewer` (built on three.js) | custom UI, custom shaders, many interactive parts, or a rules-and-pricing configurator |
-| React product viewer with drei helpers | React Three Fiber + drei `Stage`, `Environment`, `ContactShadows`, `Bounds` | — |
-| vanilla, full control | three.js `WebGLRenderer` + `camera-controls` (or `OrbitControls`) + `GLTFLoader` with Meshopt and KTX2 | — |
+| React product viewer with drei helpers | React Three Fiber + drei `Stage`, `Environment`, `ContactShadows`, `Bounds` |; |
+| vanilla, full control | three.js `WebGLRenderer` + `camera-controls` (or `OrbitControls`) + `GLTFLoader` with Meshopt and KTX2 |; |
 | hero stills for marketing | `three-gpu-pathtracer` on top of the same scene | not real time; use for a still, not the live viewer |
 
 - `WebGLRenderer` is the renderer default here: MSAA works everywhere, compatibility-mode WebGPU turns MSAA off, and the PBR look is identical on both renderers, so there is no reason to pay WebGPU's larger bundle for this scenario (`renderer-choice`).

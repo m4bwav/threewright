@@ -2,6 +2,223 @@
  "generated_by": "tw kb index",
  "entries": [
   {
+   "slug": "accessibility",
+   "kind": "topic",
+   "path": "topics/accessibility.md",
+   "title": "Accessibility for three.js pages",
+   "summary": "Naming the canvas, keyboard orbit, reduced motion, colorblind-safe data color, and the DOM table every information-carrying scene needs.",
+   "tags": [
+    "accessibility",
+    "aria",
+    "reduced motion",
+    "keyboard",
+    "wcag",
+    "canvas",
+    "colorblind"
+   ],
+   "applies_to": "any",
+   "status": "current",
+   "renderer": "both",
+   "last_verified": "2026-09-26",
+   "sections": [
+    "Essentials",
+    "Pitfalls",
+    "Verify",
+    "Notes"
+   ],
+   "bytes": 5102
+  },
+  {
+   "slug": "agent-tooling",
+   "kind": "topic",
+   "path": "topics/agent-tooling.md",
+   "title": "Agent tooling for three.js",
+   "summary": "What the general and three.js-specific MCP servers give an agent, why tw stays a plain CLI, and the text-first token budget rules for verifying a scene.",
+   "tags": [
+    "mcp",
+    "agent",
+    "devtools",
+    "token budget",
+    "screenshot",
+    "tw"
+   ],
+   "applies_to": "any",
+   "status": "current",
+   "renderer": "both",
+   "last_verified": "2026-09-26",
+   "sections": [
+    "Essentials",
+    "Pitfalls",
+    "Verify",
+    "Notes"
+   ],
+   "bytes": 5769
+  },
+  {
+   "slug": "animation-and-time",
+   "kind": "topic",
+   "path": "topics/animation-and-time.md",
+   "title": "Animation and time",
+   "summary": "THREE.Timer replaces Clock, drive motion from elapsed time or delta, and the fixed-timestep pattern for simulation.",
+   "tags": [
+    "timer",
+    "clock",
+    "animation",
+    "delta",
+    "setAnimationLoop",
+    "mixer",
+    "fixed timestep"
+   ],
+   "applies_to": ">=r183",
+   "status": "current",
+   "renderer": "both",
+   "last_verified": "2026-09-26",
+   "template": "html-importmap",
+   "sections": [
+    "Essentials",
+    "Pitfalls",
+    "Verify",
+    "Notes"
+   ],
+   "bytes": 4284
+  },
+  {
+   "slug": "bundle-size",
+   "kind": "topic",
+   "path": "topics/bundle-size.md",
+   "title": "Bundle size",
+   "summary": "Measured gzip sizes for each entry point and build file in r186, and why WebGPU costs about 1.6x WebGL for a minimal scene.",
+   "tags": [
+    "bundle size",
+    "gzip",
+    "tree shaking",
+    "import map",
+    "webgpu",
+    "webgl"
+   ],
+   "applies_to": "r186",
+   "status": "current",
+   "renderer": "both",
+   "last_verified": "2026-09-26",
+   "sections": [
+    "Essentials",
+    "Pitfalls",
+    "Verify",
+    "Notes"
+   ],
+   "bytes": 4665
+  },
+  {
+   "slug": "cameras-and-controls",
+   "kind": "topic",
+   "path": "topics/cameras-and-controls.md",
+   "title": "Cameras and controls",
+   "summary": "Perspective versus orthographic cameras, OrbitControls setup and its default keyboard behavior, and which controls fit which interaction.",
+   "tags": [
+    "camera",
+    "orbitcontrols",
+    "perspective",
+    "orthographic",
+    "controls",
+    "keyboard"
+   ],
+   "applies_to": ">=r175",
+   "status": "current",
+   "renderer": "both",
+   "last_verified": "2026-09-26",
+   "template": "html-importmap",
+   "sections": [
+    "Essentials",
+    "Pitfalls",
+    "Verify",
+    "Notes"
+   ],
+   "bytes": 5001
+  },
+  {
+   "slug": "color-management",
+   "kind": "topic",
+   "path": "topics/color-management.md",
+   "title": "Color management",
+   "summary": "Color space tags for renderer output and textures, tone mapping, and the light-intensity change that makes old scenes look wrong.",
+   "tags": [
+    "color space",
+    "srgb",
+    "tone mapping",
+    "colorManagement",
+    "texture",
+    "encoding",
+    "gltf"
+   ],
+   "applies_to": ">=r152",
+   "status": "current",
+   "renderer": "both",
+   "last_verified": "2026-09-26",
+   "template": "html-importmap",
+   "sections": [
+    "Essentials",
+    "Pitfalls",
+    "Verify",
+    "Notes"
+   ],
+   "bytes": 4847
+  },
+  {
+   "slug": "gaussian-splats",
+   "kind": "topic",
+   "path": "topics/gaussian-splats.md",
+   "title": "Gaussian splats",
+   "summary": "The native r186 splat renderer versus Spark, splat file formats, and which one to reach for by scene size.",
+   "tags": [
+    "gaussian splat",
+    "spark",
+    "ply",
+    "spz",
+    "ksplat",
+    "splat",
+    "radiance fields"
+   ],
+   "applies_to": "r186",
+   "status": "current",
+   "renderer": "webgpu",
+   "last_verified": "2026-09-26",
+   "sections": [
+    "Essentials",
+    "Pitfalls",
+    "Verify",
+    "Notes"
+   ],
+   "bytes": 5689
+  },
+  {
+   "slug": "headless-and-ci",
+   "kind": "topic",
+   "path": "topics/headless-and-ci.md",
+   "title": "Headless three.js and CI",
+   "summary": "What runs a three.js page without a real GPU, the SwiftShader flag Chrome now requires, and why WebGPU often silently falls back in CI.",
+   "tags": [
+    "headless",
+    "ci",
+    "swiftshader",
+    "puppeteer",
+    "playwright",
+    "webgl",
+    "webgpu",
+    "xvfb"
+   ],
+   "applies_to": "any",
+   "status": "current",
+   "renderer": "both",
+   "last_verified": "2026-09-26",
+   "sections": [
+    "Essentials",
+    "Pitfalls",
+    "Verify",
+    "Notes"
+   ],
+   "bytes": 5122
+  },
+  {
    "slug": "import-maps-and-builds",
    "kind": "topic",
    "path": "topics/import-maps-and-builds.md",
@@ -34,6 +251,392 @@
    "bytes": 5782
   },
   {
+   "slug": "lighting-and-shadows",
+   "kind": "topic",
+   "path": "topics/lighting-and-shadows.md",
+   "title": "Lighting and shadows",
+   "summary": "Physical light types and units, shadow map setup on both renderers, and SunLight for large outdoor scenes.",
+   "tags": [
+    "lights",
+    "shadows",
+    "shadowmap",
+    "sunlight",
+    "csm",
+    "pcf",
+    "decay",
+    "intensity"
+   ],
+   "applies_to": ">=r165",
+   "status": "current",
+   "renderer": "both",
+   "last_verified": "2026-09-26",
+   "template": "html-importmap",
+   "sections": [
+    "Essentials",
+    "Pitfalls",
+    "Verify",
+    "Notes"
+   ],
+   "bytes": 5416
+  },
+  {
+   "slug": "llm-mistakes",
+   "kind": "topic",
+   "path": "topics/llm-mistakes.md",
+   "title": "How LLMs get three.js wrong",
+   "summary": "The recurring mistake classes models make writing three.js code, ordered by frequency, with the r186 fix for each.",
+   "tags": [
+    "llm",
+    "mistakes",
+    "stale api",
+    "hallucination",
+    "lint",
+    "era mixing"
+   ],
+   "applies_to": "r186",
+   "status": "current",
+   "renderer": "both",
+   "last_verified": "2026-09-26",
+   "sections": [
+    "Essentials",
+    "Pitfalls",
+    "Verify",
+    "Notes"
+   ],
+   "bytes": 5962
+  },
+  {
+   "slug": "loaders-and-assets",
+   "kind": "topic",
+   "path": "topics/loaders-and-assets.md",
+   "title": "Loaders and asset formats",
+   "summary": "Which loader to use for a format in r186, current names for renamed HDR and text loaders, and the decoders glTF needs.",
+   "tags": [
+    "loader",
+    "gltf",
+    "draco",
+    "ktx2",
+    "meshopt",
+    "hdr",
+    "gltfloader",
+    "decoder"
+   ],
+   "applies_to": ">=r180",
+   "status": "current",
+   "renderer": "both",
+   "last_verified": "2026-09-26",
+   "template": "html-importmap",
+   "sections": [
+    "Essentials",
+    "Pitfalls",
+    "Verify",
+    "Notes"
+   ],
+   "bytes": 5183
+  },
+  {
+   "slug": "materials",
+   "kind": "topic",
+   "path": "topics/materials.md",
+   "title": "Materials on WebGLRenderer and WebGPURenderer",
+   "summary": "Which material classes work on which renderer, PBR basics, and the custom-shader paths that split between GLSL and TSL.",
+   "tags": [
+    "material",
+    "meshstandardmaterial",
+    "nodematerial",
+    "pbr",
+    "shadermaterial",
+    "webgpu"
+   ],
+   "applies_to": ">=r181",
+   "status": "current",
+   "renderer": "both",
+   "last_verified": "2026-09-26",
+   "template": "html-importmap",
+   "sections": [
+    "Essentials",
+    "Pitfalls",
+    "Verify",
+    "Notes"
+   ],
+   "bytes": 4845
+  },
+  {
+   "slug": "memory-and-disposal",
+   "kind": "topic",
+   "path": "topics/memory-and-disposal.md",
+   "title": "Memory and disposal",
+   "summary": "What needs dispose() when you remove it, the new Object3D.dispose() in r186, and how to catch a leak in text before it shows up as a crash.",
+   "tags": [
+    "dispose",
+    "memory",
+    "leak",
+    "geometry",
+    "texture",
+    "render target",
+    "renderer.info"
+   ],
+   "applies_to": ">=r186",
+   "status": "current",
+   "renderer": "both",
+   "last_verified": "2026-09-26",
+   "template": "html-importmap",
+   "sections": [
+    "Essentials",
+    "Pitfalls",
+    "Verify",
+    "Notes"
+   ],
+   "bytes": 4619
+  },
+  {
+   "slug": "performance",
+   "kind": "topic",
+   "path": "topics/performance.md",
+   "title": "Performance budgets and techniques",
+   "summary": "Draw call and triangle budgets by target device, instancing and batching, and the measurements that catch a slow scene in text.",
+   "tags": [
+    "performance",
+    "draw calls",
+    "instancedmesh",
+    "batchedmesh",
+    "budget",
+    "pixel ratio",
+    "lod"
+   ],
+   "applies_to": ">=r183",
+   "status": "current",
+   "renderer": "both",
+   "last_verified": "2026-09-26",
+   "template": "html-importmap",
+   "sections": [
+    "Essentials",
+    "Pitfalls",
+    "Verify",
+    "Notes"
+   ],
+   "bytes": 5159
+  },
+  {
+   "slug": "post-processing",
+   "kind": "topic",
+   "path": "topics/post-processing.md",
+   "title": "Post-processing on both renderers",
+   "summary": "EffectComposer for WebGLRenderer versus RenderPipeline and TSL display nodes for WebGPURenderer, and why they never mix.",
+   "tags": [
+    "post-processing",
+    "effectcomposer",
+    "renderpipeline",
+    "bloom",
+    "tsl",
+    "outputpass"
+   ],
+   "applies_to": ">=r183",
+   "status": "current",
+   "renderer": "both",
+   "last_verified": "2026-09-26",
+   "template": "html-importmap",
+   "sections": [
+    "Essentials",
+    "Pitfalls",
+    "Verify",
+    "Notes"
+   ],
+   "bytes": 4875
+  },
+  {
+   "slug": "raycasting-and-picking",
+   "kind": "topic",
+   "path": "topics/raycasting-and-picking.md",
+   "title": "Raycasting and picking",
+   "summary": "Screen-to-ray conversion, hover and click picking, and the InstancedMesh and Points cases that need extra care.",
+   "tags": [
+    "raycaster",
+    "picking",
+    "hover",
+    "click",
+    "intersectobjects",
+    "instancedmesh"
+   ],
+   "applies_to": ">=r162",
+   "status": "current",
+   "renderer": "both",
+   "last_verified": "2026-09-26",
+   "template": "html-importmap",
+   "sections": [
+    "Essentials",
+    "Pitfalls",
+    "Verify",
+    "Notes"
+   ],
+   "bytes": 4144
+  },
+  {
+   "slug": "renderer-choice",
+   "kind": "topic",
+   "path": "topics/renderer-choice.md",
+   "title": "Choosing WebGLRenderer or WebGPURenderer",
+   "summary": "Which renderer to default to per scenario in r186, why, and what breaks if you pick the wrong one.",
+   "tags": [
+    "renderer",
+    "webgl",
+    "webgpu",
+    "decision",
+    "scenario",
+    "default",
+    "fallback"
+   ],
+   "applies_to": ">=r167",
+   "status": "current",
+   "renderer": "both",
+   "last_verified": "2026-09-26",
+   "template": "html-importmap",
+   "sections": [
+    "Essentials",
+    "Pitfalls",
+    "Verify",
+    "Notes"
+   ],
+   "bytes": 5758
+  },
+  {
+   "slug": "testing",
+   "kind": "topic",
+   "path": "topics/testing.md",
+   "title": "Testing three.js code",
+   "summary": "What runs in plain Node without a GPU, visual regression with Playwright, and how three.js tests its own 607 examples.",
+   "tags": [
+    "testing",
+    "vitest",
+    "playwright",
+    "unit test",
+    "visual regression",
+    "puppeteer"
+   ],
+   "applies_to": "any",
+   "status": "current",
+   "renderer": "both",
+   "last_verified": "2026-09-26",
+   "sections": [
+    "Essentials",
+    "Pitfalls",
+    "Verify",
+    "Notes"
+   ],
+   "bytes": 5546
+  },
+  {
+   "slug": "text-and-labels",
+   "kind": "topic",
+   "path": "topics/text-and-labels.md",
+   "title": "3D text and labels",
+   "summary": "CSS2DRenderer for a handful of accessible DOM labels, troika-three-text for hundreds, and TextGeometry for extruded display type only.",
+   "tags": [
+    "css2drenderer",
+    "troika",
+    "textgeometry",
+    "labels",
+    "sdf",
+    "accessibility"
+   ],
+   "applies_to": ">=r186",
+   "status": "current",
+   "renderer": "webgl",
+   "last_verified": "2026-09-26",
+   "template": "html-importmap",
+   "sections": [
+    "Essentials",
+    "Pitfalls",
+    "Verify",
+    "Notes"
+   ],
+   "bytes": 4684
+  },
+  {
+   "slug": "tsl",
+   "kind": "topic",
+   "path": "topics/tsl.md",
+   "title": "TSL (Three.js Shading Language)",
+   "summary": "What TSL is, its entry point and renamed functions, node materials, compute, and where it does and does not reach WebGLRenderer in r186.",
+   "tags": [
+    "tsl",
+    "node material",
+    "shader",
+    "wgsl",
+    "glsl",
+    "compute",
+    "colorNode",
+    "Fn"
+   ],
+   "applies_to": ">=r171",
+   "status": "current",
+   "renderer": "both",
+   "last_verified": "2026-09-26",
+   "template": "html-webgpu",
+   "sections": [
+    "Essentials",
+    "Pitfalls",
+    "Verify",
+    "Notes"
+   ],
+   "bytes": 6321
+  },
+  {
+   "slug": "webgpu-support",
+   "kind": "topic",
+   "path": "topics/webgpu-support.md",
+   "title": "WebGPU browser support and its WebGL 2 fallback",
+   "summary": "Real WebGPU reach by browser and platform in September 2026, compatibility mode limits, and why WebGPURenderer needs a tested fallback rather than a promise.",
+   "tags": [
+    "webgpu",
+    "webgl2",
+    "fallback",
+    "browser support",
+    "compatibility mode",
+    "caniuse",
+    "safari",
+    "firefox"
+   ],
+   "applies_to": ">=r156",
+   "status": "current",
+   "renderer": "webgpu",
+   "last_verified": "2026-09-26",
+   "sections": [
+    "Essentials",
+    "Pitfalls",
+    "Verify",
+    "Notes"
+   ],
+   "bytes": 5442
+  },
+  {
+   "slug": "webxr",
+   "kind": "topic",
+   "path": "topics/webxr.md",
+   "title": "WebXR",
+   "summary": "Device support in September 2026, why Quest stays on WebGLRenderer, and the performance and input differences across headsets.",
+   "tags": [
+    "webxr",
+    "vr",
+    "ar",
+    "quest",
+    "visionos",
+    "xrbutton",
+    "hand tracking"
+   ],
+   "applies_to": ">=r185",
+   "status": "current",
+   "renderer": "webgl",
+   "last_verified": "2026-09-26",
+   "sections": [
+    "Essentials",
+    "Pitfalls",
+    "Verify",
+    "Notes"
+   ],
+   "bytes": 4895
+  },
+  {
    "slug": "3d-chart-in-docs",
    "kind": "scenario",
    "path": "scenarios/3d-chart-in-docs.md",
@@ -56,7 +659,6 @@
    "status": "current",
    "renderer": "webgl",
    "last_verified": "2026-09-26",
-   "template": "chart-3d-scatter",
    "sections": [
     "When",
     "Stack",
@@ -65,7 +667,944 @@
     "Verify",
     "Notes"
    ],
-   "bytes": 6870
+   "bytes": 6843
+  },
+  {
+   "slug": "architecture-bim-cad",
+   "kind": "scenario",
+   "path": "scenarios/architecture-bim-cad.md",
+   "title": "Architecture, BIM and CAD",
+   "summary": "Convert IFC to Fragments offline, never in the browser; instance and merge by material, and rebase coordinates for georeferenced models.",
+   "tags": [
+    "bim",
+    "ifc",
+    "cad",
+    "architecture",
+    "digital twin",
+    "that open",
+    "fragments",
+    "walkthrough"
+   ],
+   "applies_to": ">=r167",
+   "status": "current",
+   "renderer": "webgl",
+   "last_verified": "2026-09-26",
+   "template": "html-importmap",
+   "sections": [
+    "When",
+    "Stack",
+    "Build",
+    "Pitfalls",
+    "Verify",
+    "Notes"
+   ],
+   "bytes": 4725
+  },
+  {
+   "slug": "avatars-and-characters",
+   "kind": "scenario",
+   "path": "scenarios/avatars-and-characters.md",
+   "title": "Avatars and characters",
+   "summary": "VRM through three-vrm is the durable avatar path after Ready Player Me's shutdown; watch VRM 0.x's -Z forward convention and spring-bone jitter at variable dt.",
+   "tags": [
+    "avatars",
+    "vrm",
+    "three-vrm",
+    "ready player me",
+    "characters",
+    "mtoon",
+    "animation retargeting"
+   ],
+   "applies_to": ">=r167",
+   "status": "current",
+   "renderer": "both",
+   "last_verified": "2026-09-26",
+   "template": "r3f",
+   "sections": [
+    "When",
+    "Stack",
+    "Build",
+    "Pitfalls",
+    "Verify",
+    "Notes"
+   ],
+   "bytes": 4340
+  },
+  {
+   "slug": "claude-artifacts-and-chat",
+   "kind": "scenario",
+   "path": "scenarios/claude-artifacts-and-chat.md",
+   "title": "Three.js in Claude artifacts and chat",
+   "summary": "Claude artifacts load three.js from jsDelivr through an import map; pin the exact version, build offline-safe lighting, and budget the page for a sandboxed, no-CDN-write environment.",
+   "tags": [
+    "claude",
+    "artifact",
+    "mcp apps",
+    "chat",
+    "embed",
+    "jsdelivr",
+    "import map",
+    "offline"
+   ],
+   "applies_to": ">=r161",
+   "status": "current",
+   "renderer": "webgl",
+   "last_verified": "2026-09-26",
+   "template": "html-importmap",
+   "sections": [
+    "When",
+    "Stack",
+    "Build",
+    "Pitfalls",
+    "Verify",
+    "Notes"
+   ],
+   "bytes": 5053
+  },
+  {
+   "slug": "games",
+   "kind": "scenario",
+   "path": "scenarios/games.md",
+   "title": "Browser games",
+   "summary": "Plain three.js plus Rapier is the default game stack; a fixed-timestep loop, an action-map input layer, and headless hooks that let a test step the game deterministically.",
+   "tags": [
+    "games",
+    "rapier",
+    "fixed timestep",
+    "input",
+    "character controller",
+    "multiplayer",
+    "vibe jam",
+    "testing"
+   ],
+   "applies_to": ">=r183",
+   "status": "current",
+   "renderer": "webgpu",
+   "last_verified": "2026-09-26",
+   "template": "game-starter",
+   "sections": [
+    "When",
+    "Stack",
+    "Build",
+    "Pitfalls",
+    "Verify",
+    "Notes"
+   ],
+   "bytes": 7036
+  },
+  {
+   "slug": "generative-art",
+   "kind": "scenario",
+   "path": "scenarios/generative-art.md",
+   "title": "Generative art and creative coding",
+   "summary": "WebGPURenderer with TSL for shader art and GPU compute; determinism from a seeded PRNG, never Math.random(), Date.now() or frame time, for platforms that hash the output.",
+   "tags": [
+    "generative art",
+    "tsl",
+    "webgpu",
+    "compute",
+    "determinism",
+    "fxhash",
+    "seeded randomness",
+    "creative coding"
+   ],
+   "applies_to": ">=r183",
+   "status": "current",
+   "renderer": "webgpu",
+   "last_verified": "2026-09-26",
+   "template": "html-webgpu",
+   "sections": [
+    "When",
+    "Stack",
+    "Build",
+    "Pitfalls",
+    "Verify",
+    "Notes"
+   ],
+   "bytes": 5376
+  },
+  {
+   "slug": "geospatial-and-globes",
+   "kind": "scenario",
+   "path": "scenarios/geospatial-and-globes.md",
+   "title": "Maps and geospatial in 3D",
+   "summary": "3D Tiles for real-world photogrammetry and terrain, globe.gl for data globes, MapLibre custom layers for maps; rebase coordinates to avoid float jitter at planet scale.",
+   "tags": [
+    "geospatial",
+    "3d tiles",
+    "globe",
+    "maplibre",
+    "cesium",
+    "google photorealistic tiles",
+    "deck.gl",
+    "terrain"
+   ],
+   "applies_to": ">=r167",
+   "status": "current",
+   "renderer": "webgl",
+   "last_verified": "2026-09-26",
+   "template": "html-importmap",
+   "sections": [
+    "When",
+    "Stack",
+    "Build",
+    "Pitfalls",
+    "Verify",
+    "Notes"
+   ],
+   "bytes": 4542
+  },
+  {
+   "slug": "product-viewer",
+   "kind": "scenario",
+   "path": "scenarios/product-viewer.md",
+   "title": "Product viewers and configurators",
+   "summary": "Show a GLB with AR in one tag, or build a custom three.js configurator with material variants, image-based lighting and tone mapping tuned for color accuracy.",
+   "tags": [
+    "product viewer",
+    "configurator",
+    "model-viewer",
+    "ar",
+    "variants",
+    "ibl",
+    "tone mapping",
+    "ecommerce"
+   ],
+   "applies_to": ">=r167",
+   "status": "current",
+   "renderer": "webgl",
+   "last_verified": "2026-09-26",
+   "template": "r3f",
+   "sections": [
+    "When",
+    "Stack",
+    "Build",
+    "Pitfalls",
+    "Verify",
+    "Notes"
+   ],
+   "bytes": 5672
+  },
+  {
+   "slug": "scientific-visualization",
+   "kind": "scenario",
+   "path": "scenarios/scientific-visualization.md",
+   "title": "Scientific and medical visualization",
+   "summary": "Volume raymarching with Data3DTexture, point-cloud viewers (Potree), and molecular viewers (Mol*, 3Dmol.js) that mostly are not three.js; know when to hand off.",
+   "tags": [
+    "volume rendering",
+    "point cloud",
+    "potree",
+    "molstar",
+    "molecular visualization",
+    "raymarching",
+    "medical"
+   ],
+   "applies_to": ">=r167",
+   "status": "current",
+   "renderer": "both",
+   "last_verified": "2026-09-26",
+   "template": "html-webgpu",
+   "sections": [
+    "When",
+    "Stack",
+    "Build",
+    "Pitfalls",
+    "Verify",
+    "Notes"
+   ],
+   "bytes": 4589
+  },
+  {
+   "slug": "scroll-storytelling",
+   "kind": "scenario",
+   "path": "scenarios/scroll-storytelling.md",
+   "title": "Scroll-driven storytelling and hero sections",
+   "summary": "One persistent canvas driven by a GSAP timeline scrubbed with ScrollTrigger and smoothed by Lenis, with a poster fallback and a reduced-motion branch.",
+   "tags": [
+    "scroll",
+    "gsap",
+    "scrolltrigger",
+    "lenis",
+    "hero",
+    "marketing",
+    "storytelling",
+    "reduced motion"
+   ],
+   "applies_to": ">=r167",
+   "status": "current",
+   "renderer": "webgl",
+   "last_verified": "2026-09-26",
+   "template": "html-importmap",
+   "sections": [
+    "When",
+    "Stack",
+    "Build",
+    "Pitfalls",
+    "Pitfalls (accessibility)",
+    "Verify",
+    "Notes"
+   ],
+   "bytes": 5286
+  },
+  {
+   "slug": "splat-scenes",
+   "kind": "scenario",
+   "path": "scenarios/splat-scenes.md",
+   "title": "Gaussian splat scenes",
+   "summary": "Split by scene size: three r186's native WebGPU splat renderer for small to medium scenes, Spark on WebGL2 for large or streamed ones; KHR_gaussian_splatting is now ratified.",
+   "tags": [
+    "gaussian splats",
+    "splatting",
+    "spark",
+    "khr_gaussian_splatting",
+    "radiance fields",
+    "sog",
+    "spz",
+    "webgpu"
+   ],
+   "applies_to": "r186",
+   "status": "current",
+   "renderer": "webgpu",
+   "last_verified": "2026-09-26",
+   "template": "html-webgpu",
+   "sections": [
+    "When",
+    "Stack",
+    "Build",
+    "Pitfalls",
+    "Verify",
+    "Notes"
+   ],
+   "bytes": 4919
+  },
+  {
+   "slug": "video-and-turntables",
+   "kind": "scenario",
+   "path": "scenarios/video-and-turntables.md",
+   "title": "Video output and turntables",
+   "summary": "Frame-exact MP4, WebM, GIF or ProRes from a three.js page, driven by a virtual clock instead of wall-clock capture, for turntables, loops and social clips.",
+   "tags": [
+    "video",
+    "turntable",
+    "mp4",
+    "gif",
+    "webm",
+    "alpha",
+    "ffmpeg",
+    "capture",
+    "deterministic",
+    "loop"
+   ],
+   "applies_to": ">=r152",
+   "status": "current",
+   "renderer": "webgl",
+   "last_verified": "2026-09-26",
+   "template": "html-importmap",
+   "sections": [
+    "When",
+    "Stack",
+    "Build",
+    "Pitfalls",
+    "Verify",
+    "Notes"
+   ],
+   "bytes": 5951
+  },
+  {
+   "slug": "xr-experiences",
+   "kind": "scenario",
+   "path": "scenarios/xr-experiences.md",
+   "title": "WebXR experiences",
+   "summary": "Quest Browser, Chrome on Android XR and Safari on visionOS are the real targets; iPhone Safari has no WebXR at all, so iOS \"AR\" means AR Quick Look, not WebXR.",
+   "tags": [
+    "webxr",
+    "quest",
+    "vision pro",
+    "android xr",
+    "iwsdk",
+    "hand tracking",
+    "foveation",
+    "ar quick look"
+   ],
+   "applies_to": ">=r185",
+   "status": "current",
+   "renderer": "webgl",
+   "last_verified": "2026-09-26",
+   "template": "html-importmap",
+   "sections": [
+    "When",
+    "Stack",
+    "Build",
+    "Pitfalls",
+    "Verify",
+    "Notes"
+   ],
+   "bytes": 4878
+  },
+  {
+   "slug": "3d-tiles-renderer",
+   "kind": "library",
+   "path": "libraries/3d-tiles-renderer.md",
+   "title": "3d-tiles-renderer",
+   "summary": "OGC 3D Tiles for three.js, Babylon.js and R3F, with plugins for Google Photorealistic Tiles and Cesium ion; the base of most three.js geospatial work.",
+   "tags": [
+    "3d tiles",
+    "geospatial",
+    "cesium",
+    "google photorealistic tiles",
+    "globe",
+    "r3f",
+    "nasa-ammos"
+   ],
+   "applies_to": ">=r167",
+   "status": "current",
+   "renderer": "webgl",
+   "last_verified": "2026-09-26",
+   "package": "3d-tiles-renderer",
+   "version_checked": "0.5.3",
+   "sections": [
+    "Use it for",
+    "Avoid it when",
+    "Setup",
+    "Pitfalls",
+    "Notes"
+   ],
+   "bytes": 3305
+  },
+  {
+   "slug": "camera-controls",
+   "kind": "library",
+   "path": "libraries/camera-controls.md",
+   "title": "camera-controls",
+   "summary": "Renderer-agnostic orbit and dolly controls with fitToBox and scripted transitions; a drei dependency and a common OrbitControls upgrade for product viewers.",
+   "tags": [
+    "camera",
+    "orbit",
+    "dolly",
+    "controls",
+    "fit to box",
+    "transitions",
+    "product viewer"
+   ],
+   "applies_to": ">=r159",
+   "status": "current",
+   "renderer": "both",
+   "last_verified": "2026-09-26",
+   "package": "camera-controls",
+   "version_checked": "3.1.2",
+   "sections": [
+    "Use it for",
+    "Avoid it when",
+    "Setup",
+    "Pitfalls",
+    "Notes"
+   ],
+   "bytes": 3311
+  },
+  {
+   "slug": "cannon-es",
+   "kind": "library",
+   "path": "libraries/cannon-es.md",
+   "title": "cannon-es",
+   "summary": "Pure-JS physics engine with no release since 2022; keep it only for an existing project, and move new work to Rapier or Jolt.",
+   "tags": [
+    "cannon",
+    "cannon-es",
+    "physics",
+    "legacy",
+    "pure js"
+   ],
+   "applies_to": "<r186",
+   "status": "legacy",
+   "renderer": "none",
+   "last_verified": "2026-09-26",
+   "package": "cannon-es",
+   "version_checked": "0.20.0",
+   "sections": [
+    "Use it for",
+    "Avoid it when",
+    "Setup",
+    "Pitfalls",
+    "Notes"
+   ],
+   "bytes": 2777
+  },
+  {
+   "slug": "deck-gl",
+   "kind": "library",
+   "path": "libraries/deck-gl.md",
+   "title": "deck.gl",
+   "summary": "GPU-accelerated map and data layers for millions of points, built on luma.gl rather than three.js; mixing it with a three.js scene needs custom layers or a shared context.",
+   "tags": [
+    "deck.gl",
+    "maps",
+    "geospatial",
+    "luma.gl",
+    "webgpu",
+    "big data"
+   ],
+   "applies_to": "any",
+   "status": "current",
+   "renderer": "none",
+   "last_verified": "2026-09-26",
+   "package": "@deck.gl/core",
+   "version_checked": "9.4.0",
+   "sections": [
+    "Use it for",
+    "Avoid it when",
+    "Setup",
+    "Pitfalls",
+    "Notes"
+   ],
+   "bytes": 2927
+  },
+  {
+   "slug": "drei",
+   "kind": "library",
+   "path": "libraries/drei.md",
+   "title": "drei",
+   "summary": "Helper library for React Three Fiber; controls, loaders, Environment, Text, ScrollControls; v10 is stable on WebGL, v11 alpha is the WebGPU line.",
+   "tags": [
+    "drei",
+    "r3f",
+    "react",
+    "helpers",
+    "environment",
+    "scroll-controls",
+    "html",
+    "webgpu"
+   ],
+   "applies_to": ">=r159",
+   "status": "current",
+   "renderer": "both",
+   "last_verified": "2026-09-26",
+   "package": "@react-three/drei",
+   "version_checked": "10.7.9",
+   "template": "r3f",
+   "sections": [
+    "Use it for",
+    "Avoid it when",
+    "Setup",
+    "Pitfalls",
+    "Notes"
+   ],
+   "bytes": 4030
+  },
+  {
+   "slug": "globe-gl",
+   "kind": "library",
+   "path": "libraries/globe-gl.md",
+   "title": "globe.gl",
+   "summary": "One-call data globes (arcs, points, hexbins) built on three-globe; the fastest path to a globe visualization without owning the scene graph.",
+   "tags": [
+    "globe",
+    "geospatial",
+    "data visualization",
+    "arcs",
+    "points",
+    "three-globe"
+   ],
+   "applies_to": ">=r179",
+   "status": "current",
+   "renderer": "webgl",
+   "last_verified": "2026-09-26",
+   "package": "globe.gl",
+   "version_checked": "2.46.2",
+   "sections": [
+    "Use it for",
+    "Avoid it when",
+    "Setup",
+    "Pitfalls",
+    "Notes"
+   ],
+   "bytes": 3006
+  },
+  {
+   "slug": "gltf-transform",
+   "kind": "library",
+   "path": "libraries/gltf-transform.md",
+   "title": "glTF Transform",
+   "summary": "Scripted and CLI glTF optimization (Meshopt, Draco, KTX2, simplification, joining); the default asset pipeline for every scenario that ships a GLB.",
+   "tags": [
+    "gltf",
+    "glb",
+    "optimize",
+    "meshopt",
+    "draco",
+    "ktx2",
+    "pipeline",
+    "cli",
+    "agent tooling"
+   ],
+   "applies_to": "any",
+   "status": "current",
+   "renderer": "none",
+   "last_verified": "2026-09-26",
+   "package": "@gltf-transform/cli",
+   "version_checked": "4.5.0",
+   "sections": [
+    "Use it for",
+    "Avoid it when",
+    "Setup",
+    "Pitfalls",
+    "Notes"
+   ],
+   "bytes": 3554
+  },
+  {
+   "slug": "gltfpack",
+   "kind": "library",
+   "path": "libraries/gltfpack.md",
+   "title": "gltfpack",
+   "summary": "One-shot CLI GLB compressor built on meshoptimizer; writes Meshopt-compressed glTF that three r186's loader reads natively.",
+   "tags": [
+    "gltf",
+    "glb",
+    "compression",
+    "meshopt",
+    "cli",
+    "tangents",
+    "normals"
+   ],
+   "applies_to": "any",
+   "status": "current",
+   "renderer": "none",
+   "last_verified": "2026-09-26",
+   "package": "gltfpack",
+   "version_checked": "1.3.0",
+   "sections": [
+    "Use it for",
+    "Avoid it when",
+    "Setup",
+    "Pitfalls",
+    "Notes"
+   ],
+   "bytes": 2436
+  },
+  {
+   "slug": "gsap",
+   "kind": "library",
+   "path": "libraries/gsap.md",
+   "title": "GSAP",
+   "summary": "Timeline and ScrollTrigger animation library, free for all commercial use since 2025; the default engine for scroll storytelling and scripted camera moves.",
+   "tags": [
+    "gsap",
+    "scrolltrigger",
+    "animation",
+    "timeline",
+    "scroll storytelling",
+    "license"
+   ],
+   "applies_to": "any",
+   "status": "current",
+   "renderer": "none",
+   "last_verified": "2026-09-26",
+   "package": "gsap",
+   "version_checked": "3.15.0",
+   "sections": [
+    "Use it for",
+    "Avoid it when",
+    "Setup",
+    "Pitfalls",
+    "Notes"
+   ],
+   "bytes": 3350
+  },
+  {
+   "slug": "iwsdk",
+   "kind": "library",
+   "path": "libraries/iwsdk.md",
+   "title": "Immersive Web SDK (IWSDK)",
+   "summary": "Meta's three.js-plus-ECS framework for Quest-first WebXR, with the most complete agent tooling (an MCP runtime) of any three.js-based stack; still pins an old three fork.",
+   "tags": [
+    "iwsdk",
+    "webxr",
+    "meta",
+    "quest",
+    "ecs",
+    "havok",
+    "mcp",
+    "agent tooling"
+   ],
+   "applies_to": ">=r159",
+   "status": "current",
+   "renderer": "webgl",
+   "last_verified": "2026-09-26",
+   "package": "@iwsdk/core",
+   "version_checked": "1.0.0-rc.2",
+   "sections": [
+    "Use it for",
+    "Avoid it when",
+    "Setup",
+    "Pitfalls",
+    "Notes"
+   ],
+   "bytes": 3372
+  },
+  {
+   "slug": "jolt-physics",
+   "kind": "library",
+   "path": "libraries/jolt-physics.md",
+   "title": "Jolt Physics",
+   "summary": "WASM rigid-body engine for large scenes, vehicles and character virtual controllers; three ships a JoltPhysics addon that loads it from a CDN.",
+   "tags": [
+    "jolt",
+    "physics",
+    "wasm",
+    "vehicles",
+    "character controller",
+    "rigid body"
+   ],
+   "applies_to": ">=r159",
+   "status": "current",
+   "renderer": "none",
+   "last_verified": "2026-09-26",
+   "package": "jolt-physics",
+   "version_checked": "1.1.0",
+   "sections": [
+    "Use it for",
+    "Avoid it when",
+    "Setup",
+    "Pitfalls",
+    "Notes"
+   ],
+   "bytes": 3475
+  },
+  {
+   "slug": "lenis",
+   "kind": "library",
+   "path": "libraries/lenis.md",
+   "title": "Lenis",
+   "summary": "Smooth-scroll library that honors prefers-reduced-motion by default; pairs with GSAP's ticker for one shared rAF loop in scroll storytelling.",
+   "tags": [
+    "lenis",
+    "smooth scroll",
+    "scrolltrigger",
+    "reduced motion",
+    "scroll storytelling"
+   ],
+   "applies_to": "any",
+   "status": "current",
+   "renderer": "none",
+   "last_verified": "2026-09-26",
+   "package": "lenis",
+   "version_checked": "1.3.26",
+   "sections": [
+    "Use it for",
+    "Avoid it when",
+    "Setup",
+    "Pitfalls",
+    "Notes"
+   ],
+   "bytes": 2815
+  },
+  {
+   "slug": "lil-gui",
+   "kind": "library",
+   "path": "libraries/lil-gui.md",
+   "title": "lil-gui",
+   "summary": "Small dependency-free debug panel for vanilla three.js; the current answer to dat.gui, which three itself still bundles an older copy of.",
+   "tags": [
+    "gui",
+    "debug",
+    "tweak panel",
+    "dat.gui",
+    "vanilla",
+    "controls"
+   ],
+   "applies_to": "any",
+   "status": "current",
+   "renderer": "none",
+   "last_verified": "2026-09-26",
+   "package": "lil-gui",
+   "version_checked": "0.21.0",
+   "sections": [
+    "Use it for",
+    "Avoid it when",
+    "Setup",
+    "Pitfalls",
+    "Notes"
+   ],
+   "bytes": 2482
+  },
+  {
+   "slug": "model-viewer",
+   "kind": "library",
+   "path": "libraries/model-viewer.md",
+   "title": "model-viewer",
+   "summary": "Google's <model-viewer> web component, built on three.js, for showing a GLB with AR (Scene Viewer on Android, Quick Look on iOS) in one tag.",
+   "tags": [
+    "model-viewer",
+    "web component",
+    "ar",
+    "quick look",
+    "scene viewer",
+    "product viewer"
+   ],
+   "applies_to": "any",
+   "status": "current",
+   "renderer": "webgl",
+   "last_verified": "2026-09-26",
+   "package": "@google/model-viewer",
+   "version_checked": "4.3.1",
+   "sections": [
+    "Use it for",
+    "Avoid it when",
+    "Setup",
+    "Pitfalls",
+    "Notes"
+   ],
+   "bytes": 3167
+  },
+  {
+   "slug": "needle-engine",
+   "kind": "library",
+   "path": "libraries/needle-engine.md",
+   "title": "Needle Engine",
+   "summary": "Unity- and Blender-to-web runtime built on a three.js fork, with built-in physics, networking and XR; install the stable dist-tag, not latest.",
+   "tags": [
+    "needle",
+    "unity",
+    "blender",
+    "runtime",
+    "xr",
+    "networking",
+    "gltf-progressive"
+   ],
+   "applies_to": ">=r159",
+   "status": "current",
+   "renderer": "both",
+   "last_verified": "2026-09-26",
+   "package": "@needle-tools/engine",
+   "version_checked": "5.1.13",
+   "sections": [
+    "Use it for",
+    "Avoid it when",
+    "Setup",
+    "Pitfalls",
+    "Notes"
+   ],
+   "bytes": 3148
+  },
+  {
+   "slug": "plotly",
+   "kind": "library",
+   "path": "libraries/plotly.md",
+   "title": "Plotly.js",
+   "summary": "Stock 3D chart types (scatter3d, surface, mesh3d, isosurface, volume, cone) with hover and export; not three.js, but the first choice before hand-rolling a 3D chart.",
+   "tags": [
+    "plotly",
+    "chart",
+    "scatter3d",
+    "surface",
+    "isosurface",
+    "volume",
+    "data visualization",
+    "gl3d"
+   ],
+   "applies_to": "any",
+   "status": "current",
+   "renderer": "none",
+   "last_verified": "2026-09-26",
+   "package": "plotly.js",
+   "version_checked": "4.1.1",
+   "sections": [
+    "Use it for",
+    "Avoid it when",
+    "Setup",
+    "Pitfalls",
+    "Notes"
+   ],
+   "bytes": 3466
+  },
+  {
+   "slug": "postprocessing",
+   "kind": "library",
+   "path": "libraries/postprocessing.md",
+   "title": "postprocessing (pmndrs)",
+   "summary": "Merged effect passes for WebGLRenderer (bloom, AO, DoF, and more); the WebGL-only alternative to three's own EffectComposer, with no WebGPU plan.",
+   "tags": [
+    "postprocessing",
+    "bloom",
+    "effects",
+    "webgl",
+    "effectcomposer",
+    "react-three-postprocessing"
+   ],
+   "applies_to": ">=r168",
+   "status": "current",
+   "renderer": "webgl",
+   "last_verified": "2026-09-26",
+   "package": "postprocessing",
+   "version_checked": "6.39.5",
+   "sections": [
+    "Use it for",
+    "Avoid it when",
+    "Setup",
+    "Pitfalls",
+    "Notes"
+   ],
+   "bytes": 3260
+  },
+  {
+   "slug": "rapier",
+   "kind": "library",
+   "path": "libraries/rapier.md",
+   "title": "Rapier",
+   "summary": "WASM physics engine for three.js games; the 0.21.0 line adds soft bodies and changed several method signatures from 0.19 and 0.20.",
+   "tags": [
+    "rapier",
+    "physics",
+    "wasm",
+    "rigidbody",
+    "character controller",
+    "determinism",
+    "snapshot"
+   ],
+   "applies_to": ">=r159",
+   "status": "current",
+   "renderer": "none",
+   "last_verified": "2026-09-26",
+   "package": "@dimforge/rapier3d-compat",
+   "version_checked": "0.21.0",
+   "template": "game-starter",
+   "sections": [
+    "Use it for",
+    "Avoid it when",
+    "Setup",
+    "Pitfalls",
+    "Notes"
+   ],
+   "bytes": 4468
+  },
+  {
+   "slug": "react-three-a11y",
+   "kind": "library",
+   "path": "libraries/react-three-a11y.md",
+   "title": "@react-three/a11y",
+   "summary": "Dormant since 2022 with only a docs-build commit since; no maintained 3D accessibility library was found, so build accessibility with DOM equivalents instead.",
+   "tags": [
+    "accessibility",
+    "a11y",
+    "react-three-fiber",
+    "legacy",
+    "dormant"
+   ],
+   "applies_to": "<r186",
+   "status": "legacy",
+   "renderer": "webgl",
+   "last_verified": "2026-09-26",
+   "package": "@react-three/a11y",
+   "version_checked": "3.0.0",
+   "sections": [
+    "Use it for",
+    "Avoid it when",
+    "Setup",
+    "Pitfalls",
+    "Notes"
+   ],
+   "bytes": 2131
   },
   {
    "slug": "react-three-fiber",
@@ -97,7 +1636,353 @@
     "Pitfalls",
     "Notes"
    ],
-   "bytes": 4409
+   "bytes": 4422
+  },
+  {
+   "slug": "react-three-rapier",
+   "kind": "library",
+   "path": "libraries/react-three-rapier.md",
+   "title": "React Three Rapier",
+   "summary": "Rapier physics for React Three Fiber through <Physics> and <RigidBody>; pinned to Rapier 0.19.2 while Rapier itself is at 0.21.0, so new Rapier features need the raw package.",
+   "tags": [
+    "rapier",
+    "physics",
+    "r3f",
+    "react",
+    "rigidbody",
+    "colliders",
+    "character controller"
+   ],
+   "applies_to": ">=r159",
+   "status": "current",
+   "renderer": "none",
+   "last_verified": "2026-09-26",
+   "package": "@react-three/rapier",
+   "version_checked": "2.2.0",
+   "template": "r3f",
+   "sections": [
+    "Use it for",
+    "Avoid it when",
+    "Setup",
+    "Pitfalls",
+    "Notes"
+   ],
+   "bytes": 3757
+  },
+  {
+   "slug": "spark",
+   "kind": "library",
+   "path": "libraries/spark.md",
+   "title": "Spark",
+   "summary": "The most capable three.js Gaussian-splat engine, with streaming LoD and a GPU virtual memory pool; WebGL2 only in official releases, versus r186's native WebGPU splat renderer.",
+   "tags": [
+    "spark",
+    "gaussian splats",
+    "splatting",
+    "lod",
+    "streaming",
+    "radiance fields"
+   ],
+   "applies_to": ">=r180",
+   "status": "current",
+   "renderer": "webgl",
+   "last_verified": "2026-09-26",
+   "package": "@sparkjsdev/spark",
+   "version_checked": "2.2.0",
+   "sections": [
+    "Use it for",
+    "Avoid it when",
+    "Setup",
+    "Pitfalls",
+    "Notes"
+   ],
+   "bytes": 2989
+  },
+  {
+   "slug": "stats-gl",
+   "kind": "library",
+   "path": "libraries/stats-gl.md",
+   "title": "stats-gl",
+   "summary": "FPS, CPU and GPU timing overlay for WebGL and WebGPU; the current replacement for stats.js and r3f-perf.",
+   "tags": [
+    "stats",
+    "fps",
+    "performance",
+    "gpu timing",
+    "debug",
+    "overlay",
+    "hud"
+   ],
+   "applies_to": ">=r159",
+   "status": "current",
+   "renderer": "both",
+   "last_verified": "2026-09-26",
+   "package": "stats-gl",
+   "version_checked": "4.2.3",
+   "sections": [
+    "Use it for",
+    "Avoid it when",
+    "Setup",
+    "Pitfalls",
+    "Notes"
+   ],
+   "bytes": 2955
+  },
+  {
+   "slug": "theatre",
+   "kind": "library",
+   "path": "libraries/theatre.md",
+   "title": "Theatre.js",
+   "summary": "Designer-facing keyframe animation editor for three.js and R3F, frozen in public since 2024 while a 1.0 develops privately; use only when the visual editor itself is the point.",
+   "tags": [
+    "theatre.js",
+    "keyframes",
+    "animation editor",
+    "r3f",
+    "legacy",
+    "agpl"
+   ],
+   "applies_to": "<r186",
+   "status": "legacy",
+   "renderer": "both",
+   "last_verified": "2026-09-26",
+   "package": "@theatre/core",
+   "version_checked": "0.7.2",
+   "sections": [
+    "Use it for",
+    "Avoid it when",
+    "Setup",
+    "Pitfalls",
+    "Notes"
+   ],
+   "bytes": 3214
+  },
+  {
+   "slug": "three-mesh-bvh",
+   "kind": "library",
+   "path": "libraries/three-mesh-bvh.md",
+   "title": "three-mesh-bvh",
+   "summary": "Fast raycasts, shapecasts and BVH-based capsule collision against level meshes; 0.9.15 adds a WebGPU TSL/WGSL compute path alongside the pure-JS one.",
+   "tags": [
+    "bvh",
+    "raycasting",
+    "collision",
+    "character controller",
+    "path tracing",
+    "csg",
+    "webgpu"
+   ],
+   "applies_to": ">=r159",
+   "status": "current",
+   "renderer": "both",
+   "last_verified": "2026-09-26",
+   "package": "three-mesh-bvh",
+   "version_checked": "0.9.15",
+   "sections": [
+    "Use it for",
+    "Avoid it when",
+    "Setup",
+    "Pitfalls",
+    "Notes"
+   ],
+   "bytes": 3336
+  },
+  {
+   "slug": "three-stdlib",
+   "kind": "library",
+   "path": "libraries/three-stdlib.md",
+   "title": "three-stdlib",
+   "summary": "WebGL-era copies of three.js addons as an npm package; drei 11 drops it, and new code should import three/addons/* directly instead.",
+   "tags": [
+    "three-stdlib",
+    "addons",
+    "drei",
+    "legacy",
+    "pmndrs"
+   ],
+   "applies_to": "<r186",
+   "status": "legacy",
+   "renderer": "webgl",
+   "last_verified": "2026-09-26",
+   "package": "three-stdlib",
+   "version_checked": "2.36.1",
+   "sections": [
+    "Use it for",
+    "Avoid it when",
+    "Setup",
+    "Pitfalls",
+    "Notes"
+   ],
+   "bytes": 2479
+  },
+  {
+   "slug": "three-vrm",
+   "kind": "library",
+   "path": "libraries/three-vrm.md",
+   "title": "three-vrm",
+   "summary": "The durable open avatar path for three.js after Ready Player Me's shutdown; VRM 0.x and 1.0 support, MToon material, and a WebGPU node-material path.",
+   "tags": [
+    "vrm",
+    "avatar",
+    "pixiv",
+    "mtoon",
+    "humanoid",
+    "spring bones",
+    "blend shapes"
+   ],
+   "applies_to": ">=r167",
+   "status": "current",
+   "renderer": "both",
+   "last_verified": "2026-09-26",
+   "package": "@pixiv/three-vrm",
+   "version_checked": "3.5.5",
+   "sections": [
+    "Use it for",
+    "Avoid it when",
+    "Setup",
+    "Pitfalls",
+    "Notes"
+   ],
+   "bytes": 3358
+  },
+  {
+   "slug": "threlte",
+   "kind": "library",
+   "path": "libraries/threlte.md",
+   "title": "Threlte",
+   "summary": "Svelte 5 renderer for three.js; v8 supports WebGPU through a createRenderer prop, ahead of the equivalent React and Vue integrations.",
+   "tags": [
+    "svelte",
+    "threlte",
+    "declarative",
+    "webgpu",
+    "framework"
+   ],
+   "applies_to": ">=r172",
+   "status": "current",
+   "renderer": "both",
+   "last_verified": "2026-09-26",
+   "package": "@threlte/core",
+   "version_checked": "8.6.1",
+   "sections": [
+    "Use it for",
+    "Avoid it when",
+    "Setup",
+    "Pitfalls",
+    "Notes"
+   ],
+   "bytes": 2825
+  },
+  {
+   "slug": "tresjs",
+   "kind": "library",
+   "path": "libraries/tresjs.md",
+   "title": "TresJS",
+   "summary": "Vue 3 renderer for three.js, the Vue equivalent of React Three Fiber; v5 is stable on WebGL, with experimental WebGPU through a renderer factory.",
+   "tags": [
+    "vue",
+    "tresjs",
+    "nuxt",
+    "declarative",
+    "webgpu",
+    "framework"
+   ],
+   "applies_to": ">=r159",
+   "status": "current",
+   "renderer": "both",
+   "last_verified": "2026-09-26",
+   "package": "@tresjs/core",
+   "version_checked": "5.9.0",
+   "sections": [
+    "Use it for",
+    "Avoid it when",
+    "Setup",
+    "Pitfalls",
+    "Notes"
+   ],
+   "bytes": 2932
+  },
+  {
+   "slug": "troika-three-text",
+   "kind": "library",
+   "path": "libraries/troika-three-text.md",
+   "title": "troika-three-text",
+   "summary": "Worker-generated SDF text for three.js, mature on WebGLRenderer; no WebGPU support yet, so drei's Text component inherits the same limit.",
+   "tags": [
+    "text",
+    "sdf",
+    "typography",
+    "troika",
+    "drei",
+    "webgl"
+   ],
+   "applies_to": ">=r159",
+   "status": "current",
+   "renderer": "webgl",
+   "last_verified": "2026-09-26",
+   "package": "troika-three-text",
+   "version_checked": "0.52.5",
+   "sections": [
+    "Use it for",
+    "Avoid it when",
+    "Setup",
+    "Pitfalls",
+    "Notes"
+   ],
+   "bytes": 3247
+  },
+  {
+   "slug": "bloom-webgl",
+   "kind": "recipe",
+   "path": "recipes/bloom-webgl.md",
+   "title": "Bloom (WebGL)",
+   "summary": "A selective bloom glow on WebGLRenderer with EffectComposer, UnrealBloomPass and a threshold that only the bright object crosses.",
+   "tags": [
+    "bloom",
+    "effectcomposer",
+    "unrealbloompass",
+    "outputpass",
+    "post-processing"
+   ],
+   "applies_to": ">=r155",
+   "status": "current",
+   "renderer": "webgl",
+   "last_verified": "2026-09-26",
+   "template": "html-importmap",
+   "sections": [
+    "Goal",
+    "Code",
+    "Verify",
+    "Notes"
+   ],
+   "bytes": 5312
+  },
+  {
+   "slug": "bloom-webgpu",
+   "kind": "recipe",
+   "path": "recipes/bloom-webgpu.md",
+   "title": "Bloom (WebGPU)",
+   "summary": "Selective bloom on WebGPURenderer with RenderPipeline, an MRT emissive channel and the TSL bloom() display node.",
+   "tags": [
+    "bloom",
+    "renderpipeline",
+    "tsl",
+    "mrt",
+    "webgpu",
+    "post-processing"
+   ],
+   "applies_to": ">=r186",
+   "status": "current",
+   "renderer": "webgpu",
+   "last_verified": "2026-09-26",
+   "template": "html-webgpu",
+   "sections": [
+    "Goal",
+    "Code",
+    "Verify",
+    "Notes"
+   ],
+   "bytes": 5879
   },
   {
    "slug": "capture-stills-and-video",
@@ -129,6 +2014,449 @@
     "Notes"
    ],
    "bytes": 4854
+  },
+  {
+   "slug": "css2d-labels",
+   "kind": "recipe",
+   "path": "recipes/css2d-labels.md",
+   "title": "CSS2D labels",
+   "summary": "Attach real, accessible DOM labels to 3D points with CSS2DRenderer and CSS2DObject, for the tens-of-labels case where troika-three-text would be overkill.",
+   "tags": [
+    "css2drenderer",
+    "css2dobject",
+    "labels",
+    "dom",
+    "accessibility"
+   ],
+   "applies_to": ">=r186",
+   "status": "current",
+   "renderer": "webgl",
+   "last_verified": "2026-09-26",
+   "template": "html-importmap",
+   "sections": [
+    "Goal",
+    "Code",
+    "Verify",
+    "Notes"
+   ],
+   "bytes": 5695
+  },
+  {
+   "slug": "dispose-a-scene",
+   "kind": "recipe",
+   "path": "recipes/dispose-a-scene.md",
+   "title": "Dispose a scene",
+   "summary": "Walk a scene graph and dispose every geometry, material and texture, then confirm renderer.info.memory returns to baseline across repeated swaps.",
+   "tags": [
+    "dispose",
+    "memory",
+    "leak",
+    "traverse",
+    "renderer.info"
+   ],
+   "applies_to": "r186",
+   "status": "current",
+   "renderer": "both",
+   "last_verified": "2026-09-26",
+   "template": "html-importmap",
+   "sections": [
+    "Goal",
+    "Code",
+    "Verify",
+    "Notes"
+   ],
+   "bytes": 3704
+  },
+  {
+   "slug": "environment-lighting",
+   "kind": "recipe",
+   "path": "recipes/environment-lighting.md",
+   "title": "Environment lighting",
+   "summary": "Light PBR materials with a generated RoomEnvironment (no download) or an HDR file through PMREMGenerator, so nothing renders black.",
+   "tags": [
+    "pmremgenerator",
+    "roomenvironment",
+    "hdrloader",
+    "environment",
+    "ibl"
+   ],
+   "applies_to": ">=r180",
+   "status": "current",
+   "renderer": "both",
+   "last_verified": "2026-09-26",
+   "template": "html-importmap",
+   "sections": [
+    "Goal",
+    "Code",
+    "Verify",
+    "Notes"
+   ],
+   "bytes": 3371
+  },
+  {
+   "slug": "export-glb",
+   "kind": "recipe",
+   "path": "recipes/export-glb.md",
+   "title": "Export a GLB",
+   "summary": "Export a scene or object to a binary GLB with GLTFExporter's parseAsync, for embedding in Office, model-viewer, or a downstream optimization pipeline.",
+   "tags": [
+    "gltfexporter",
+    "glb",
+    "export",
+    "parseAsync"
+   ],
+   "applies_to": ">=r170",
+   "status": "current",
+   "renderer": "both",
+   "last_verified": "2026-09-26",
+   "template": "html-importmap",
+   "sections": [
+    "Goal",
+    "Code",
+    "Verify",
+    "Notes"
+   ],
+   "bytes": 2896
+  },
+  {
+   "slug": "fit-camera-to-object",
+   "kind": "recipe",
+   "path": "recipes/fit-camera-to-object.md",
+   "title": "Fit camera to object",
+   "summary": "Frame any camera to any object's world-space bounding box, so a loaded model of unknown size always lands nicely in view.",
+   "tags": [
+    "box3",
+    "camera",
+    "fit",
+    "framing",
+    "bounding box",
+    "orbitcontrols"
+   ],
+   "applies_to": "any",
+   "status": "current",
+   "renderer": "both",
+   "last_verified": "2026-09-26",
+   "template": "html-importmap",
+   "sections": [
+    "Goal",
+    "Code",
+    "Verify",
+    "Notes"
+   ],
+   "bytes": 6055
+  },
+  {
+   "slug": "fixed-timestep-loop",
+   "kind": "recipe",
+   "path": "recipes/fixed-timestep-loop.md",
+   "title": "Fixed timestep loop",
+   "summary": "Accumulate real time and step a simulation in fixed increments, interpolating the rendered transform so motion looks smooth at any frame rate.",
+   "tags": [
+    "fixed timestep",
+    "timer",
+    "simulation",
+    "physics",
+    "interpolation",
+    "accumulator"
+   ],
+   "applies_to": ">=r183",
+   "status": "current",
+   "renderer": "both",
+   "last_verified": "2026-09-26",
+   "template": "html-importmap",
+   "sections": [
+    "Goal",
+    "Code",
+    "Verify",
+    "Notes"
+   ],
+   "bytes": 3666
+  },
+  {
+   "slug": "instanced-scatter",
+   "kind": "recipe",
+   "path": "recipes/instanced-scatter.md",
+   "title": "Instanced scatter",
+   "summary": "Scatter thousands of objects with one geometry, one material and one draw call using InstancedMesh, placed with a seeded PRNG so the layout is reproducible.",
+   "tags": [
+    "instancedmesh",
+    "scatter",
+    "performance",
+    "draw calls",
+    "seeded randomness"
+   ],
+   "applies_to": ">=r162",
+   "status": "current",
+   "renderer": "both",
+   "last_verified": "2026-09-26",
+   "template": "html-importmap",
+   "sections": [
+    "Goal",
+    "Code",
+    "Verify",
+    "Notes"
+   ],
+   "bytes": 5851
+  },
+  {
+   "slug": "keyboard-orbit-and-reduced-motion",
+   "kind": "recipe",
+   "path": "recipes/keyboard-orbit-and-reduced-motion.md",
+   "title": "Keyboard orbit and reduced motion",
+   "summary": "A real keyboard rotate/zoom scheme for OrbitControls (whose default arrow keys only pan) plus a prefers-reduced-motion branch that turns off auto-rotate.",
+   "tags": [
+    "accessibility",
+    "keyboard",
+    "orbitcontrols",
+    "reduced motion",
+    "focus ring"
+   ],
+   "applies_to": ">=r175",
+   "status": "current",
+   "renderer": "both",
+   "last_verified": "2026-09-26",
+   "template": "html-importmap",
+   "sections": [
+    "Goal",
+    "Code",
+    "Verify",
+    "Notes"
+   ],
+   "bytes": 4853
+  },
+  {
+   "slug": "load-gltf-with-decoders",
+   "kind": "recipe",
+   "path": "recipes/load-gltf-with-decoders.md",
+   "title": "Load a glTF with decoders",
+   "summary": "Wire GLTFLoader with the Draco, KTX2 and Meshopt decoders a compressed GLB actually needs, checked with tw glb first.",
+   "tags": [
+    "gltfloader",
+    "draco",
+    "ktx2",
+    "meshopt",
+    "decoders",
+    "gltf"
+   ],
+   "applies_to": ">=r185",
+   "status": "current",
+   "renderer": "both",
+   "last_verified": "2026-09-26",
+   "template": "html-importmap",
+   "sections": [
+    "Goal",
+    "Code",
+    "Verify",
+    "Notes"
+   ],
+   "bytes": 3734
+  },
+  {
+   "slug": "optimize-gltf",
+   "kind": "recipe",
+   "path": "recipes/optimize-gltf.md",
+   "title": "Optimize a glTF",
+   "summary": "The gltf-transform pipeline order (dedupe, weld, simplify, resize, compress textures, compress geometry) and how to confirm it worked with tw glb.",
+   "tags": [
+    "gltf-transform",
+    "optimize",
+    "draco",
+    "ktx2",
+    "meshopt",
+    "pipeline"
+   ],
+   "applies_to": "r186",
+   "status": "current",
+   "renderer": "both",
+   "last_verified": "2026-09-26",
+   "sections": [
+    "Goal",
+    "Code",
+    "Verify",
+    "Notes"
+   ],
+   "bytes": 3984
+  },
+  {
+   "slug": "raycast-hover-and-click",
+   "kind": "recipe",
+   "path": "recipes/raycast-hover-and-click.md",
+   "title": "Raycast hover and click",
+   "summary": "Convert pointer events to a ray, pick from a flat array of pickable meshes, and track hover-enter/leave without re-raycasting the whole scene graph.",
+   "tags": [
+    "raycaster",
+    "hover",
+    "click",
+    "pointer",
+    "picking",
+    "intersectobjects"
+   ],
+   "applies_to": "any",
+   "status": "current",
+   "renderer": "both",
+   "last_verified": "2026-09-26",
+   "template": "html-importmap",
+   "sections": [
+    "Goal",
+    "Code",
+    "Verify",
+    "Notes"
+   ],
+   "bytes": 6181
+  },
+  {
+   "slug": "render-on-demand",
+   "kind": "recipe",
+   "path": "recipes/render-on-demand.md",
+   "title": "Render on demand",
+   "summary": "Stop rendering 60 times a second for a page that mostly sits still, and only redraw when controls, resize or your own code actually asks for it.",
+   "tags": [
+    "render on demand",
+    "setAnimationLoop",
+    "orbitcontrols",
+    "performance",
+    "frameloop"
+   ],
+   "applies_to": ">=r175",
+   "status": "current",
+   "renderer": "both",
+   "last_verified": "2026-09-26",
+   "template": "html-importmap",
+   "sections": [
+    "Goal",
+    "Code",
+    "Verify",
+    "Notes"
+   ],
+   "bytes": 5314
+  },
+  {
+   "slug": "resize-and-pixel-ratio",
+   "kind": "recipe",
+   "path": "recipes/resize-and-pixel-ratio.md",
+   "title": "Resize and pixel ratio",
+   "summary": "Keep the canvas, camera aspect and pixel ratio all in sync on resize, capped so phones do not render 9x the pixels they need to.",
+   "tags": [
+    "resize",
+    "pixel ratio",
+    "aspect",
+    "devicePixelRatio",
+    "ResizeObserver"
+   ],
+   "applies_to": "any",
+   "status": "current",
+   "renderer": "both",
+   "last_verified": "2026-09-26",
+   "template": "html-importmap",
+   "sections": [
+    "Goal",
+    "Code",
+    "Verify",
+    "Notes"
+   ],
+   "bytes": 3319
+  },
+  {
+   "slug": "seeded-randomness",
+   "kind": "recipe",
+   "path": "recipes/seeded-randomness.md",
+   "title": "Seeded randomness",
+   "summary": "A tiny seeded PRNG (mulberry32) to replace Math.random() wherever a scene's layout must be reproducible: tests, generative art, and screenshot diffs.",
+   "tags": [
+    "seeded randomness",
+    "prng",
+    "mulberry32",
+    "determinism",
+    "math.random"
+   ],
+   "applies_to": "any",
+   "status": "current",
+   "renderer": "both",
+   "last_verified": "2026-09-26",
+   "sections": [
+    "Goal",
+    "Code",
+    "Verify",
+    "Notes"
+   ],
+   "bytes": 3374
+  },
+  {
+   "slug": "tsl-custom-material",
+   "kind": "recipe",
+   "path": "recipes/tsl-custom-material.md",
+   "title": "TSL custom material",
+   "summary": "A node material with colorNode and emissiveNode computed from position, UV and the renderer's own clock, with no GLSL or WGSL written by hand.",
+   "tags": [
+    "tsl",
+    "colorNode",
+    "emissiveNode",
+    "nodematerial",
+    "meshstandardnodematerial"
+   ],
+   "applies_to": ">=r171",
+   "status": "current",
+   "renderer": "webgpu",
+   "last_verified": "2026-09-26",
+   "template": "html-webgpu",
+   "sections": [
+    "Goal",
+    "Code",
+    "Verify",
+    "Notes"
+   ],
+   "bytes": 5657
+  },
+  {
+   "slug": "upgrade-an-old-project",
+   "kind": "recipe",
+   "path": "recipes/upgrade-an-old-project.md",
+   "title": "Upgrade an old project",
+   "summary": "Find a project's current three.js release, lint what breaks moving to r186, and fix the light-intensity and color-space changes a clean lint pass does not catch.",
+   "tags": [
+    "upgrade",
+    "migration",
+    "tw lint",
+    "legacy",
+    "light intensity"
+   ],
+   "applies_to": "any",
+   "status": "current",
+   "renderer": "both",
+   "last_verified": "2026-09-26",
+   "sections": [
+    "Goal",
+    "Code",
+    "Verify",
+    "Notes"
+   ],
+   "bytes": 4534
+  },
+  {
+   "slug": "webgpu-backend-check",
+   "kind": "recipe",
+   "path": "recipes/webgpu-backend-check.md",
+   "title": "WebGPU backend check",
+   "summary": "Detect at runtime whether WebGPURenderer actually got the WebGPU backend or fell back to WebGL 2, and force each path deliberately for testing.",
+   "tags": [
+    "webgpu",
+    "fallback",
+    "backend",
+    "forceWebGL",
+    "isWebGPUBackend"
+   ],
+   "applies_to": ">=r156",
+   "status": "current",
+   "renderer": "webgpu",
+   "last_verified": "2026-09-26",
+   "template": "html-webgpu",
+   "sections": [
+    "Goal",
+    "Code",
+    "Verify",
+    "Notes"
+   ],
+   "bytes": 3788
   },
   {
    "slug": "current-vs-legacy",

@@ -25,7 +25,7 @@ template: html-importmap
   - `tw glb <file.glb>` names exactly which decoders a given file needs; wire only those, since wiring an unused decoder just adds bytes.
 - HDR/EXR environments: `HDRLoader` (`three/addons/loaders/HDRLoader.js`) is the current name; `RGBELoader` still exists but is now a deprecated subclass that warns (renamed r180). `EXRLoader` and `UltraHDRLoader` cover the other HDR formats. All three return linear textures (`LinearSRGBColorSpace`), never `SRGBColorSpace`.
 - Text: `FontLoader` plus `TextGeometry` from `three/addons/...` for extruded display type (use the `depth` option, not the removed `height`). For body text or many labels, prefer SDF text (`troika-three-text`, WebGL) or an HTML overlay (`CSS2DRenderer`) over `TextGeometry`; see `text-and-labels`.
-- Removed or renamed loaders you may still see in old code or tutorials: `BasisTextureLoader` (removed r150, use `KTX2Loader`), `RGBMLoader` (removed r180), `LogLuvLoader` (removed r168, use `UltraHDRLoader` or `EXRLoader`), `HDRJPGLoader` (removed r167, use `UltraHDRLoader`), `USDZLoader` (deprecated r179, use `USDLoader`), `LWOLoader` and `VTKLoader` (deprecated, scheduled removal r195/r194 — convert to glTF instead).
+- Removed or renamed loaders you may still see in old code or tutorials: `BasisTextureLoader` (removed r150, use `KTX2Loader`), `RGBMLoader` (removed r180), `LogLuvLoader` (removed r168, use `UltraHDRLoader` or `EXRLoader`), `HDRJPGLoader` (removed r167, use `UltraHDRLoader`), `USDZLoader` (deprecated r179, use `USDLoader`), `LWOLoader` and `VTKLoader` (deprecated, scheduled removal r195/r194; convert to glTF instead).
 - Gaussian splat formats and loaders (`GaussianSplatPLYLoader`, `SPLATLoader`, `SPZLoader`, `KSPLATLoader`, `GLTFGaussianSplatLoaderExtension`) are covered in `gaussian-splats`, since they only work with `WebGPURenderer`.
 
 ## Pitfalls
@@ -38,7 +38,7 @@ template: html-importmap
 
 ## Verify
 
-- `tw glb <file.glb|.gltf>` reports size, draw calls, triangles, texture pixel dimensions, extensions used and which decoders they need, animations, world bounds, and budget warnings — read this before writing any loader code for a new asset.
+- `tw glb <file.glb|.gltf>` reports size, draw calls, triangles, texture pixel dimensions, extensions used and which decoders they need, animations, world bounds, and budget warnings; read this before writing any loader code for a new asset.
 - `tw check <page>` lists FAILED REQUESTS for a missing texture or `.bin` file and prints the loader's own error text (missing decoder, bad path, CORS) with a fix hint.
 - `tw lint <dir>` flags removed loader names (`RGBMLoader`, `LogLuvLoader`, `HDRJPGLoader`, `BasisTextureLoader`) and deprecated ones (`RGBELoader`, `USDZLoader`, `.setDecoderConfig(`, `.detectSupportAsync(`).
 

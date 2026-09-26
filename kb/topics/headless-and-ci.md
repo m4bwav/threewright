@@ -33,7 +33,7 @@ related: [testing, webgpu-support, webgpu-backend-check, capture-stills-and-vide
 
 ## Verify
 
-- `tw doctor` reports Node, Chrome, ffmpeg, npm, CDN reach, and whether the local headless Chrome actually exposes WebGL and WebGPU — read this before debugging a specific page.
+- `tw doctor` reports Node, Chrome, ffmpeg, npm, CDN reach, and whether the local headless Chrome actually exposes WebGL and WebGPU; read this before debugging a specific page.
 - `tw check <page>` prints the renderer and backend line (see `webgpu-backend-check`) and lists FAILED REQUESTS, which catches a `file://` module-resolution failure immediately.
 - `tw check <page> --gl swiftshader` (or `--gl gpu`) lets you force one path and compare its output against the other deliberately, rather than discovering the difference by accident in CI.
 
