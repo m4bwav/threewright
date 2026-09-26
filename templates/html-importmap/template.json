@@ -1,0 +1,11 @@
+{
+  "name": "html-importmap",
+  "summary": "Single HTML file, WebGLRenderer, import map to a pinned CDN three, PBR room lighting, shadows, Timer-driven animation",
+  "stack": "html + import map (no build)",
+  "renderer": "webgl",
+  "run": "open through any static server (tw check serves it for you)",
+  "verified": [
+    "2026-09-26 Windows 11 Chrome RTX GPU: tw check clean, tw sheet",
+    "2026-09-26 Linux container Chromium SwiftShader: tw check --cdn local clean, tw video mp4/gif/webm"
+  ]
+}

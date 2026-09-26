@@ -13,8 +13,18 @@ const PLUGIN_ROOT = resolve(dirname(fileURLToPath(import.meta.url)), '..', '..')
 
 export const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
 
-// Claude's image token cost is about width * height / 750 (Anthropic vision docs).
-export function imageTokens(w, h) { return Math.round((w * h) / 750); }
+// Claude vision cost (platform.claude.com vision docs, checked 2026-09-26): images are
+// first downscaled to fit the tier's long-edge and token caps, then cost
+// ceil(w/28) * ceil(h/28) tokens (28 px patches). High tier: Claude 4.7 and later
+// (long edge 2576, 4784 tokens); standard tier: older models (1568, 1568).
+export const IMAGE_TIERS = { high: { edge: 2576, max: 4784 }, standard: { edge: 1568, max: 1568 } };
+export function imageTokens(w, h, tier = process.env.TW_IMAGE_TIER || 'high') {
+  const t = IMAGE_TIERS[tier] || IMAGE_TIERS.high;
+  let s = Math.min(1, t.edge / Math.max(w, h));
+  const cost = (k) => Math.ceil((w * k) / 28) * Math.ceil((h * k) / 28);
+  while (cost(s) > t.max) s *= 0.99;
+  return cost(s);
+}
 
 export function parseSize(s, fallback = [960, 540]) {
   if (!s) return fallback;

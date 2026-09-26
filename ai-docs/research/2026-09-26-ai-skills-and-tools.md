@@ -84,6 +84,7 @@ Implication for a three.js agent skill: if threewright ever asks an agent to scr
 4. Prefer describing how to introspect the live renderer/scene state (stats, materials in use, program count) over asserting static facts about the API, wherever a live check is possible — static claims go stale, live checks do not.
 5. When asking an agent to attach a screenshot for verification, target roughly 1000-1460 px on the long edge to avoid both token waste and lossy server-side downscaling.
 6. Treat marketplace skill/MCP directory descriptions as marketing copy, not verified fact, until the underlying repo or docs page is read directly.
+7. Keep Blender/asset-authoring concerns and three.js runtime concerns in separate skill files; do not blend "how to export a glTF from Blender" with "how to load a glTF in three.js" in one document.
 
 ## Claims likely to change
 

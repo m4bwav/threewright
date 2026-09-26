@@ -1,0 +1,477 @@
+{
+ "_about": "Stale three.js API rules used by `tw lint`. Each rule: id, pattern (JS regex source, matched per line), since (release that deprecated or removed it), status (deprecated = still works with a warning; removed = throws or undefined), replacement, severity (error | warn | info), keys (identifiers used by `tw deprecations` to tell whether an @deprecated marker in the installed three is covered), optional fix {from, to} for --fix, optional ext (file extensions it applies to). Checked against three r186 source on 2026-09-26. Add rules with the threewright-curate skill; run `tw deprecations` after each three release to find uncovered markers.",
+ "checked_against": "r186",
+ "rules": [
+  {
+   "id": "clock",
+   "pattern": "\\bnew\\s+(?:THREE\\.)?Clock\\s*\\(",
+   "since": "r183",
+   "status": "deprecated",
+   "replacement": "new THREE.Timer(); call timer.update(timestamp) each frame and read timer.getDelta() / getElapsed()",
+   "severity": "warn",
+   "keys": [
+    "Clock.js"
+   ]
+  },
+  {
+   "id": "postprocessing-class",
+   "pattern": "\\bnew\\s+(?:THREE\\.)?PostProcessing\\s*\\(",
+   "since": "r183",
+   "status": "deprecated",
+   "replacement": "new THREE.RenderPipeline(renderer) (same API, renamed)",
+   "severity": "warn",
+   "keys": [
+    "PostProcessing"
+   ],
+   "fix": {
+    "from": "\\bPostProcessing\\b",
+    "to": "RenderPipeline"
+   }
+  },
+  {
+   "id": "render-async",
+   "pattern": "\\.(renderAsync|clearAsync|clearColorAsync|clearDepthAsync|clearStencilAsync|hasFeatureAsync|initTextureAsync|detectSupportAsync)\\s*\\(",
+   "since": "r181",
+   "status": "deprecated",
+   "replacement": "await renderer.init() once, then the sync method (render, clear, hasFeature, initTexture, detectSupport)",
+   "severity": "warn",
+   "keys": [
+    "renderAsync",
+    "clearAsync",
+    "clearColorAsync",
+    "clearDepthAsync",
+    "clearStencilAsync",
+    "hasFeatureAsync",
+    "initTextureAsync",
+    "detectSupportAsync"
+   ]
+  },
+  {
+   "id": "pmrem-async",
+   "pattern": "\\.(fromSceneAsync|fromEquirectangularAsync|fromCubemapAsync)\\s*\\(",
+   "since": "r181",
+   "status": "deprecated",
+   "replacement": "await renderer.init(), then fromScene / fromEquirectangular / fromCubemap",
+   "severity": "warn",
+   "keys": [
+    "fromSceneAsync",
+    "fromEquirectangularAsync",
+    "fromCubemapAsync"
+   ]
+  },
+  {
+   "id": "wait-for-gpu",
+   "pattern": "\\.waitForGPU\\s*\\(",
+   "since": "r181",
+   "status": "removed",
+   "replacement": "remove the call (see three.js issue 32012)",
+   "severity": "error",
+   "keys": [
+    "waitForGPU"
+   ]
+  },
+  {
+   "id": "texture-source",
+   "pattern": "\\bnew\\s+(?:THREE\\.)?Source\\s*\\(|\\bTHREE\\.Source\\b|\\.isSource\\b",
+   "since": "r186",
+   "status": "deprecated",
+   "replacement": "TextureSource (and .isTextureSource)",
+   "severity": "warn",
+   "keys": [
+    "TextureSource.js"
+   ]
+  },
+  {
+   "id": "pcf-soft-shadow",
+   "pattern": "\\bPCFSoftShadowMap\\b",
+   "since": "r186",
+   "status": "deprecated",
+   "replacement": "PCFShadowMap (soft by default; tune shadow.radius and blurSamples)",
+   "severity": "warn",
+   "keys": [
+    "PCFSoftShadowMap"
+   ],
+   "fix": {
+    "from": "\\bPCFSoftShadowMap\\b",
+    "to": "PCFShadowMap"
+   }
+  },
+  {
+   "id": "min-build",
+   "pattern": "three(?:@[^/'\"]+)?/build/three(?:\\.module)?\\.min\\.js",
+   "since": "r186",
+   "status": "removed",
+   "replacement": "build/three.module.js (minified builds were removed in r186; minify in your bundler)",
+   "severity": "error",
+   "keys": []
+  },
+  {
+   "id": "cjs-build",
+   "pattern": "three(?:@[^/'\"]+)?/build/three\\.cjs|require\\(\\s*['\"]three['\"]\\s*\\)",
+   "since": "r186",
+   "status": "deprecated",
+   "replacement": "ES modules: import * as THREE from 'three' (the CommonJS build is deprecated in r186)",
+   "severity": "warn",
+   "keys": []
+  },
+  {
+   "id": "umd-build",
+   "pattern": "three(?:@[^/'\"]+)?/build/three\\.js['\"]",
+   "since": "r160",
+   "status": "removed",
+   "replacement": "an import map to build/three.module.js, or a bundler",
+   "severity": "error",
+   "keys": []
+  },
+  {
+   "id": "examples-js",
+   "pattern": "three(?:@[^/'\"]+)?/examples/js/",
+   "since": "r148",
+   "status": "removed",
+   "replacement": "three/addons/... (examples/jsm modules)",
+   "severity": "error",
+   "keys": []
+  },
+  {
+   "id": "examples-jsm-path",
+   "pattern": "['\"]three/examples/jsm/",
+   "since": "r151",
+   "status": "deprecated",
+   "replacement": "three/addons/... (the alias exists since r151; both still resolve)",
+   "severity": "info",
+   "keys": [],
+   "fix": {
+    "from": "(['\"])three/examples/jsm/",
+    "to": "$1three/addons/"
+   }
+  },
+  {
+   "id": "output-encoding",
+   "pattern": "\\.outputEncoding\\b|\\bsRGBEncoding\\b|\\bLinearEncoding\\b|\\btexture\\.encoding\\b|\\.encoding\\s*=\\s*(?:THREE\\.)?\\w+Encoding",
+   "since": "r162",
+   "status": "removed",
+   "replacement": "renderer.outputColorSpace = THREE.SRGBColorSpace (default); texture.colorSpace = THREE.SRGBColorSpace for color maps",
+   "severity": "error",
+   "keys": []
+  },
+  {
+   "id": "legacy-lights",
+   "pattern": "\\.(physicallyCorrectLights|useLegacyLights)\\b",
+   "since": "r165",
+   "status": "removed",
+   "replacement": "delete it; lights are physically based since r155, so raise intensities (a directional light near 2 to 3, point lights in candela with decay 2)",
+   "severity": "error",
+   "keys": []
+  },
+  {
+   "id": "gamma-output",
+   "pattern": "\\.(gammaOutput|gammaFactor|gammaInput)\\b",
+   "since": "r112",
+   "status": "removed",
+   "replacement": "renderer.outputColorSpace",
+   "severity": "error",
+   "keys": []
+  },
+  {
+   "id": "webgl1-renderer",
+   "pattern": "\\bWebGL1Renderer\\b",
+   "since": "r163",
+   "status": "removed",
+   "replacement": "WebGLRenderer (WebGL 2 only since r163) or WebGPURenderer",
+   "severity": "error",
+   "keys": []
+  },
+  {
+   "id": "legacy-geometry",
+   "pattern": "\\bnew\\s+(?:THREE\\.)?(Geometry|Face3)\\s*\\(",
+   "since": "r125",
+   "status": "removed",
+   "replacement": "BufferGeometry with setAttribute('position', new THREE.Float32BufferAttribute(array, 3))",
+   "severity": "error",
+   "keys": []
+  },
+  {
+   "id": "buffer-geometry-alias",
+   "pattern": "\\b(Box|Sphere|Plane|Cylinder|Cone|Torus|TorusKnot|Circle|Ring|Icosahedron|Octahedron|Tetrahedron|Dodecahedron|Lathe|Shape|Extrude|Tube|Polyhedron|Capsule)BufferGeometry\\b",
+   "since": "r144",
+   "status": "removed",
+   "replacement": "the name without Buffer (BoxGeometry, SphereGeometry, ...)",
+   "severity": "error",
+   "keys": [],
+   "fix": {
+    "from": "\\b(Box|Sphere|Plane|Cylinder|Cone|Torus|TorusKnot|Circle|Ring|Icosahedron|Octahedron|Tetrahedron|Dodecahedron|Lathe|Shape|Extrude|Tube|Polyhedron|Capsule)BufferGeometry\\b",
+    "to": "$1Geometry"
+   }
+  },
+  {
+   "id": "add-attribute",
+   "pattern": "\\.addAttribute\\s*\\(",
+   "since": "r110",
+   "status": "removed",
+   "replacement": "geometry.setAttribute(name, attribute)",
+   "severity": "error",
+   "keys": [],
+   "fix": {
+    "from": "\\.addAttribute\\s*\\(",
+    "to": ".setAttribute("
+   }
+  },
+  {
+   "id": "image-utils-load",
+   "pattern": "ImageUtils\\.loadTexture",
+   "since": "r80",
+   "status": "removed",
+   "replacement": "new THREE.TextureLoader().load(url)",
+   "severity": "error",
+   "keys": []
+  },
+  {
+   "id": "rgbe-loader",
+   "pattern": "\\bRGBELoader\\b",
+   "since": "r180",
+   "status": "deprecated",
+   "replacement": "HDRLoader from three/addons/loaders/HDRLoader.js",
+   "severity": "warn",
+   "keys": [
+    "RGBELoader"
+   ]
+  },
+  {
+   "id": "usdz-loader",
+   "pattern": "\\bUSDZLoader\\b",
+   "since": "r179",
+   "status": "deprecated",
+   "replacement": "USDLoader from three/addons/loaders/USDLoader.js",
+   "severity": "warn",
+   "keys": [
+    "USDZLoader"
+   ]
+  },
+  {
+   "id": "vtk-lwo-loader",
+   "pattern": "\\b(VTKLoader|LWOLoader)\\b",
+   "since": "r184",
+   "status": "deprecated",
+   "replacement": "convert the files to glTF (VTKLoader is removed in r194, LWOLoader in r195)",
+   "severity": "warn",
+   "keys": [
+    "VTKLoader",
+    "LWOLoader"
+   ]
+  },
+  {
+   "id": "color-management-rename",
+   "pattern": "\\.(fromWorkingColorSpace|toWorkingColorSpace)\\s*\\(",
+   "since": "r177",
+   "status": "deprecated",
+   "replacement": "ColorManagement.workingToColorSpace() / colorSpaceToWorking()",
+   "severity": "warn",
+   "keys": [
+    "fromWorkingColorSpace",
+    "toWorkingColorSpace"
+   ]
+  },
+  {
+   "id": "tsl-transformed-normal",
+   "pattern": "\\btransformed(Normal|ClearcoatNormal)(View|World)\\b",
+   "since": "r178",
+   "status": "deprecated",
+   "replacement": "normalView, normalWorld, clearcoatNormalView",
+   "severity": "warn",
+   "keys": [
+    "transformedNormalView",
+    "transformedNormalWorld",
+    "transformedClearcoatNormalView"
+   ]
+  },
+  {
+   "id": "tsl-renamed-r185",
+   "pattern": "\\b(directionToColor|colorToDirection|directionToFaceDirection)\\s*\\(",
+   "since": "r185",
+   "status": "deprecated",
+   "replacement": "packNormalToRGB(), unpackRGBToNormal(), negateOnBackSide()",
+   "severity": "warn",
+   "keys": [
+    "directionToColor",
+    "colorToDirection",
+    "directionToFaceDirection"
+   ]
+  },
+  {
+   "id": "tsl-label",
+   "pattern": "\\b(uniform|compute|reference|context|workgroupArray)\\([^)]*\\)\\s*\\.label\\s*\\(",
+   "since": "r179",
+   "status": "deprecated",
+   "replacement": ".setName(name)",
+   "severity": "warn",
+   "keys": [
+    "label()"
+   ]
+  },
+  {
+   "id": "tsl-cache",
+   "pattern": "\\)\\s*\\.cache\\s*\\(\\s*\\)",
+   "since": "r181",
+   "status": "deprecated",
+   "replacement": ".isolate()",
+   "severity": "info",
+   "keys": [
+    "cache()"
+   ]
+  },
+  {
+   "id": "line2-color-node",
+   "pattern": "\\.lineColorNode\\b",
+   "since": "r185",
+   "status": "deprecated",
+   "replacement": "material.colorNode",
+   "severity": "warn",
+   "keys": [
+    "lineColorNode",
+    "Line2NodeMaterial.js"
+   ]
+  },
+  {
+   "id": "color-buffer-type",
+   "pattern": "\\.getColorBufferType\\s*\\(",
+   "since": "r182",
+   "status": "deprecated",
+   "replacement": "renderer.getOutputBufferType()",
+   "severity": "warn",
+   "keys": [
+    "getColorBufferType"
+   ]
+  },
+  {
+   "id": "matrix3-transform",
+   "pattern": "\\bMatrix3\\b[^;]*\\.(scale|rotate|translate)\\s*\\(",
+   "since": "r185",
+   "status": "deprecated",
+   "replacement": "makeScale(), makeRotation(), makeTranslation() and multiply",
+   "severity": "info",
+   "keys": [
+    "Matrix3: .scale",
+    "Matrix3: .rotate",
+    "Matrix3: .translate"
+   ]
+  },
+  {
+   "id": "glsl-inverse-transform-direction",
+   "pattern": "\\binverseTransformDirection\\s*\\(",
+   "since": "r185",
+   "status": "deprecated",
+   "replacement": "transformDirectionByInverseViewMatrix()",
+   "severity": "warn",
+   "keys": [
+    "inverseTransformDirection"
+   ]
+  },
+  {
+   "id": "resolution-scale",
+   "pattern": "\\b(gaussianBlur|reflector|pass)\\([^)]*\\)\\s*\\.(setResolution|getResolution)\\s*\\(|\\bpremultipliedGaussianBlur\\s*\\(",
+   "since": "r180",
+   "status": "deprecated",
+   "replacement": "setResolutionScale(number) / resolutionScale; gaussianBlur(..., { premultipliedAlpha: true })",
+   "severity": "warn",
+   "keys": [
+    "resolutionScale",
+    "setResolutionScale",
+    "getResolutionScale",
+    "premultipliedGaussianBlur"
+   ]
+  },
+  {
+   "id": "svg-create-shapes",
+   "pattern": "SVGLoader\\.createShapes\\s*\\(",
+   "since": "r185",
+   "status": "deprecated",
+   "replacement": "shapePath.toShapes(isCCW)",
+   "severity": "warn",
+   "keys": [
+    "createShapes"
+   ]
+  },
+  {
+   "id": "vox-mesh",
+   "pattern": "\\bnew\\s+VOXMesh\\s*\\(",
+   "since": "r182",
+   "status": "deprecated",
+   "replacement": "buildMesh(chunk) from VOXLoader",
+   "severity": "warn",
+   "keys": [
+    "VOXMesh",
+    "VOXLoader.js"
+   ]
+  },
+  {
+   "id": "sky-is-sky",
+   "pattern": "\\.isSky\\b",
+   "since": "r182",
+   "status": "deprecated",
+   "replacement": ".isSkyMesh",
+   "severity": "info",
+   "keys": [
+    "isSky"
+   ]
+  },
+  {
+   "id": "draco-decoder-config",
+   "pattern": "\\.setDecoderConfig\\s*\\(",
+   "since": "r186",
+   "status": "deprecated",
+   "replacement": "drop it (removed in r194); DRACOLoader picks the decoder",
+   "severity": "warn",
+   "keys": [
+    "setDecoderConfig"
+   ]
+  },
+  {
+   "id": "tsl-pi2",
+   "pattern": "\\bPI2\\b",
+   "since": "r181",
+   "status": "deprecated",
+   "replacement": "TWO_PI from three/tsl",
+   "severity": "info",
+   "keys": [
+    "PI2"
+   ],
+   "ext": [
+    ".js",
+    ".mjs",
+    ".ts",
+    ".tsx",
+    ".jsx"
+   ]
+  },
+  {
+   "id": "first-person-handle-resize",
+   "pattern": "\\.handleResize\\s*\\(",
+   "since": "r184",
+   "status": "removed",
+   "replacement": "remove the call; FirstPersonControls no longer needs it",
+   "severity": "info",
+   "keys": [
+    "handleResize"
+   ]
+  },
+  {
+   "id": "unpinned-cdn",
+   "pattern": "(?:cdn\\.jsdelivr\\.net/npm|unpkg\\.com|esm\\.sh)/three(?:@latest)?/",
+   "since": "any",
+   "status": "risk",
+   "replacement": "pin the exact version, e.g. three@0.186.1, so the page does not change under you",
+   "severity": "warn",
+   "keys": []
+  },
+  {
+   "id": "mixed-three-versions",
+   "pattern": "three@0\\.(\\d+)\\.\\d+",
+   "since": "any",
+   "status": "check",
+   "replacement": "every three URL on a page must use the same version (checked per file)",
+   "severity": "error",
+   "keys": [],
+   "file_check": "same-version"
+  }
+ ]
+}

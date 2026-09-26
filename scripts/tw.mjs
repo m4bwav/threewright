@@ -182,7 +182,7 @@ const commands = {
     ].filter(Boolean).join('\n'));
   },
 
-  async lint(a) { const m = await import('./lib/lint.mjs'); return m.cmdLint(a, print); },
+  async lint(a) { const m = await import('./lib/lint.mjs'); return m.cmdLint(a, print, ROOT); },
   async glb(a) { const m = await import('./lib/glb.mjs'); return m.cmdGlb(a, print); },
   async kb(a) { const m = await import('./lib/kb.mjs'); return m.cmdKb(a, print, ROOT); },
   async new(a) { const m = await import('./lib/templates.mjs'); return m.cmdNew(a, print, ROOT); },
