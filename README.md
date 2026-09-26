@@ -39,7 +39,7 @@ Each one passes `tw check`; `node scripts/tw.mjs templates` lists where and how 
 | `surface` | 3D surface chart for documents: colour map, contours, axes, hover readout |
 | `globe` | Globe with great-circle routes, city labels that hide on the far side, no map downloads |
 | `product-viewer` | GLB viewer: environment light, soft shadow, fit to model, colour variants, loading and error states |
-| `scroll-hero` | Scroll-driven hero with GSAP ScrollTrigger and Lenis; reduced motion cuts between sections |
+| `scroll-hero` | Scroll-driven hero with GSAP ScrollTrigger and Lenis, poster first; reduced motion holds the final view; `tw new` vendors its libraries |
 | `splats` | Gaussian splat viewer on r186 `GaussianSplat` (WebGPU, WebGL 2 fallback) |
 
 ## CLI
@@ -61,6 +61,8 @@ node scripts/tw.mjs lint src/                # stale APIs, with the release that
 node scripts/tw.mjs glb model.glb            # size, triangles, textures, decoders needed
 node scripts/tw.mjs kb search "bloom webgpu" # then: kb show <slug> --section <name>
 node scripts/tw.mjs new game-starter my-game
+node scripts/tw.mjs vendor site/              # copy the pinned CDN modules the page imports into vendor/, rewrite the import map
+node scripts/tw.mjs shot page/ --out poster.jpg   # .jpg or .webp for a poster image
 node scripts/tw.mjs deprecations             # @deprecated markers in the installed three no rule covers
 node scripts/tw.mjs versions --check         # npm versions vs the knowledge base
 node scripts/tw.mjs doctor

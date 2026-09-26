@@ -30,7 +30,8 @@ Verify a page (file, folder with index.html, or URL); text first, images on requ
                         shader's error lines with source context; --dump writes .vert/.frag files
   perf <page> [--seconds 5] [--cpu-throttle 4]   frame time p50/p95/p99/max, frames over 33 ms,
                         draw calls and triangles per frame, geometry, texture and heap growth
-  shot <page> --out f.png [--canvas] [--alpha]   one screenshot; prints its token cost
+  shot <page> --out f.png [--canvas] [--alpha]   one screenshot; prints its token cost (.jpg or .webp
+                        write that format, --quality 82, e.g. for a poster image)
                         (shot and sheet take --eval "<js>" to set a state first, e.g. scrollTo(0, 2000))
   sheet <page> --out f.png [--views current,front,right,top]   several angles in one image
   sheet <page> --sweep "find('knot').material.roughness=0,0.5,1"   one tile per value, current view
@@ -55,7 +56,10 @@ Static tools (no browser):
   kb show <slug> [--section name ...]   print an entry or only some sections
   kb list [--kind topic|scenario|library|recipe|rule] ; kb index ; kb validate [--strict]
   kb note <slug> "<text>"   add a dated note to an entry
-  new <template> <dir> [--force]   copy a verified starter (tw templates lists them)
+  new <template> <dir> [--force] [--no-vendor]   copy a verified starter (tw templates lists them);
+                        site templates vendor their CDN modules unless --no-vendor
+  vendor <dir|page.html> [--offline] [--dry-run]   copy the pinned CDN modules the page imports
+                        (and their own imports) into vendor/ and point the import map at them
   templates             list starters and where each was verified
   versions [--check]    latest npm versions vs the knowledge base and templates
   deprecations [--src node_modules/three] [--all]   @deprecated markers no lint rule covers yet
@@ -63,7 +67,7 @@ Static tools (no browser):
 Global: --json for machine output. Image costs use Claude's 28 px patches (TW_IMAGE_TIER=standard
 for models before Claude 4.7).`;
 
-const BOOLS = ['json', 'canvas', 'webgpu', 'headed', 'strict', 'reducedMotion', 'reduced-motion', 'alpha', 'check', 'all', 'help', 'fix', 'keepFrames', 'force', 'md', 'tree', 'labels', 'sources'];
+const BOOLS = ['json', 'canvas', 'webgpu', 'headed', 'strict', 'reducedMotion', 'reduced-motion', 'alpha', 'check', 'all', 'help', 'fix', 'keepFrames', 'force', 'md', 'tree', 'labels', 'sources', 'offline', 'dry-run', 'no-vendor'];
 
 function print(obj, asJson, textFn) {
   if (asJson) console.log(JSON.stringify(obj, null, 2));
@@ -90,7 +94,7 @@ function formatCheck(r) {
     L.push(`scene: ${types}`);
     L.push(`  meshes ${s.meshes} · lights ${s.lights} · verts ${s.verts} · tris ${s.tris}${s.instances ? ' · instances ' + s.instances : ''} · materials ${s.materials} · textures ${s.textures} · environment ${s.environment} · background ${s.background}${s.fog ? ' · fog ' + s.fog : ''}`);
   }
-  if (r.summary.bounds) L.push(`bounds: center ${r.summary.bounds.center} size ${r.summary.bounds.size}`);
+  if (r.summary.bounds) L.push(`bounds: center ${r.summary.bounds.center} size ${r.summary.bounds.size}${r.summary.bounds.backdrop ? ` (${r.summary.bounds.backdrop} backdrop object(s) such as sky, moon or stars left out)` : ''}`);
   if (r.summary.camera) { const c = r.summary.camera; L.push(`camera: ${c.type} pos ${c.pos}${c.fov ? ' fov ' + c.fov : ''} near ${c.near} far ${c.far}${c.aspect ? ' aspect ' + c.aspect : ''}`); }
   if (r.pixels) L.push(formatPixels(r.pixels));
   if (r.eval !== undefined) L.push('eval: ' + JSON.stringify(r.eval).slice(0, 2000));
@@ -188,7 +192,7 @@ async function glString(page) {
 }
 
 const formatImage = (x) => `wrote ${x.file} (${x.width}x${x.height}, ${x.tokens} image tokens${x.seenAs ? `; the model downscales it to ${x.seenAs}` : ''})${x.labels && x.labels.length ? '\nlabels: ' + x.labels.join(' · ') : ''}`;
-const formatShot = (x) => `${formatImage(x)}\n${formatPixels(x.pixels)}${x.pixels.warn.length ? '\n' + x.pixels.warn.map((w) => 'CHECK ' + w).join('\n') : ''}`;
+const formatShot = (x) => !x.pixels ? formatImage(x) : `${formatImage(x)}\n${formatPixels(x.pixels)}${x.pixels.warn.length ? '\n' + x.pixels.warn.map((w) => 'CHECK ' + w).join('\n') : ''}`;
 
 async function takeShot(ctx, a, out) {
   const { screenshot } = await import('./lib/page.mjs');
@@ -211,10 +215,11 @@ async function takeShot(ctx, a, out) {
     document.body.appendChild(box);
     return tags.map((g) => g.text + ' ' + Math.round(g.x * 100) + '%,' + Math.round(g.y * 100) + '%');
   })()`) : null;
-  const r = await screenshot(ctx, out, { canvasOnly: !!a.canvas, alpha: !!a.alpha });
+  const r = await screenshot(ctx, out, { canvasOnly: !!a.canvas, alpha: !!a.alpha, quality: a.quality });
   if (labels) { await ctx.page.eval('document.getElementById("__tw_labels")?.remove(), true'); r.labels = labels; }
   const { readFileSync } = await import('node:fs');
   const { decodePng, pixelStats, pixelWarnings } = await import('./lib/png.mjs');
+  if (!/\.png$/i.test(out)) return r; // pixel stats read PNG only
   const px = pixelStats(decodePng(readFileSync(out)));
   return { ...r, pixels: { ...px, warn: pixelWarnings(px) } };
 }
@@ -437,6 +442,7 @@ const commands = {
   async lint(a) { const m = await import('./lib/lint.mjs'); return m.cmdLint(a, print); },
   async glb(a) { const m = await import('./lib/glb.mjs'); return m.cmdGlb(a, print); },
   async kb(a) { const m = await import('./lib/kb.mjs'); return m.cmdKb(a, print, ROOT); },
+  async vendor(a) { const m = await import('./lib/vendor.mjs'); return m.cmdVendor(a, print); },
   async new(a) { const m = await import('./lib/templates.mjs'); return m.cmdNew(a, print, ROOT); },
   async templates(a) { const m = await import('./lib/templates.mjs'); return m.cmdTemplates(a, print, ROOT); },
   async versions(a) { const m = await import('./lib/versions.mjs'); return m.cmdVersions(a, print, ROOT); },

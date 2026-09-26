@@ -1,12 +1,30 @@
 {
   "name": "scroll-hero",
-  "summary": "Scroll-driven hero, no build: GSAP 3.15.0 ScrollTrigger scrubs one timeline over four text sections, Lenis 1.3.26 smooths the scroll through GSAP's ticker, one fixed three.js canvas rendered on demand; reduced motion means no Lenis and jump cuts per section; ?progress=0..1, #progress= or window.__tw.setProgress(p) jumps to any point",
+  "summary": "Scroll-driven hero, no build: GSAP 3.15.0 ScrollTrigger scrubs one timeline over four text sections, Lenis 1.3.26 smooths the scroll through GSAP's ticker, one fixed three.js canvas rendered on demand behind a poster image, WebGL started after first paint; reduced motion means no Lenis and the final view held still; ?progress=0..1, #progress= or window.__tw.setProgress(p) jumps to any point; tw new vendors three, GSAP and Lenis into vendor/",
   "renderer": "webgl",
   "three": "0.186.1",
   "entry": "index.html",
-  "use_for": ["marketing hero sections and scroll stories", "product reveals tied to scroll", "the base for camera flights keyed to page sections"],
-  "next": ["node <threewright>/scripts/tw.mjs check <dir>", "edit KEYS (one keyframe per section) and the section text", "shoot states: node <threewright>/scripts/tw.mjs shot <dir> --eval \"__tw.setProgress(0.5)\" --out mid.png (sheet takes --eval too); a served page also takes ?progress=0.5 or #progress=0.5"],
+  "use_for": [
+    "marketing hero sections and scroll stories",
+    "product reveals tied to scroll",
+    "the base for camera flights keyed to page sections"
+  ],
+  "next": [
+    "node <threewright>/scripts/tw.mjs check <dir>  and again with --reduced-motion",
+    "edit KEYS (one keyframe per section) and the section text, then remake the four posters (commands at the top of the script)",
+    "shoot states: node <threewright>/scripts/tw.mjs shot <dir> --eval \"__tw.setProgress(0.5)\" --out mid.png (sheet takes --eval too); a served page also takes ?progress=0.5 or #progress=0.5"
+  ],
   "verified": [
-    { "date": "2026-09-26", "platform": "Windows 11, Chrome 153 headless, NVIDIA RTX 5060 Ti", "checks": "tw check OK (gsap and lenis served from the npm cache with --cdn offline), tw check --reduced-motion OK (scrolling to section 3 jumped the timeline to 2/3 with no Lenis), tw lint clean; tw shot looked at over http at progress 0, 0.333, 0.667, 1 and #progress=0.5, and 0.45 with reduced motion (snapped to section 2): orange core with metal rings and beads sits opposite each text panel, panel text readable over the canvas, final view places the object above the centred panel" }
-  ]
+    {
+      "date": "2026-09-26",
+      "platform": "Windows 11, Chrome 153 headless, NVIDIA RTX 5060 Ti",
+      "checks": "tw new vendored 9 files (2476 KB) and rewrote the import map; tw check OK with --cdn offline (no CDN requests), with --reduced-motion, with ?progress=0.6 and at 390x844; reduced motion: tw diff of the canvas at progress 0 and 1 with the text hidden, 0 pixels (normal mode 14%); the four posters looked at; tw lint clean"
+    },
+    {
+      "date": "2026-09-26",
+      "platform": "Windows 11, Chrome 153 headless, NVIDIA RTX 5060 Ti",
+      "checks": "tw check OK (gsap and lenis served from the npm cache with --cdn offline), tw check --reduced-motion OK (scrolling to section 3 jumped the timeline to 2/3 with no Lenis), tw lint clean; tw shot looked at over http at progress 0, 0.333, 0.667, 1 and #progress=0.5, and 0.45 with reduced motion (snapped to section 2): orange core with metal rings and beads sits opposite each text panel, panel text readable over the canvas, final view places the object above the centred panel"
+    }
+  ],
+  "vendor": true
 }

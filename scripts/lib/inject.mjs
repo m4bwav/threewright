@@ -319,18 +319,38 @@ function pageMain(cfg) {
     return { types, meshes, lights, verts, tris, instances, materials: materials.size, textures: textures.size, geometries: geometries.size, background: scene.background ? (scene.background.isColor ? '#' + scene.background.getHexString() : scene.background.isTexture ? 'texture' : 'set') : null, environment: !!(scene.environment || scene.environmentNode), fog: scene.fog ? scene.fog.type || 'fog' : null, warn, shadowCasterLights };
   }
 
-  function boundsOf(scene) {
-    const { scene: s } = { scene };
-    let box = null;
-    s.traverse((o) => {
+  // Backdrop: sky domes, moons and star fields that would stretch the bounds far past
+  // the subject. An object is backdrop when a built-in material opts out of the scene's
+  // fog, or (with a perspective camera) when it sits beyond a third of camera.far or
+  // spans more than half of it. Custom ShaderMaterials default to fog: false, so only
+  // built-in materials count for the fog test.
+  function isBackdrop(o, b, scene, camera) {
+    const mats = [].concat(o.material || []);
+    if (scene.fog && mats.length && mats.every((m) => m && m.fog === false && !m.isShaderMaterial)) return true;
+    if (camera && camera.isPerspectiveCamera && camera.far) {
+      const c = b.getCenter(b.min.clone()), size = b.getSize(b.min.clone()).length();
+      if (size > camera.far * 0.5 || camera.position.distanceTo(c) - size / 2 > camera.far / 3) return true;
+    }
+    return false;
+  }
+
+  // World bounds of the visible geometry, without backdrop objects unless nothing else
+  // is left. Returns the box (or null); box.backdrop counts the objects left out.
+  function boundsOf(scene, camera) {
+    let box = null, all = null, backdrop = 0;
+    scene.traverse((o) => {
       if (!o.visible || !o.geometry) return;
       const g = o.geometry;
       if (!g.boundingBox) { try { g.computeBoundingBox(); } catch { return; } }
       if (!g.boundingBox || g.boundingBox.isEmpty()) return;
       const b = g.boundingBox.clone().applyMatrix4(o.matrixWorld);
       if ((o.isInstancedMesh || o.isGaussianSplat) && typeof o.computeBoundingBox === 'function') { try { o.computeBoundingBox(); if (o.boundingBox) b.copy(o.boundingBox).applyMatrix4(o.matrixWorld); } catch { /* ignore */ } }
+      all = all ? all.union(b.clone()) : b.clone();
+      if (isBackdrop(o, b, scene, camera)) { backdrop++; return; }
       box = box ? box.union(b) : b;
     });
+    if (!box) return all;
+    box.backdrop = backdrop;
     return box;
   }
 
@@ -350,10 +370,11 @@ function pageMain(cfg) {
     const st = sceneStats(scene);
     out.scene = st;
     const warn = st.warn.slice();
-    const box = boundsOf(scene);
+    if (camera) camera.updateMatrixWorld(true);
+    const box = boundsOf(scene, camera);
     if (box) {
       const c = box.getCenter(box.min.clone()), s = box.getSize(box.min.clone());
-      out.bounds = { center: vec(c), size: vec(s) };
+      out.bounds = { center: vec(c), size: vec(s), ...(box.backdrop ? { backdrop: box.backdrop } : {}) };
       if (camera) {
         camera.updateMatrixWorld(true);
         const p = c.clone().project(camera);
@@ -365,7 +386,9 @@ function pageMain(cfg) {
           if (dist + radius < camera.near || dist - radius > camera.far) warn.push('the scene lies outside the camera near/far range');
           if (camera.far / camera.near > 1e6) warn.push(`near/far ratio ${Math.round(camera.far / camera.near)} risks z-fighting (raise near)`);
           const fit = radius / Math.tan((camera.fov * Math.PI) / 360);
-          if (dist < radius * 0.5) warn.push('the camera is inside the scene bounds');
+          // Wide, flat bounds are a landscape or floor the viewer stands on: being inside is normal.
+          const flat = s.y < 0.25 * Math.max(s.x, s.z);
+          if (dist < radius * 0.5 && !flat) warn.push('the camera is inside the scene bounds');
           else if (dist > fit * 12) warn.push('the scene is very small in view (camera far away)');
         }
       }
@@ -507,7 +530,7 @@ function pageMain(cfg) {
     sheet.width = tileW * cols; sheet.height = tileH * rows;
     const ctx = sheet.getContext('2d');
     ctx.fillStyle = '#222'; ctx.fillRect(0, 0, sheet.width, sheet.height);
-    const box = boundsOf(scene);
+    const box = boundsOf(scene, camera);
     const center = box ? box.getCenter(box.min.clone()) : camera.position.clone().set(0, 0, 0);
     const size = box ? box.getSize(box.min.clone()).length() : 10;
     const saved = { pos: camera.position.clone(), quat: camera.quaternion.clone(), up: camera.up.clone(), zoom: camera.zoom };

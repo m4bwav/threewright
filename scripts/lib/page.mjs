@@ -174,14 +174,18 @@ export function writeDataUrl(dataUrl, out) {
   writeFileSync(out, Buffer.from(b64, 'base64'));
 }
 
-export async function screenshot(ctx, out, { canvasOnly = false, alpha = false } = {}) {
+export async function screenshot(ctx, out, { canvasOnly = false, alpha = false, quality: q } = {}) {
   if (alpha) await ctx.page.send('Emulation.setDefaultBackgroundColorOverride', { color: { r: 0, g: 0, b: 0, a: 0 } });
   let clip;
   if (canvasOnly) {
     const r = await ctx.page.eval('(() => { const t = window.__tw && window.__tw.target && window.__tw.target(); const c = (t && t.renderer && t.renderer.domElement) || document.querySelector("canvas"); if (!c) return null; const b = c.getBoundingClientRect(); return { x: b.x + scrollX, y: b.y + scrollY, width: b.width, height: b.height }; })()');
     if (r && r.width > 0) clip = { ...r, scale: 1 };
   }
-  const { data } = await ctx.page.send('Page.captureScreenshot', { format: 'png', ...(clip ? { clip } : {}), captureBeyondViewport: false });
+  // .jpg/.jpeg and .webp write that format (quality --quality, default 82), e.g. for posters.
+  const ext = String(out).toLowerCase().match(/\.(jpe?g|webp)$/);
+  const format = ext ? (ext[1] === 'webp' ? 'webp' : 'jpeg') : 'png';
+  const quality = format === 'png' ? undefined : Number(q || 82);
+  const { data } = await ctx.page.send('Page.captureScreenshot', { format, ...(quality ? { quality } : {}), ...(clip ? { clip } : {}), captureBeyondViewport: false });
   mkdirSync(dirname(resolve(out)), { recursive: true });
   writeFileSync(out, Buffer.from(data, 'base64'));
   const w = clip ? Math.round(clip.width * ctx.dpr) : ctx.width * ctx.dpr;

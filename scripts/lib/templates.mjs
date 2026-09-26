@@ -22,7 +22,7 @@ export function cmdTemplates(a, print, ROOT) {
   }).join('\n'));
 }
 
-export function cmdNew(a, print, ROOT) {
+export async function cmdNew(a, print, ROOT) {
   const name = a._[1], dest = a._[2];
   if (!name || !dest) throw new Error('new <template> <dir>   (tw templates lists them)');
   const t = listTemplates(ROOT).find((x) => x.name === name);
@@ -32,5 +32,13 @@ export function cmdNew(a, print, ROOT) {
   cpSync(join(ROOT, t.path), out, { recursive: true, filter: (src) => !/[\\/](node_modules|dist|\.vite)([\\/]|$)|[\\/]template\.json$/.test(src) });
   const fill = (s) => s.replace(/<threewright>/g, ROOT).replace(/<dir>/g, dest);
   const r = { template: name, dir: out, next: [].concat(t.next || `node <threewright>/scripts/tw.mjs check <dir>`).map(fill) };
-  print(r, a.json, (x) => [`copied ${x.template} to ${x.dir}`, ...[].concat(x.next).map((s) => '  next: ' + s)].join('\n'));
+  // Templates for sites ship their libraries: copy the pinned CDN modules into vendor/.
+  if (t.vendor && !a.noVendor) {
+    const { vendorPage } = await import('./vendor.mjs');
+    const v = await vendorPage(join(out, t.entry || 'index.html'), { roots: [out, ROOT] });
+    r.vendored = { files: v.files.length, bytes: v.bytes, warnings: v.warnings };
+  }
+  print(r, a.json, (x) => [`copied ${x.template} to ${x.dir}`,
+    ...(x.vendored ? [`vendored ${x.vendored.files} module file(s), ${Math.round(x.vendored.bytes / 1024)} KB, into vendor/ (--no-vendor keeps the CDN import map)`, ...x.vendored.warnings.map((w) => '  warning: ' + w)] : []),
+    ...[].concat(x.next).map((s) => '  next: ' + s)].join('\n'));
 }

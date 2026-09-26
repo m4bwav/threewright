@@ -59,3 +59,10 @@
 
 - The owner asked for a night camp by a creek under a full moon with a low crackling fire. Built with the threewright-video flow at D:/m4bwa/Claude/Projects/Ai/campfire-video (outside the repo): a new page on the renderFrame contract, looked at in tw shots between edits, recorded with `tw video --audio`, checked with ffprobe, a frame strip, blackdetect and freezedetect. Owner follow-ups taken mid-build: a real tent (A-frame, seams, rainfly, poles, guy lines, open door, lantern), a less barren ground (relief, grass, ferns, bushes, rocks, stumps, firewood), a bedroll and a backpack.
 - Lessons: a point light placed among the logs throws hard radial shadows that read as a black pillar toward the camera (lift it above the logs, logs cast no shadow); scattered cover needs the camera's line of sight kept clear, or a near fern becomes a dark pillar; tw's bounds warnings misfire on landscapes (HANDOFF item 3).
+
+## 2026-09-26: sixth session (v0.5.0)
+
+- HANDOFF items 1 and 3 done. New `tw vendor` (scripts/lib/vendor.mjs): walks the page's module imports through the import map, copies only the reached pinned CDN files into vendor/ from node_modules, the tw cache or npm pack, and rewrites the map. `tw new` runs it for templates with `"vendor": true`.
+- scroll-hero: `<picture>` poster (wide/tall x start/final, made with the new `tw shot --out x.jpg` and the text hidden), WebGL after first paint, canvas fades in once a frame is drawn, reduced motion holds the final keyframe (tw diff: 0 pixels between progress 0 and 1; 14% in normal mode). Checks: normal, reduced motion, ?progress=0.6, 390x844, all OK with --cdn offline.
+- tw check bounds: backdrop objects (built-in material with fog: false in a fogged scene; beyond far/3 or spanning far/2) left out; inside-bounds warning skipped for wide flat bounds. The campfire demo and a new landscape fixture check clean; before the change the fixture raised both false warnings.
+- `npm test`: 60/60. Version 0.5.0.

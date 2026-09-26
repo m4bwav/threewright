@@ -2,6 +2,15 @@
 
 Plugin versions. Skill-level changes are in each `skills/*/CHANGELOG.md`; the session record is `ai-docs/log.md`.
 
+## 0.5.0 · 2026-09-26
+
+The scroll-hero gaps from the eval runs, and the bounds warnings that misfired on landscapes.
+- `tw vendor <dir|page.html> [--offline] [--dry-run]`: copies the pinned jsDelivr and unpkg modules a page imports, and their own relative and mapped imports, into `vendor/<name>@<version>/`, then points the import map at the copies. Only reached files are copied (scroll-hero: 9 files, 2.4 MB). Bytes come from node_modules, the tw cache or `npm pack`, never the CDN.
+- `tw new` vendors templates marked `"vendor": true` in template.json (scroll-hero); `--no-vendor` keeps the CDN import map.
+- scroll-hero follows threewright-web's Step 2: a `<picture>` poster (wide and tall, start and final view, 33 to 48 KB each) paints first, WebGL starts after first paint and the canvas fades in once a frame is drawn; with reduced motion the view holds the final keyframe while the text scrolls (0 pixels change between top and bottom, checked with `tw diff`).
+- `tw shot --out x.jpg|x.webp [--quality 82]` writes JPEG or WebP (for posters); pixel stats stay PNG-only.
+- `tw check` leaves backdrop objects out of the scene bounds: built-in materials with `fog: false` in a fogged scene, and objects beyond a third of `camera.far` or spanning half of it. The bounds line says how many were left out. "The camera is inside the scene bounds" no longer fires for wide, flat bounds (a landscape or floor the viewer stands on). New fixture `tests/fixtures/pages/landscape`; the campfire demo now checks clean.
+
 ## 0.4.1 · 2026-09-26
 
 First full run of every skill's eval suite (61 cases, all passed; `evals/` at the plugin root), and the fixes it turned up.

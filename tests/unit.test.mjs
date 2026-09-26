@@ -22,6 +22,7 @@ import { errorContext, formatShaders } from '../scripts/lib/shaders.mjs';
 import { glFlags, sandboxFlags } from '../scripts/lib/cdp.mjs';
 import { pixelWarnings } from '../scripts/lib/png.mjs';
 import { parseActions, keyInfo } from '../scripts/lib/actions.mjs';
+import { importSpecifiers, resolveBare, vendorPage } from '../scripts/lib/vendor.mjs';
 
 const ROOT = resolve(dirname(fileURLToPath(import.meta.url)), '..');
 const tmp = () => mkdtempSync(join(tmpdir(), 'tw-test-'));
@@ -401,4 +402,42 @@ test('runs: frame stats, luma grid and run comparison', async () => {
   assert.ok(c.includes('Mesh 2 -> 3'));
   assert.ok(c.includes('NEW new error') && c.includes('gone old warning'));
   assert.ok(c.some((l) => l.startsWith('pixels: 50% of the frame changed · region x 0.5-1')), c.join('\n'));
+});
+
+test('vendor: import specifiers and import map resolution', () => {
+  const src = `import * as THREE from 'three';\nimport { a } from "./a.js";\nexport { b } from './b.js';\nimport './side.js';\nconst m = await import('lenis');\nconst s = "import x from 'not-this'";`;
+  assert.deepEqual(importSpecifiers(src).sort(), ['./a.js', './b.js', './side.js', 'lenis', 'three']);
+  const imports = { three: 'https://cdn.jsdelivr.net/npm/three@0.186.1/build/three.module.js', 'three/addons/': 'https://cdn.jsdelivr.net/npm/three@0.186.1/examples/jsm/' };
+  assert.equal(resolveBare('three', imports), imports.three);
+  assert.equal(resolveBare('three/addons/controls/OrbitControls.js', imports), imports['three/addons/'] + 'controls/OrbitControls.js');
+  assert.equal(resolveBare('gsap', imports), null);
+});
+
+test('vendor: copies only reached files, follows relative and mapped imports, rewrites the map', async () => {
+  const dir = tmp();
+  try {
+    const pkg = join(dir, 'node_modules', 'fakelib');
+    mkdirSync(join(pkg, 'addons'), { recursive: true });
+    writeFileSync(join(pkg, 'package.json'), JSON.stringify({ name: 'fakelib', version: '1.2.3', module: 'main.js' }));
+    writeFileSync(join(pkg, 'main.js'), "export * from './core.js';\n");
+    writeFileSync(join(pkg, 'core.js'), 'export const x = 1;\n');
+    writeFileSync(join(pkg, 'unused.js'), 'export const y = 2;\n');
+    writeFileSync(join(pkg, 'addons', 'thing.js'), "import { x } from 'fakelib';\nexport const t = x;\n");
+    const html = `<!doctype html><script type="importmap">
+{ "imports": { "fakelib": "https://cdn.jsdelivr.net/npm/fakelib@1.2.3", "fakelib/addons/": "https://cdn.jsdelivr.net/npm/fakelib@1.2.3/addons/" } }
+</script><script type="module">
+// import 'fakelib/addons/commented.js';
+import { t } from 'fakelib/addons/thing.js';
+</script>`;
+    writeFileSync(join(dir, 'index.html'), html);
+    const r = await vendorPage(join(dir, 'index.html'), { roots: [dir], offline: true });
+    assert.deepEqual(r.files.map((f) => f.file).sort(), ['vendor/fakelib@1.2.3/addons/thing.js', 'vendor/fakelib@1.2.3/core.js', 'vendor/fakelib@1.2.3/main.js']);
+    assert.deepEqual(r.warnings, []);
+    const out = readFileSync(join(dir, 'index.html'), 'utf8');
+    assert.ok(out.includes('"fakelib": "./vendor/fakelib@1.2.3/main.js"'), out);
+    assert.ok(out.includes('"fakelib/addons/": "./vendor/fakelib@1.2.3/addons/"'), out);
+    assert.ok(!out.includes('cdn.jsdelivr.net'));
+    const again = await vendorPage(join(dir, 'index.html'), { roots: [dir], offline: true });
+    assert.equal(again.files.length, 0);
+  } finally { rmSync(dir, { recursive: true, force: true }); }
 });

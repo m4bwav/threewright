@@ -13,7 +13,11 @@
     html.lenis, html.lenis body { height: auto; }
     .lenis.lenis-smooth iframe { pointer-events: none; }
     /* One canvas for the whole page, fixed behind the text. */
-    canvas { position: fixed; inset: 0; width: 100%; height: 100%; display: block; z-index: 0; }
+    canvas, .poster img { position: fixed; inset: 0; width: 100%; height: 100%; display: block; z-index: 0; }
+    /* The poster is the first paint (and the largest contentful paint); the canvas fades in over it. */
+    .poster img { object-fit: cover; z-index: -1; }
+    canvas { opacity: 0; transition: opacity 0.4s; }
+    body.live canvas { opacity: 1; }
     main { position: relative; z-index: 1; }
     section { min-height: 100vh; display: flex; align-items: center; padding: 0 6vw; box-sizing: border-box; }
     section.right { justify-content: flex-end; }
@@ -30,7 +34,9 @@
       section, section.right { justify-content: center; align-items: flex-end; padding-bottom: 8vh; }
     }
   </style>
-  <!-- Pin exact versions: an unpinned CDN URL changes under you. -->
+  <!-- Pin exact versions: an unpinned CDN URL changes under you. These URLs only name the
+       pins: `tw new` copies the files into vendor/ and points this map at them, so the site
+       downloads nothing from a host it does not control (by hand: tw vendor <dir>). -->
   <script type="importmap">
   {
     "imports": {
@@ -44,6 +50,14 @@
   </script>
 </head>
 <body>
+  <!-- Posters: shots of the first view (last view under reduced motion), wide and tall.
+       Remake them after editing KEYS; the commands are in the comment at the top of the script. -->
+  <picture class="poster" aria-hidden="true">
+    <source media="(prefers-reduced-motion: reduce) and (max-aspect-ratio: 3/4)" srcset="poster-tall-end.jpg">
+    <source media="(prefers-reduced-motion: reduce)" srcset="poster-end.jpg">
+    <source media="(max-aspect-ratio: 3/4)" srcset="poster-tall.jpg">
+    <img src="poster.jpg" alt="" fetchpriority="high">
+  </picture>
   <main id="story">
     <section class="left" id="s1">
       <div class="panel">
@@ -71,7 +85,7 @@
       <div class="panel">
         <p class="eyebrow">Settled</p>
         <h2>Less motion when asked</h2>
-        <p>With reduced motion requested there is no smooth scroll and no flight: each section cuts straight to its view.</p>
+        <p>With reduced motion requested there is no smooth scroll and no flight: the page shows the final view and the text scrolls over it.</p>
       </div>
     </section>
   </main>
@@ -83,8 +97,16 @@
     // Jump to a point of the story (0 = top, 1 = end), for screenshots and links:
     //   ?progress=0.5   or   #progress=0.5   or   window.__tw.setProgress(0.5)
     // The page scrolls to that point, so the text and the 3D view match.
-    // With prefers-reduced-motion: reduce, Lenis is not started, the timeline is never
-    // scrubbed, and each section jumps to its keyframe as it reaches the middle of the view.
+    // With prefers-reduced-motion: reduce, Lenis is not started and the timeline is never
+    // scrubbed: the view holds the final keyframe while the text scrolls normally.
+    //
+    // The poster shows until the first frame is drawn; WebGL starts after first paint.
+    // Remake the posters after editing KEYS, with the text hidden so it does not show
+    // twice (tw = node <threewright>/scripts/tw.mjs, H = "document.getElementById('story').style.visibility='hidden'"):
+    //   tw shot <dir> --size 1600x900 --eval "$H" --out poster.jpg
+    //   tw shot <dir> --size 1600x900 --reduced-motion --eval "$H" --out poster-end.jpg
+    //   tw shot <dir> --size 390x844 --dpr 2 --eval "$H" --out poster-tall.jpg
+    //   tw shot <dir> --size 390x844 --dpr 2 --reduced-motion --eval "$H" --out poster-tall-end.jpg
     import * as THREE from 'three';
     import { RoomEnvironment } from 'three/addons/environments/RoomEnvironment.js';
     import { gsap } from 'gsap';
@@ -93,6 +115,14 @@
 
     gsap.registerPlugin(ScrollTrigger);
     const reduceMotion = matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+    // tw and other tools wait on __tw.ready; it resolves once the first frame is on screen.
+    const tw = (window.__tw ??= {});
+    let markReady;
+    tw.ready = new Promise((r) => { markReady = r; });
+
+    // Let the poster paint first, then build the scene.
+    await new Promise((r) => requestAnimationFrame(() => setTimeout(r, 0)));
 
     // --- scene -------------------------------------------------------------------
     const renderer = new THREE.WebGLRenderer({ antialias: true });
@@ -211,10 +241,10 @@
     // --- scroll ----------------------------------------------------------------------
     let lenis = null;
     const maxScroll = () => document.documentElement.scrollHeight - window.innerHeight;
-    const sections = [...document.querySelectorAll('#story > section')];
-    const last = KEYS.length - 1;
 
-    if (!reduceMotion) {
+    if (reduceMotion) {
+      tl.progress(1); // the final state; scrolling moves only the text
+    } else {
       lenis = new Lenis();
       lenis.on('scroll', ScrollTrigger.update);
       gsap.ticker.add((time) => lenis.raf(time * 1000));
@@ -224,24 +254,17 @@
       ScrollTrigger.create({
         trigger: '#story', start: 'top top', end: 'bottom bottom', scrub: true, animation: tl,
       });
-    } else {
-      // Jump cuts: when a section reaches the middle of the view, show its keyframe.
-      sections.forEach((section, i) => ScrollTrigger.create({
-        trigger: section, start: 'top center', end: 'bottom center',
-        onToggle: (self) => { if (self.isActive) tl.progress(i / last); },
-      }));
     }
 
-    // Jump to a point of the story. With reduced motion the view snaps to the nearest
-    // section, as it does while scrolling.
+    // Jump to a point of the story. With reduced motion only the page scrolls; the
+    // view stays on the final state.
     function setProgress(p) {
       p = THREE.MathUtils.clamp(Number(p) || 0, 0, 1);
-      if (reduceMotion) p = Math.round(p * last) / last;
       const y = p * maxScroll();
       if (lenis) lenis.scrollTo(y, { immediate: true, force: true });
       else window.scrollTo(0, y);
       ScrollTrigger.update();
-      tl.progress(p);
+      if (!reduceMotion) tl.progress(p);
       render();
       return p;
     }
@@ -261,18 +284,16 @@
       dirty = true;
     });
 
-    const tw = (window.__tw ??= {});
     tw.setProgress = setProgress;
     tw.progress = () => tl.progress();
-    tw.ready = (async () => {
-      // Compile shaders before the first scroll so the first flight does not hitch.
-      await renderer.compileAsync(scene, camera);
-      ScrollTrigger.refresh();
-      const p = progressFromUrl();
-      if (p !== null) setProgress(p);
-      else if (reduceMotion) tl.progress(0);
-      render();
-    })();
+    // Compile shaders before the first scroll so the first flight does not hitch.
+    await renderer.compileAsync(scene, camera);
+    ScrollTrigger.refresh();
+    const p = progressFromUrl();
+    if (p !== null) setProgress(p);
+    render();
+    // Swap the poster for the canvas once a real frame is on screen.
+    requestAnimationFrame(() => { document.body.classList.add('live'); markReady(); });
   </script>
 </body>
 </html>

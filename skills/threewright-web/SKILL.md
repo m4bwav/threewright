@@ -30,7 +30,7 @@ Read the scenario's `Stack`, `Build` and `Pitfalls` sections before writing. Web
 2. Load a poster image first so the largest contentful paint is an image; start WebGL after first paint or on interaction; hide the poster when `window.__tw.ready` resolves.
 3. Budgets for phones: DPR at most 2, about 100 draw calls, under 100k triangles in view, a hero model under about 5 MB with meshopt or Draco and KTX2; pause rendering when off screen or idle.
 4. `prefers-reduced-motion`: no scroll scrubbing, no camera flights, no auto-rotation; show the final state. Keep keyboard scrolling and focus working; never hijack the scroll wheel.
-5. No runtime downloads from hosts you do not control; assets live with the site.
+5. No runtime downloads from hosts you do not control; assets live with the site. `TW vendor <dir>` copies the pinned CDN modules the page imports into `vendor/` and rewrites the import map (`TW new scroll-hero` does this already). Make posters with `TW shot <page> --out poster.jpg` with the HTML text hidden.
 
 ## Step 3: verify
 

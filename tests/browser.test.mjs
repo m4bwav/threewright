@@ -66,6 +66,12 @@ test('the black-mesh fixture is reported as rendering black', { skip, timeout: 3
   assert.ok(r.json.summary.warn.some((w) => w.includes('render black')), JSON.stringify(r.json.summary.warn));
 });
 
+test('a landscape with a far moon and stars raises no bounds warnings', { skip, timeout: 300000 }, () => {
+  const r = tw('check', join(ROOT, 'tests/fixtures/pages/landscape'), '--json', '--size', '480x270');
+  assert.equal(r.code, 0, JSON.stringify(r.json && r.json.summary.warn));
+  assert.equal(r.json.summary.bounds.backdrop, 2);
+});
+
 test('a stale projection matrix is caught even when camera.aspect is right', { skip, timeout: 300000 }, () => {
   const r = tw('check', join(ROOT, 'tests/fixtures/pages/stale-projection'), '--json', '--size', '480x270');
   assert.equal(r.code, 1);
