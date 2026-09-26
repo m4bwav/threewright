@@ -5,15 +5,15 @@
   "rules": [
     {
       "id": "umd-build",
-      "pattern": "build/three(?:\\.min)?\\.js\\b",
+      "pattern": "build/three(?:\\.min)?\\.js\\b|cdnjs\\.cloudflare\\.com/ajax/libs/three\\.js/[^\"'\\s]*/three(?:\\.min)?\\.js",
       "since": 150,
       "removed": 161,
       "status": "removed",
-      "message": "the UMD builds build/three.js and build/three.min.js were deprecated in r150 and removed in r161",
+      "message": "the UMD builds build/three.js and build/three.min.js were deprecated in r150 and removed in r161 (the cdnjs package \"three.js\" ships the same UMD files under a different path)",
       "fix": "load the ES module build through an import map (\"three\": \".../build/three.module.js\") or a bundler",
-      "sample": "<script src=\"https://unpkg.com/three@0.150.0/build/three.min.js\"></script>",
+      "sample": "<script src=\"https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js\"></script>",
       "ok": "import * as THREE from 'https://cdn.jsdelivr.net/npm/three@0.186.1/build/three.module.js';",
-      "source": "npm tarballs: three 0.160.1 ships build/three.js and three.min.js, 0.161.0 does not (checked 2026-09-26)"
+      "source": "npm tarballs: three 0.160.0 ships build/three.js and three.min.js, 0.161.0 does not (checked 2026-09-26)"
     },
     {
       "id": "minified-builds",
@@ -77,67 +77,62 @@
     {
       "id": "buffer-geometry-aliases",
       "pattern": "\\b(?:Box|Sphere|Plane|Cylinder|Cone|Torus|TorusKnot|Circle|Ring|Dodecahedron|Icosahedron|Octahedron|Tetrahedron|Polyhedron|Lathe|Extrude|Shape|Tube|Capsule|Edges|Wireframe|Parametric|Text)BufferGeometry\\b",
-      "since": 125,
-      "removed": 144,
+      "since": 144,
+      "removed": 154,
       "status": "removed",
-      "verify": true,
-      "message": "the *BufferGeometry aliases (BoxBufferGeometry and so on) were removed",
+      "message": "the *BufferGeometry aliases (BoxBufferGeometry and so on) were deprecated in r144 and removed in r154",
       "fix": "use BoxGeometry, SphereGeometry and so on (they are BufferGeometry)",
       "sample": "new THREE.BoxBufferGeometry(1, 1, 1)",
       "ok": "new THREE.BoxGeometry(1, 1, 1)",
-      "source": "three.js Migration Guide (release of removal to confirm)"
+      "source": "npm tarballs: three 0.143.0 has BoxBufferGeometry as the real class, 0.144.0 moves it into src/Three.Legacy.js with a console.warn, 0.153.0 still has the warn stub, 0.154.0 has neither (checked 2026-09-26)"
     },
     {
       "id": "add-attribute",
       "pattern": "\\.addAttribute\\s*\\(",
       "since": 110,
-      "removed": 125,
+      "removed": 141,
       "status": "removed",
-      "verify": true,
-      "message": "BufferGeometry.addAttribute() was renamed setAttribute()",
+      "message": "BufferGeometry.addAttribute() was renamed setAttribute() in r110; the deprecated shim was removed in r141",
       "fix": "geometry.setAttribute('position', attribute)",
       "sample": "geometry.addAttribute('position', new THREE.BufferAttribute(v, 3));",
       "ok": "geometry.setAttribute('position', new THREE.BufferAttribute(v, 3));",
-      "source": "three.js Migration Guide (releases to confirm)"
+      "source": "npm tarballs: three 0.109.0 warns and forwards addAttribute to setAttribute, 0.140.0 still has the shim in src/Three.Legacy.js, 0.141.0 has neither (checked 2026-09-26)"
     },
     {
       "id": "apply-matrix",
       "pattern": "\\.applyMatrix\\s*\\(",
-      "since": 115,
-      "removed": 125,
+      "since": 113,
+      "removed": 141,
       "status": "removed",
-      "verify": true,
-      "message": "applyMatrix() was renamed applyMatrix4()",
+      "message": "Object3D.applyMatrix and BufferGeometry.applyMatrix were renamed applyMatrix4() in r113; the alias was removed in r141",
       "fix": "object.applyMatrix4(matrix)",
       "sample": "mesh.applyMatrix(m);",
       "ok": "mesh.applyMatrix4(m);",
-      "source": "three.js Migration Guide (releases to confirm)"
+      "source": "npm tarballs: three 0.112.0 still defines Object3D.prototype.applyMatrix, 0.113.0 renames it applyMatrix4, 0.140.0 still has an applyMatrix shim in src/Three.Legacy.js, 0.141.0 has none (checked 2026-09-26)"
     },
     {
       "id": "three-math",
       "pattern": "\\bTHREE\\.Math\\.",
       "since": 113,
-      "removed": 125,
+      "removed": 141,
       "status": "removed",
-      "verify": true,
-      "message": "THREE.Math was renamed THREE.MathUtils",
+      "message": "THREE.Math was renamed THREE.MathUtils in r113; the \"export { MathUtils as Math }\" alias was removed in r141",
       "fix": "THREE.MathUtils.degToRad(...), THREE.MathUtils.clamp(...)",
       "sample": "THREE.Math.degToRad(45)",
       "ok": "THREE.MathUtils.degToRad(45)",
-      "source": "three.js Migration Guide (releases to confirm)"
+      "source": "npm tarballs: three 0.112.0 has src/math/Math.js (no MathUtils), 0.113.0 has src/math/MathUtils.js, 0.140.0 still has \"export { MathUtils as Math }\" in src/Three.Legacy.js, 0.141.0 has neither (checked 2026-09-26)"
     },
     {
       "id": "image-utils-load",
       "pattern": "\\bImageUtils\\.loadTexture\\s*\\(",
       "since": 84,
-      "removed": 84,
+      "removed": 141,
       "status": "removed",
-      "verify": true,
-      "message": "ImageUtils.loadTexture() was removed long ago",
+      "message": "ImageUtils.loadTexture() and loadTextureCube() were deprecated long before r84; the warning shim was removed in r141",
       "fix": "new THREE.TextureLoader().load(url) (set texture.colorSpace = THREE.SRGBColorSpace for colour maps)",
       "sample": "THREE.ImageUtils.loadTexture('a.jpg')",
       "ok": "new THREE.TextureLoader().load('a.jpg')",
-      "source": "three.js Migration Guide (release to confirm)"
+      "source": "npm tarballs: three 0.83.0 and 0.140.0 both still define ImageUtils.loadTexture as a console.warn shim in src/Three.Legacy.js, 0.141.0 has none (checked 2026-09-26); the exact deprecation release predates the tags npm carries"
     },
     {
       "id": "json-loader",
@@ -145,25 +140,23 @@
       "since": 99,
       "removed": 99,
       "status": "removed",
-      "verify": true,
       "message": "JSONLoader (the old model format) was removed",
       "fix": "convert models to glTF and use GLTFLoader",
       "sample": "new THREE.JSONLoader()",
       "ok": "new GLTFLoader()",
-      "source": "three.js Migration Guide (release to confirm)"
+      "source": "npm tarballs: three 0.98.0 has src/loaders/JSONLoader.js, 0.99.0 has none (checked 2026-09-26)"
     },
     {
       "id": "gamma-settings",
       "pattern": "\\.(?:gammaOutput|gammaInput|gammaFactor)\\b",
       "since": 112,
-      "removed": 128,
+      "removed": 141,
       "status": "removed",
-      "verify": true,
-      "message": "renderer.gammaOutput, gammaInput and gammaFactor were removed; color management replaced them",
+      "message": "renderer.gammaOutput, gammaInput and gammaFactor were removed (gammaFactor stopped working in r136, gammaInput/gammaOutput in r112); the last warning shims were deleted in r141",
       "fix": "leave renderer.outputColorSpace at SRGBColorSpace (the default) and tag colour textures with SRGBColorSpace",
       "sample": "renderer.gammaOutput = true;",
       "ok": "renderer.outputColorSpace = THREE.SRGBColorSpace;",
-      "source": "three.js Migration Guide (releases to confirm)"
+      "source": "npm tarballs: three 0.135.0 still uses gammaFactor for real in WebGLProgram/WebGLPrograms, 0.136.0 moves it into src/Three.Legacy.js as a console.warn no-op; gammaInput/gammaOutput keep a console.warn shim through 0.140.0 and it is gone in 0.141.0 (checked 2026-09-26)"
     },
     {
       "id": "encoding-api",
@@ -171,25 +164,23 @@
       "since": 152,
       "removed": 162,
       "status": "removed",
-      "verify": true,
       "message": "the encoding API (outputEncoding, texture.encoding, sRGBEncoding, LinearEncoding) was replaced by color spaces in r152 and later removed",
       "fix": "renderer.outputColorSpace = THREE.SRGBColorSpace; texture.colorSpace = THREE.SRGBColorSpace (colour maps only)",
       "sample": "renderer.outputEncoding = THREE.sRGBEncoding;",
       "ok": "renderer.outputColorSpace = THREE.SRGBColorSpace;",
-      "source": "three.js Migration Guide r151 to r152 (removal release to confirm)"
+      "source": "npm tarballs: three 0.161.0 still has renderer.outputEncoding in src/renderers/WebGLRenderer.js, 0.162.0 has none (checked 2026-09-26)"
     },
     {
       "id": "physically-correct-lights",
       "pattern": "\\bphysicallyCorrectLights\\b",
       "since": 150,
-      "removed": 155,
+      "removed": 160,
       "status": "removed",
-      "verify": true,
-      "message": "physicallyCorrectLights is gone; physically based light units are the only mode now",
+      "message": "physicallyCorrectLights is gone (renamed useLegacyLights in r150); physically based light units are the only mode now",
       "fix": "delete the line and retune light intensities (candela, lux) if the scene looks too dark",
       "sample": "renderer.physicallyCorrectLights = true;",
       "ok": "renderer.toneMapping = THREE.ACESFilmicToneMapping;",
-      "source": "three.js Migration Guide (releases to confirm)"
+      "source": "npm tarballs: three 0.159.0 still has a physicallyCorrectLights getter/setter tagged \"@deprecated, r150\" in src/renderers/WebGLRenderer.js, 0.160.0 has none (checked 2026-09-26)"
     },
     {
       "id": "use-legacy-lights",
@@ -197,12 +188,11 @@
       "since": 155,
       "removed": 165,
       "status": "removed",
-      "verify": true,
       "message": "useLegacyLights was removed; legacy light units are no longer available",
       "fix": "delete the line and retune light intensities (point and spot lights often need about 4 pi times more)",
       "sample": "renderer.useLegacyLights = false;",
       "ok": "renderer.toneMapping = THREE.ACESFilmicToneMapping;",
-      "source": "three.js Migration Guide (releases to confirm)"
+      "source": "npm tarballs: three 0.164.0 still uses useLegacyLights across WebGLRenderer and friends, 0.165.0 has none (checked 2026-09-26)"
     },
     {
       "id": "webgl1-renderer",
@@ -210,12 +200,11 @@
       "since": 163,
       "removed": 163,
       "status": "removed",
-      "verify": true,
       "message": "WebGL1Renderer and WebGL 1 support were removed",
       "fix": "use WebGLRenderer (WebGL 2) or WebGPURenderer",
       "sample": "new THREE.WebGL1Renderer()",
       "ok": "new THREE.WebGLRenderer({ antialias: true })",
-      "source": "three.js Migration Guide r162 to r163 (to confirm)"
+      "source": "npm tarballs: three 0.162.0 has src/renderers/WebGL1Renderer.js, 0.163.0 has none (checked 2026-09-26)"
     },
     {
       "id": "multisample-render-target",
@@ -223,12 +212,11 @@
       "since": 138,
       "removed": 138,
       "status": "removed",
-      "verify": true,
       "message": "WebGLMultisampleRenderTarget was removed",
       "fix": "new THREE.WebGLRenderTarget(w, h, { samples: 4 })",
       "sample": "new THREE.WebGLMultisampleRenderTarget(512, 512)",
       "ok": "new THREE.WebGLRenderTarget(512, 512, { samples: 4 })",
-      "source": "three.js Migration Guide (release to confirm)"
+      "source": "npm tarballs: three 0.137.0 has the real class in src/renderers/WebGLMultisampleRenderTarget.js, 0.138.0 replaces it with a console.error('...has been removed...') stub in src/Three.Legacy.js that still returns a working render target (checked 2026-09-26)"
     },
     {
       "id": "multiple-render-targets",
@@ -236,12 +224,11 @@
       "since": 162,
       "removed": 172,
       "status": "removed",
-      "verify": true,
       "message": "WebGLMultipleRenderTargets was replaced by the count option of WebGLRenderTarget",
       "fix": "new THREE.WebGLRenderTarget(w, h, { count: 3 }) and renderTarget.textures[i]",
       "sample": "new THREE.WebGLMultipleRenderTargets(w, h, 3)",
       "ok": "new THREE.WebGLRenderTarget(w, h, { count: 3 })",
-      "source": "three.js Migration Guide (releases to confirm)"
+      "source": "npm tarballs: three 0.161.0 has the real class in src/renderers/WebGLMultipleRenderTargets.js, 0.162.0 moves it into src/Three.Legacy.js as a deprecated shim, 0.171.0 still has the shim, 0.172.0 has neither (checked 2026-09-26)"
     },
     {
       "id": "color-management-renamed",
@@ -483,13 +470,13 @@
     {
       "id": "pcf-soft-shadow-map",
       "pattern": "\\bPCFSoftShadowMap\\b",
-      "since": 186,
+      "since": 182,
       "status": "deprecated",
-      "message": "PCFSoftShadowMap is deprecated since r186",
+      "message": "PCFSoftShadowMap is deprecated since r182 (both WebGLRenderer and WebGPURenderer log a warning and fall back to PCFShadowMap, which became soft in r182)",
       "fix": "renderer.shadowMap.type = THREE.PCFShadowMap (soften with light.shadow.radius)",
       "sample": "renderer.shadowMap.type = THREE.PCFSoftShadowMap;",
       "ok": "renderer.shadowMap.type = THREE.PCFShadowMap;",
-      "source": "three/src/constants.js (@deprecated since r186)"
+      "source": "npm tarballs: three 0.181.0 has no PCFSoftShadowMap warning in src/renderers/webgl/WebGLShadowMap.js, 0.182.0 adds warn('WebGLShadowMap: PCFSoftShadowMap has been deprecated. Using PCFShadowMap instead.') (checked 2026-09-26)"
     },
     {
       "id": "unpinned-cdn",
@@ -614,6 +601,204 @@
       "sample": "import { ao } from 'three/addons/tsl/display/GTAONode.js'; aoPass.distanceExponent.value = 2;",
       "ok": "import { ao } from 'three/addons/tsl/display/GTAONode.js'; aoPass.radius.value = 0.5;",
       "source": "three/examples/jsm/tsl/display/GTAONode.js (@deprecated since r186)"
+    },
+    {
+      "id": "timer-addon-path",
+      "pattern": "(?:examples/jsm|three/addons)/misc/Timer\\.js",
+      "since": 179,
+      "removed": 179,
+      "status": "removed",
+      "message": "Timer moved from the misc addon into core in r179; the addon file is gone",
+      "fix": "import { Timer } from 'three' (no addon import needed)",
+      "sample": "import { Timer } from 'three/addons/misc/Timer.js';",
+      "ok": "import { Timer } from 'three';",
+      "source": "npm tarballs: three 0.178.0 has examples/jsm/misc/Timer.js and src/nodes/utils/Timer.js, 0.179.0 has src/core/Timer.js only (checked 2026-09-26)"
+    },
+    {
+      "id": "addon-import-without-extension",
+      "pattern": "from\\s+['\"]three/(?:examples/jsm|addons)/[^'\"]+(?<!\\.js)['\"]",
+      "since": 0,
+      "status": "pitfall",
+      "severity": "warn",
+      "message": "addon imports need the .js extension; native ESM, import maps and strict bundlers do not add it for you",
+      "fix": "spell out the file, e.g. three/addons/controls/OrbitControls.js",
+      "sample": "import { OrbitControls } from 'three/addons/controls/OrbitControls';",
+      "ok": "import { OrbitControls } from 'three/addons/controls/OrbitControls.js';",
+      "source": "three.js addon modules always ship as individual .js files with no package-style resolution; verified against three 0.186.1's examples/jsm layout"
+    },
+    {
+      "id": "linewidth-over-one",
+      "pattern": "\\bnew\\s+(?:THREE\\.)?Line(?:Basic|Dashed)Material\\s*\\(\\s*\\{[^}]*\\blinewidth\\s*:\\s*(?:[2-9]|\\d{2,}|1\\.\\d*[1-9])",
+      "since": 0,
+      "status": "pitfall",
+      "severity": "warn",
+      "message": "LineBasicMaterial/LineDashedMaterial.linewidth is ignored on most platforms (ANGLE and most mobile GPUs clamp WebGL line width to 1px, and WebGPURenderer does not implement it either)",
+      "fix": "use Line2 with LineMaterial (three/addons/lines/) for a linewidth that actually renders wider than 1px",
+      "sample": "const m = new THREE.LineBasicMaterial({ color: 0xffffff, linewidth: 5 });",
+      "ok": "const m = new THREE.LineBasicMaterial({ color: 0xffffff, linewidth: 1 });",
+      "source": "three.js manual, Line2 example and WebGLRenderer known issues (linewidth only ever renders 1px in WebGL and WebGPU); checked against three 0.186.1"
+    },
+    {
+      "id": "text-geometry-height",
+      "pattern": "\\bnew\\s+(?:THREE\\.)?TextGeometry\\s*\\([^;]*?\\bheight\\s*:",
+      "since": 163,
+      "removed": 173,
+      "status": "removed",
+      "message": "TextGeometry's height option was renamed depth in r163; the height fallback (with a warning) was removed in r173, so height is now ignored and depth defaults to 50",
+      "fix": "pass depth instead of height",
+      "sample": "const g = new TextGeometry('Hi', { font, size: 10, height: 5 });",
+      "ok": "const g = new TextGeometry('Hi', { font, size: 10, depth: 5 });",
+      "source": "npm tarballs: three 0.162.0's examples/jsm/geometries/TextGeometry.js reads parameters.height directly, 0.163.0 renames the option to depth and warns once when height is used instead, 0.172.0 still warns, 0.173.0 drops height entirely (checked 2026-09-26)"
+    },
+    {
+      "id": "webgpu-old-addon-paths",
+      "pattern": "(?:examples/jsm|three/addons)/(?:nodes/|renderers/(?:webgpu|common|webgl)/)",
+      "since": 167,
+      "removed": 167,
+      "status": "removed",
+      "message": "examples/jsm/nodes and examples/jsm/renderers/{webgpu,common,webgl} moved into core in r167",
+      "fix": "import node classes and WebGPURenderer from 'three/webgpu' and TSL functions from 'three/tsl'",
+      "sample": "import { WebGPURenderer } from 'three/addons/renderers/webgpu/WebGPURenderer.js';",
+      "ok": "import { WebGPURenderer } from 'three/webgpu';",
+      "source": "npm tarballs: three 0.166.0 has examples/jsm/nodes/ and examples/jsm/renderers/{webgpu,common,webgl}/, 0.167.0 has none of them (src/nodes/ and src/Three.WebGPU.js exist instead, and build/three.webgpu.js and three.tsl.js are new) (checked 2026-09-26)"
+    },
+    {
+      "id": "merge-buffer-geometries",
+      "pattern": "\\bmerge(?:BufferGeometries|BufferAttributes)\\b",
+      "since": 151,
+      "removed": 161,
+      "status": "removed",
+      "message": "BufferGeometryUtils.mergeBufferGeometries() and mergeBufferAttributes() were renamed mergeGeometries() and mergeAttributes() in r151; the deprecated shim was removed in r161",
+      "fix": "BufferGeometryUtils.mergeGeometries(geometries) / mergeAttributes(attributes)",
+      "sample": "const g = mergeBufferGeometries(geometries);",
+      "ok": "const g = mergeGeometries(geometries);",
+      "source": "npm tarballs: three 0.150.0's examples/jsm/utils/BufferGeometryUtils.js defines mergeBufferGeometries as the real function, 0.151.0 renames it mergeGeometries and adds a mergeBufferGeometries shim tagged \"@deprecated, r151\", 0.160.0 still has the shim, 0.161.0 has none (checked 2026-09-26)"
+    },
+    {
+      "id": "rgbm-loader",
+      "pattern": "\\bRGBMLoader\\b",
+      "since": 180,
+      "removed": 180,
+      "status": "removed",
+      "message": "RGBMLoader was removed in r180 with no deprecation period",
+      "fix": "use HDRLoader, EXRLoader, UltraHDRLoader or HDRCubeTextureLoader instead",
+      "sample": "import { RGBMLoader } from 'three/addons/loaders/RGBMLoader.js';",
+      "ok": "import { HDRLoader } from 'three/addons/loaders/HDRLoader.js';",
+      "source": "npm tarballs: three 0.179.0 has examples/jsm/loaders/RGBMLoader.js, 0.180.0 has none (checked 2026-09-26)"
+    },
+    {
+      "id": "traa-pass-node",
+      "pattern": "\\bTRAAPassNode\\b|\\btraaPass\\s*\\(",
+      "since": 179,
+      "removed": 179,
+      "status": "removed",
+      "message": "TRAAPassNode was replaced by TRAANode (the traa() function) in r179 with a different setup (MRT output plus velocity)",
+      "fix": "import { traa } from 'three/addons/tsl/display/TRAANode.js' and follow its setup",
+      "sample": "import { TRAAPassNode } from 'three/addons/tsl/display/TRAAPassNode.js';",
+      "ok": "import { traa } from 'three/addons/tsl/display/TRAANode.js';",
+      "source": "npm tarballs: three 0.178.0 has examples/jsm/tsl/display/TRAAPassNode.js, 0.179.0 has examples/jsm/tsl/display/TRAANode.js instead (checked 2026-09-26)"
+    },
+    {
+      "id": "transform-controls-add",
+      "pattern": "(\\w+)\\s*=\\s*new\\s+(?:THREE\\.)?TransformControls\\s*\\([^)]*\\)[\\s\\S]*?\\.add\\(\\s*\\1\\s*\\)",
+      "since": 169,
+      "removed": 169,
+      "status": "removed",
+      "message": "TransformControls stopped being an Object3D in r169 (it extends the Controls base class instead), so scene.add(controls) throws \"object not an instance of THREE.Object3D\"",
+      "fix": "scene.add(controls.getHelper()) (the helper is the Object3D with the gizmo meshes)",
+      "sample": "const controls = new TransformControls(camera, renderer.domElement); scene.add(controls);",
+      "ok": "const controls = new TransformControls(camera, renderer.domElement); scene.add(controls.getHelper());",
+      "source": "npm tarballs: three 0.168.0's examples/jsm/controls/TransformControls.js declares \"class TransformControls extends Object3D\", 0.169.0 declares \"class TransformControls extends Controls\" (checked 2026-09-26)"
+    },
+    {
+      "id": "composer-without-output-pass",
+      "pattern": "\\bnew\\s+EffectComposer\\s*\\(",
+      "requires": "from\\s+['\"]three/(?:addons|examples/jsm)/postprocessing/EffectComposer\\.js['\"]",
+      "unless": "\\bOutputPass\\b|\\bGammaCorrectionShader\\b",
+      "since": 155,
+      "status": "pitfall",
+      "severity": "warn",
+      "message": "since r155 WebGLRenderer applies toneMapping and outputColorSpace only when it renders straight to the screen; with three.js's own EffectComposer (three/addons/postprocessing/) in the way, the final image is linear and untonemapped unless an OutputPass runs last (the unrelated pmndrs \"postprocessing\" npm package has a different EffectComposer and is not this rule's target)",
+      "fix": "composer.addPass(new OutputPass()) as the last pass",
+      "sample": "import { EffectComposer } from 'three/addons/postprocessing/EffectComposer.js'; const composer = new EffectComposer(renderer, target); composer.addPass(new RenderPass(scene, camera));",
+      "ok": "import { EffectComposer } from 'three/addons/postprocessing/EffectComposer.js'; const composer = new EffectComposer(renderer, target); composer.addPass(new RenderPass(scene, camera)); composer.addPass(new OutputPass());",
+      "source": "three.js manual, EffectComposer / OutputPass pages; behaviour change verified against three 0.186.1's src/renderers/webgl/WebGLRenderer.js (render-to-screen check) and examples/jsm/postprocessing/OutputPass.js"
+    },
+    {
+      "id": "webgl-cube-render-target-on-webgpu",
+      "pattern": "\\bnew\\s+(?:THREE\\.)?WebGLCubeRenderTarget\\s*\\(",
+      "requires": "three/webgpu",
+      "since": 0,
+      "status": "pitfall",
+      "severity": "warn",
+      "message": "WebGLCubeRenderTarget is a WebGL-only render target; WebGPURenderer needs the WebGPU-native cube target",
+      "fix": "import { CubeRenderTarget } from 'three/webgpu' and use that instead",
+      "sample": "import * as THREE from 'three/webgpu'; const rt = new THREE.WebGLCubeRenderTarget(512);",
+      "ok": "import * as THREE from 'three/webgpu'; const rt = new THREE.CubeRenderTarget(512);",
+      "source": "three/src/renderers/common/CubeRenderTarget.js is the WebGPURenderer-facing class in three 0.186.1; WebGLCubeRenderTarget is defined only under src/renderers/ (the WebGL renderer)"
+    },
+    {
+      "id": "importmap-missing-three-webgpu",
+      "pattern": "<script\\s+type=[\"']importmap[\"']",
+      "requires": "type=[\"']importmap[\"'][\\s\\S]*(?:three/tsl|addons/tsl/|three\\.tsl\\.js)",
+      "unless": "[\"']three/webgpu[\"']\\s*:|[\"']three[\"']\\s*:\\s*[\"'][^\"']*three\\.webgpu",
+      "since": 171,
+      "status": "pitfall",
+      "severity": "warn",
+      "message": "build/three.tsl.js bare-imports three/webgpu, so a page that imports three/tsl (directly or through a TSL addon) needs an import map entry for three/webgpu too, as the official WebGPU examples have",
+      "fix": "add \"three/webgpu\": \".../build/three.webgpu.js\" to the import map (and usually map \"three\" to the same file)",
+      "sample": "<script type=\"importmap\">{\"imports\":{\"three\":\"./build/three.module.js\",\"three/tsl\":\"./build/three.tsl.js\"}}</script>",
+      "ok": "<script type=\"importmap\">{\"imports\":{\"three\":\"./build/three.webgpu.js\",\"three/webgpu\":\"./build/three.webgpu.js\",\"three/tsl\":\"./build/three.tsl.js\"}}</script>",
+      "source": "npm tarballs: three 0.170.0 has no build/three.tsl.js, 0.171.0 adds it with the header line \"import { TSL } from 'three/webgpu';\" (checked 2026-09-26)"
+    },
+    {
+      "id": "webgpu-class-from-plain-three",
+      "pattern": "import\\s*\\{[^}]*\\b(?:WebGPURenderer|\\w*NodeMaterial|RenderPipeline)\\b[^}]*\\}\\s*from\\s*['\"]three['\"]",
+      "unless": "[\"']three[\"']\\s*:\\s*[\"'][^\"']*three\\.webgpu",
+      "since": 167,
+      "status": "pitfall",
+      "severity": "warn",
+      "message": "WebGPURenderer, RenderPipeline and the node materials are exported from three/webgpu, not the plain three entry point (unless an import map already points \"three\" at build/three.webgpu.js, as the official WebGPU examples do)",
+      "fix": "import * as THREE from 'three/webgpu'; (or import the names from 'three/webgpu' directly)",
+      "sample": "import { WebGPURenderer, MeshStandardNodeMaterial } from 'three';",
+      "ok": "import { WebGPURenderer, MeshStandardNodeMaterial } from 'three/webgpu';",
+      "source": "npm tarballs: three 0.167.0 moves WebGPURenderer and the node materials into src/Three.WebGPU.js (built as build/three.webgpu.js); the plain build/three.module.js never re-exports them (checked 2026-09-26)"
+    },
+    {
+      "id": "r3f-canvas-shadows-soft",
+      "pattern": "<Canvas\\b[^>]*\\bshadows(?:\\s*=\\s*(?:\\{\\s*true\\s*\\}|[\"']soft[\"']))?(?=[\\s/>])",
+      "since": 182,
+      "status": "pitfall",
+      "severity": "warn",
+      "message": "React Three Fiber's <Canvas shadows> (and shadows=\"soft\") sets renderer.shadowMap.type to the now-deprecated PCFSoftShadowMap (r182)",
+      "fix": "pass shadows=\"basic\" (PCFShadowMap, soft since r182) or shadows={{ type: THREE.PCFShadowMap }} for an explicit type",
+      "sample": "<Canvas shadows>",
+      "ok": "<Canvas shadows={{ type: THREE.PCFShadowMap }}>",
+      "source": "@react-three/fiber's shadows prop maps true/\"soft\" to PCFSoftShadowMap; PCFSoftShadowMap's deprecation verified against three 0.186.1 (r182, see pcf-soft-shadow-map)"
+    },
+    {
+      "id": "cdn-version-mix",
+      "pattern": "(?:cdn\\.jsdelivr\\.net/npm/|unpkg\\.com/|esm\\.sh/)three@(\\d+\\.\\d+\\.\\d+)[\\s\\S]*?(?:cdn\\.jsdelivr\\.net/npm/|unpkg\\.com/|esm\\.sh/)three@(?!\\1\\b)\\d+\\.\\d+\\.\\d+",
+      "since": 0,
+      "status": "pitfall",
+      "severity": "warn",
+      "message": "two different three.js versions are pinned as CDN URLs in the same page (three, three/addons, three/webgpu or three/tsl); loading two copies of three trips \"THREE.WARNING: Multiple instances of Three.js being imported\" and the addon/core classes stop matching (instanceof, shared globals) across the two copies",
+      "fix": "pin the exact same version everywhere three is referenced",
+      "sample": "\"three\": \"https://unpkg.com/three@0.180.0/build/three.module.js\", \"three/addons/\": \"https://unpkg.com/three@0.186.1/examples/jsm/\"",
+      "ok": "\"three\": \"https://unpkg.com/three@0.186.1/build/three.module.js\", \"three/addons/\": \"https://unpkg.com/three@0.186.1/examples/jsm/\"",
+      "source": "three.js core logs \"THREE.WARNING: Multiple instances of Three.js being imported\" (src/Three.js, REVISION check) when two different builds load in one page; verified against three 0.186.1"
+    },
+    {
+      "id": "legacy-docs-hash-link",
+      "pattern": "threejs\\.org/docs/#(?:api|manual|examples)/",
+      "since": 0,
+      "status": "pitfall",
+      "severity": "info",
+      "message": "threejs.org/docs/#api/... is the old hash-routed documentation URL; the current site serves each page at its own path with no hash",
+      "fix": "drop the hash: https://threejs.org/docs/api/en/objects/Mesh.html",
+      "sample": "See https://threejs.org/docs/#api/en/objects/Mesh for the full API.",
+      "ok": "See https://threejs.org/docs/api/en/objects/Mesh.html for the full API.",
+      "source": "threejs.org/docs currently serves plain per-page paths (no # routing); a legacy-docs pitfall for links models still write from training data"
     }
   ],
   "skipped": [

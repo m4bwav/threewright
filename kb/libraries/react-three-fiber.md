@@ -57,7 +57,7 @@ function Knot() {
 
 export default function App() {
   return (
-    <Canvas dpr={[1, 2]} shadows camera={{ position: [3, 2.2, 4], fov: 45 }}>
+    <Canvas dpr={[1, 2]} shadows="percentage" camera={{ position: [3, 2.2, 4], fov: 45 }}>
       <ambientLight intensity={0.4} />
       <directionalLight position={[4, 6, 3]} intensity={2} castShadow />
       <Knot />
