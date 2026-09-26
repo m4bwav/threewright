@@ -1,0 +1,89 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>three.js starter (single file, WebGL)</title>
+  <style>
+    html, body { margin: 0; height: 100%; background: #111; }
+    canvas { display: block; width: 100%; height: 100%; }
+  </style>
+  <!-- Pin the exact version: an unpinned CDN URL changes under you. -->
+  <script type="importmap">
+  {
+    "imports": {
+      "three": "https://cdn.jsdelivr.net/npm/three@0.186.1/build/three.module.js",
+      "three/addons/": "https://cdn.jsdelivr.net/npm/three@0.186.1/examples/jsm/"
+    }
+  }
+  </script>
+</head>
+<body>
+  <script type="module">
+    import * as THREE from 'three';
+    import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
+    import { RoomEnvironment } from 'three/addons/environments/RoomEnvironment.js';
+
+    const renderer = new THREE.WebGLRenderer({ antialias: true });
+    renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+    renderer.setSize(window.innerWidth, window.innerHeight);
+    renderer.toneMapping = THREE.ACESFilmicToneMapping; // outputColorSpace is SRGBColorSpace by default
+    renderer.shadowMap.enabled = true;
+    document.body.appendChild(renderer.domElement);
+
+    const scene = new THREE.Scene();
+    scene.background = new THREE.Color(0x1b1d22);
+    // Image-based light from a generated room: PBR materials look right with no HDR download.
+    const pmrem = new THREE.PMREMGenerator(renderer);
+    scene.environment = pmrem.fromScene(new RoomEnvironment(), 0.04).texture;
+
+    const camera = new THREE.PerspectiveCamera(45, window.innerWidth / window.innerHeight, 0.1, 100);
+    camera.position.set(3, 2.2, 4);
+
+    const controls = new OrbitControls(camera, renderer.domElement);
+    controls.target.set(0, 0.5, 0);
+    controls.enableDamping = true;
+
+    const sun = new THREE.DirectionalLight(0xffffff, 2);
+    sun.position.set(4, 6, 3);
+    sun.castShadow = true;
+    sun.shadow.mapSize.set(1024, 1024);
+    scene.add(sun);
+
+    const knot = new THREE.Mesh(
+      new THREE.TorusKnotGeometry(0.5, 0.16, 160, 24),
+      new THREE.MeshStandardMaterial({ color: 0x3fa7ff, metalness: 0.3, roughness: 0.35 })
+    );
+    knot.name = 'knot';
+    knot.position.y = 0.9;
+    knot.castShadow = true;
+    scene.add(knot);
+
+    const ground = new THREE.Mesh(
+      new THREE.CircleGeometry(3, 64),
+      new THREE.MeshStandardMaterial({ color: 0x3a3d45, roughness: 0.9 })
+    );
+    ground.name = 'ground';
+    ground.rotation.x = -Math.PI / 2;
+    ground.receiveShadow = true;
+    scene.add(ground);
+
+    // Drive animation from elapsed time, never from a per-frame increment,
+    // so the scene looks the same at any frame rate and can be captured to video.
+    const timer = new THREE.Timer();
+    renderer.setAnimationLoop((time) => {
+      timer.update(time);
+      const t = timer.getElapsed();
+      knot.rotation.set(t * 0.4, t * 0.6, 0);
+      controls.update();
+      renderer.render(scene, camera);
+    });
+
+    window.addEventListener('resize', () => {
+      camera.aspect = window.innerWidth / window.innerHeight;
+      camera.updateProjectionMatrix();
+      renderer.setSize(window.innerWidth, window.innerHeight);
+    });
+  </script>
+</body>
+</html>
