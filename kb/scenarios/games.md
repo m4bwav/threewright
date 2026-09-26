@@ -35,7 +35,7 @@ template: game-starter
 
 ## Build
 
-- `templates-wip/game-starter` (Vite, TypeScript, Rapier 0.21.0, tests) exists but is **unverified**; it has no `template.json` yet and has not passed `tw check`/`tw lint`/a looked-at `tw shot`. Read it for the intended shape, but confirm each piece against current `tw check` output before relying on it.
+- `tw new game-starter <dir>` (Vite, TypeScript, Rapier 0.21.0, Node simulation tests, `window.__game` and `render_game_to_text()` hooks) is verified: `tw check dist`, `tw lint` and a looked-at shot on the Linux container (SwiftShader) and on Windows 11 with Chrome 153 on an RTX 5060 Ti (see its `template.json`).
 - Loop: accumulate real time, step physics in fixed ticks (`STEP = 1/60`, capped at `MAX_STEPS = 4`), render once per frame with interpolation between the last two states. Use `THREE.Timer` with `connect(document)`, never `THREE.Clock` (deprecated r183) or `setInterval`.
 - Physics: Rapier's `KinematicCharacterController` for the player (autostep, snap-to-ground, slope limits), dynamic bodies for props, colliders built from simplified collision meshes (never the render mesh). Use contact events and scene queries for gameplay collisions, never distance checks.
 - Input: a small action map (`moveX`, `moveY`, `jump`, `fire`, ...) sampled once per fixed tick from keyboard (`event.code`), gamepad (`navigator.getGamepads()` polled every frame, no change events), and touch (nipplejs on coarse pointers). Pointer lock only after a click; losing it means pause.
@@ -64,3 +64,4 @@ template: game-starter
 ## Notes
 
 - 2026-09-26: written from the 2026-09-26 research (games, video-and-games, direction). Rapier 0.21.0 is one day old at time of writing; its compat-bundle size and the @react-three/rapier pin are the claims most likely to move soon.
+- 2026-09-26 (later): template status lines brought in line with the templates' own `template.json` records, found by a knowledge base audit.

@@ -2,6 +2,15 @@
 
 Plugin versions. Skill-level changes are in each `skills/*/CHANGELOG.md`; the session record is `ai-docs/log.md`.
 
+## 0.6.0 · 2026-09-26
+
+product-viewer ships with no CDN requests, the decoder advice agrees with r186 everywhere, and a partial eval pass through the Skill tool.
+- `tw vendor` also copies the files a vendored module fetches by `new URL('<relative>', import.meta.url)`. That is how r186's DRACOLoader and KTX2Loader find their WASM decoders, so vendoring them brings `libs/draco/` and `libs/basis/` along. These files are copied, not scanned for imports.
+- product-viewer is marked `"vendor": true`, so `tw new` vendors it (21 files, 4.3 MB). It no longer sets a CDN transcoder path; both decoders load from next to their loaders. A Draco model and a KTX2 model check OK under `tw check --cdn offline`, and no CDN URL is left in the page.
+- `tw glb` needs lines and `tw check` fix hints no longer tell you to call `setDecoderPath(...)` or `setTranscoderPath(...)`. The load-gltf-with-decoders recipe comments the transcoder path out, and loaders-and-assets no longer says KTX2 "still needs" one.
+- Knowledge base: the games, video-and-turntables and generative-art scenarios no longer call game-starter, video-turntable or html-webgpu's WebGPU backend unverified, since their template.json records verified runs. video-and-turntables now points `template:` at video-turntable.
+- Evals: 28 of a planned 70 headless runs through `claude -p --plugin-dir`. The Skill tool fired in all 25 with-plugin runs. Stopped on a harness fault and a classifier refusal; details and follow-ups in evals/results/2026-09-26-headless.md.
+
 ## 0.5.0 · 2026-09-26
 
 The scroll-hero gaps from the eval runs, and the bounds warnings that misfired on landscapes.

@@ -790,7 +790,7 @@
     "Verify",
     "Notes"
    ],
-   "bytes": 7036
+   "bytes": 7187
   },
   {
    "slug": "generative-art",
@@ -821,7 +821,7 @@
     "Verify",
     "Notes"
    ],
-   "bytes": 5376
+   "bytes": 5662
   },
   {
    "slug": "geospatial-and-globes",
@@ -1000,7 +1000,7 @@
    "status": "current",
    "renderer": "webgl",
    "last_verified": "2026-09-26",
-   "template": "html-importmap",
+   "template": "video-turntable",
    "sections": [
     "When",
     "Stack",
@@ -1009,7 +1009,7 @@
     "Verify",
     "Notes"
    ],
-   "bytes": 5951
+   "bytes": 6184
   },
   {
    "slug": "xr-experiences",

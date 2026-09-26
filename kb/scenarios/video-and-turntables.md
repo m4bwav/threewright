@@ -10,7 +10,7 @@ renderer: webgl
 last_verified: 2026-09-26
 sources: [ai-docs/research/2026-09-26-video-and-games.md, ai-docs/research/2026-09-26-3d-dataviz-and-docs.md, kb/recipes/capture-stills-and-video.md]
 related: [capture-stills-and-video, verification-ladder, fixed-timestep-loop, seeded-randomness, renderer-choice]
-template: html-importmap
+template: video-turntable
 ---
 
 # Video output and turntables
@@ -30,13 +30,13 @@ template: html-importmap
 | composed video with React UI, text, audio | Remotion + `@remotion/three`'s `<ThreeCanvas>` (drives the virtual clock itself) |; |
 | simple in-page turntable/loop capture | CCapture.js 2.0 (WebCodecs backend, decoupled from real time) |; |
 
-- `WebGLRenderer` is the renderer default for capture: render hosts often have no WebGPU adapter (SwiftShader gives WebGL but not WebGPU in this container's `tw doctor`), so a WebGPU scene would silently fall back to WebGL2 mid-pipeline and change pixels. Assert `renderer.backend.isWebGPUBackend` at startup if a WebGPU-specific effect must be captured, and fail the job rather than accept a silent fallback (`renderer-choice`, `webgpu-backend-check`).
+- `WebGLRenderer` is the renderer default for capture: render hosts often have no WebGPU adapter (SwiftShader gives WebGL but not WebGPU in the Linux container's `tw doctor`), so a WebGPU scene would silently fall back to WebGL2 mid-pipeline and change pixels. Assert `renderer.backend.isWebGPUBackend` at startup if a WebGPU-specific effect must be captured, and fail the job rather than accept a silent fallback (`renderer-choice`, `webgpu-backend-check`).
 
 ## Build
 
 - Use `tw video <page> --out clip.mp4 --seconds 6 --fps 30 --size 1920x1080` (H.264, `yuv420p`, BT.709 tags, faststart); verified against `templates/html-importmap` and `templates/html-webgpu`. See `capture-stills-and-video` for the full command set (GIF, WebM alpha, ProRes 4444 alpha).
 - Drive every animated value from time, never from a per-frame increment: `THREE.Timer` in the simple case, or a custom `window.__tw.renderFrame(i, fps)` hook for a scripted turntable or camera path (exact code in `capture-stills-and-video`).
-- `templates-wip/video-turntable` exists as a starting point but is **unverified** (moved to `templates-wip/` pending a `tw check`, `tw lint` and looked-at `tw shot` pass); prefer building from the verified `html-importmap` template plus the Timer/renderFrame pattern until it is promoted.
+- `tw new video-turntable <dir>` is verified: `tw check` (also `--reduced-motion`), `tw lint`, a looked-at shot and `tw video` through the page's `renderFrame()` (Linux container, SwiftShader; see its `template.json`). The threewright-video eval run on Windows 11 with Chrome 153 recorded it to a 1280x720 H.264 MP4 as well.
 - Encoding: `-pix_fmt yuv420p` for broad player compatibility, `-movflags +faststart` for web delivery, CRF 17–18 with `-preset slow` for near-master quality or CRF 23 with `-preset medium` for lighter social delivery. Tag `-color_primaries bt709 -colorspace bt709 -color_trc iec61966-2-1` explicitly for HD or larger output.
 - GIF: the two-pass `palettegen`/`paletteuse` filter pair, scaled to 640–800 px wide, 12–15 fps, 3–6 s, under 5 MB for a README.
 - Alpha video: ProRes 4444 (`-pix_fmt yuva444p10le`) for desktop compositing handoff (After Effects, Premiere, Final Cut); VP9 (`-pix_fmt yuva420p`) for web `<video>` playback. Neither codec claim was independently re-verified this pass; confirm codec support with the receiving tool before committing to one.
@@ -58,3 +58,4 @@ template: html-importmap
 ## Notes
 
 - 2026-09-26: written from the 2026-09-26 research (video-and-games, 3d-dataviz-and-docs) and the verified `tw video`/`tw shot` runs recorded in `capture-stills-and-video`. Capture of the WebGPU backend itself (not the WebGL2 fallback) is unverified in this container; ProRes/VP9-alpha compatibility claims are flagged unverified in the source research.
+- 2026-09-26 (later): template status lines brought in line with the templates' own `template.json` records, found by a knowledge base audit. Frontmatter `template:` is now `video-turntable`.
