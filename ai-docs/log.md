@@ -66,3 +66,9 @@
 - scroll-hero: `<picture>` poster (wide/tall x start/final, made with the new `tw shot --out x.jpg` and the text hidden), WebGL after first paint, canvas fades in once a frame is drawn, reduced motion holds the final keyframe (tw diff: 0 pixels between progress 0 and 1; 14% in normal mode). Checks: normal, reduced motion, ?progress=0.6, 390x844, all OK with --cdn offline.
 - tw check bounds: backdrop objects (built-in material with fog: false in a fogged scene; beyond far/3 or spanning far/2) left out; inside-bounds warning skipped for wide flat bounds. The campfire demo and a new landscape fixture check clean; before the change the fixture raised both false warnings.
 - `npm test`: 60/60. Version 0.5.0.
+
+## 2026-09-26: final test, Austin showdown video
+
+- The owner asked for a short video of a shootout in Austin, Texas. Built outside the repo at D:/m4bwa/Claude/Projects/Ai/austin-shootout-video with the threewright-video flow: a stylized dusk showdown where Pecan Street crosses Congress Avenue, the Capitol dome at the end of the street, bats, tumbleweed, a Texas flag, letterbox and a title card; six camera shots; procedural audio (wind, bell, drone, two shots with echoes, ricochet, fall). 12 s, 1920x1080, 360 frames, BT.709, AAC at -16.7 LUFS, no black or frozen frames.
+- Iterations driven by tw shots in contact sheets (ffmpeg xstack): the low sun left the whole street in shadow and the side shots looked into buildings, so the duel moved to an open cross street lit straight down by a due-west sun; a moustache read as a censor bar; a close-up camera sat inside a coat and was replaced by a matching close-up of the villain.
+- Owner question answered: the campfire audio came from make-audio.mjs (plain Node synthesis), not ComfyUI or Ollama. Two learnings added to threewright-video (shared timeline module, loudnorm before muxing).
