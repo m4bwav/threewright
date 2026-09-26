@@ -7,6 +7,7 @@
   "use_for": ["new work that wants WebGPU and TSL", "custom materials without GLSL", "node post-processing"],
   "next": ["serve the folder with any static server", "node <threewright>/scripts/tw.mjs check <dir>   (add --webgpu to test the WebGPU backend; needs a current Chrome)"],
   "verified": [
+    { "date": "2026-09-26", "platform": "Windows 11, Chrome 153 headless, NVIDIA RTX 5060 Ti", "checks": "tw check --webgpu OK on the real WebGPU backend (draw calls 16, PCF shadows), tw shot looked at: TSL knot, bloom, shadow on the floor" },
     { "date": "2026-09-26", "platform": "Linux container, Chromium 141, SwiftShader", "checks": "tw check OK on the WebGL 2 fallback, tw sheet, tw video; the WebGPU backend fails on Chromium 141 (texture view swizzle), untested on a current Chrome" }
   ]
 }

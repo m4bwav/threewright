@@ -2,6 +2,12 @@
 
 Plugin versions. Skill-level changes are in each `skills/*/CHANGELOG.md`; the session record is `ai-docs/log.md`.
 
+## Unreleased
+
+- `tw check --eval` binds `renderer`, `scene` and `camera` to the ones tw observed, so `--eval "renderer.info.render.calls"` works on pages that keep them module scoped (most do). The page's own globals still win.
+- WebGPU verified on the real backend (Windows, Chrome 153, RTX 5060 Ti): the html-webgpu template and the bloom-webgpu, tsl-custom-material and webgpu-backend-check recipes.
+- bloom-webgpu: lower emissive and bloom strength and add a directional light; the old values blew the whole frame out on both backends.
+
 ## 0.1.0 · 2026-09-26
 
 First release.

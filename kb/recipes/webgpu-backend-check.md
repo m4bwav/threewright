@@ -54,10 +54,13 @@ window.__backend = () => ({
 
 ## Verify
 
-- `tw check <page> --eval "renderer.backend.isWebGPUBackend"` reports the real backend for a specific run; combine with `--webgl` or `--gl swiftshader`/`--gl gpu` page flags to force one path and confirm the other deliberately.
-- `tw check <page>` itself prints the renderer/backend on its second line as `WebGPURenderer (WebGPU backend)` or `WebGPURenderer (WebGL2 fallback)` without any `--eval` needed.
-- In this development container, the installed Chromium (141, via Playwright) fails to initialize the WebGPU backend at all with a `GPUTextureViewDescriptor` swizzle error (r186's `WebGPUBackend` always requests `swizzle: 'rgba'`, which that Chromium build does not support); see `ai-docs/HANDOFF.md` Gotchas. Checked 2026-09-26: `tw check <page> --webgpu` here reproduces that exact error and `result: PROBLEMS FOUND`; running the same page without `--webgpu` succeeds on the automatic WebGL 2 fallback with `result: OK`. Treat a clean `--webgpu` run as evidence only on a newer Chrome; treat a fallback run here as evidence for the fallback path only, not the WebGPU path.
+- `tw check <page>` prints the real backend on its renderer line: `WebGPURenderer (WebGPU)` or `WebGPURenderer (WebGL2 fallback)`.
+- `tw check <page> --eval "renderer.backend.isWebGPUBackend"` prints `true` or `false`; `--eval` binds `renderer`, `scene` and `camera` to the ones tw observed, even when the page keeps them module scoped. `--eval "JSON.stringify(__backend())"` reads the window function this code exposes.
+- To force the fallback from tw, use `--gl swiftshader` (headless SwiftShader has no WebGPU adapter). tw takes a file or folder, not a query string, so the `?webgl` switch is for a dev server or a URL.
+- Checked 2026-09-26 (Windows 11, Chrome 153 headless, NVIDIA RTX 5060 Ti) with this code on a one-box page: default headless and `--webgpu` both gave `WebGPURenderer (WebGPU)` and `{"isWebGPUBackend":true,"compatibilityMode":false}`; `--gl swiftshader` gave `WebGPURenderer (WebGL2 fallback)` and `isWebGPUBackend:false`. All three `result: OK`.
+- Older Chromium can fail on the WebGPU path instead of falling back: Chromium 141 (the Playwright build in the Linux container) throws a `GPUTextureViewDescriptor` swizzle error, because r186 always requests `swizzle: 'rgba'`. Treat a failure there as a browser problem, not a page bug.
 
 ## Notes
 
 - 2026-09-26: written from the direction research (sections 1.3, 3.6) and checked directly against `node_modules/three/src/renderers/webgpu/WebGPUBackend.js` in the installed 0.186.1 (`isWebGPUBackend`, `compatibilityMode`, `forceWebGL` all confirmed in source); the WebGPU-backend failure mode in this specific container is recorded in `ai-docs/HANDOFF.md` and reproduced here on 2026-09-26.
+- 2026-09-26: all three paths verified on Windows with an RTX 5060 Ti and Chrome 153; the old `--webgl` advice named a flag tw does not have and was replaced; `--eval "renderer..."` failed on module-scoped pages until tw began binding `renderer`, `scene` and `camera` for `--eval` the same day.

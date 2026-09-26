@@ -144,6 +144,17 @@ export async function openPage(target, opts = {}) {
   return ctx;
 }
 
+// `check --eval`: bind renderer, scene and camera for the expression. A page's own
+// global wins; otherwise the main ones tw observed (most pages keep them module scoped).
+// The object literal is evaluated at global scope so typeof sees top-level let/const.
+export function evalWithTarget(expr) {
+  const g = (n) => `${n}: typeof ${n} !== 'undefined' ? ${n} : undefined`;
+  return `((__t, __g) => ((renderer, scene, camera) => (${expr}
+))(`
+    + `__g.renderer ?? __t.renderer, __g.scene ?? __t.scene, __g.camera ?? __t.camera))(`
+    + `(window.__tw && window.__tw.target && window.__tw.target()) || {}, { ${g('renderer')}, ${g('scene')}, ${g('camera')} })`;
+}
+
 export function writeDataUrl(dataUrl, out) {
   const b64 = dataUrl.slice(dataUrl.indexOf(',') + 1);
   mkdirSync(dirname(resolve(out)), { recursive: true });

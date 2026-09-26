@@ -105,10 +105,11 @@ Custom appearance on `WebGPURenderer` without writing a `ShaderMaterial` at all:
 
 ## Verify
 
-- Checked 2026-09-26 with `node scripts/tw.mjs check` against this exact page (served from `/tmp/claude-0/kbcheck/tsl-custom-material`), pinned to `three@0.186.1` on jsDelivr with CDN files served from `node_modules`. As with `bloom-webgpu`, the WebGPU backend itself fails on Chromium 141 in this container (see `ai-docs/HANDOFF.md` Gotchas), so this was checked on the automatic WebGL 2 fallback (no `--webgpu` flag): `result: OK`, `renderer: WebGPURenderer (WebGL2 fallback)`, `draw calls 2`, no `NodeBuilder` compatibility errors in the console. Re-check with `--webgpu` on a current Chrome to confirm the real WebGPU backend compiles the same graph.
+- Checked 2026-09-26 on the real WebGPU backend (Windows 11, Chrome 153 headless, NVIDIA RTX 5060 Ti): `node scripts/tw.mjs check <page> --webgpu` against this exact page gives `result: OK`, `renderer: WebGPURenderer (WebGPU)`, `draw calls 2`, no `NodeBuilder` errors; a `tw shot` was looked at (striped blue and gold knot). It also passed on the WebGL 2 fallback in the Linux container (Chromium 141), so the same TSL graph compiles to WGSL and to GLSL.
 - `tw check <page>` with no console errors is the key signal here: an invented TSL function name or a bad node composition surfaces as a console error naming the pipeline stage, not a silently wrong render.
 - `tw lint <dir>` flags any renamed TSL import (`PI2`, `transformedNormalView`, and so on) this page might pick up from a copy-pasted older snippet.
 
 ## Notes
 
 - 2026-09-26: written from the direction research (sections 2.2, 3.1-3.3) and the core r160-r186 research (sections 5, 6), checked with `tw check` against this recipe's own page on the WebGL 2 fallback per the HANDOFF gotcha; the real WebGPU backend path is unverified in this container.
+- 2026-09-26: verified on the real WebGPU backend on Windows with an RTX 5060 Ti.

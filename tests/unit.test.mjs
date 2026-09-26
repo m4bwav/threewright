@@ -7,7 +7,8 @@ import { dirname, join, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
 import { parseArgs, list } from '../scripts/lib/args.mjs';
-import { imageFit, parseSize } from '../scripts/lib/page.mjs';
+import { imageFit, parseSize, evalWithTarget } from '../scripts/lib/page.mjs';
+import vm from 'node:vm';
 import { hintsFor } from '../scripts/lib/hints.mjs';
 import { safeJoin, contentType } from '../scripts/lib/serve.mjs';
 import { parseCdnUrl, untar, findInstalled, packageFile } from '../scripts/lib/cdn.mjs';
@@ -258,4 +259,18 @@ test('versions: semver comparison with prereleases', () => {
   assert.equal(compareVersions('10.0.0', '9.9.9'), 1);
   assert.equal(compareVersions('10.0.0-alpha.1', '10.0.0'), -1);
   assert.equal(compareVersions('^0.186.1', '0.186.1'), 0);
+});
+
+test('eval: renderer, scene and camera come from the page globals, else from __tw.target()', () => {
+  const target = { renderer: { info: { calls: 3 } }, scene: 's', camera: 'c' };
+  const ctx = vm.createContext({});
+  ctx.window = ctx;
+  ctx.__tw = { target: () => target };
+  assert.equal(vm.runInContext(evalWithTarget('renderer.info.calls'), ctx), 3);
+  assert.equal(vm.runInContext(evalWithTarget('JSON.stringify([scene, camera])'), ctx), '["s","c"]');
+  vm.runInContext('let camera = "page camera"', ctx); // top-level let is not on window
+  assert.equal(vm.runInContext(evalWithTarget('camera'), ctx), 'page camera');
+  assert.equal(vm.runInContext(evalWithTarget('1 + 1 // trailing comment'), ctx), 2);
+  delete ctx.__tw;
+  assert.equal(vm.runInContext(evalWithTarget('typeof renderer'), ctx), 'undefined');
 });

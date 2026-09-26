@@ -18,6 +18,7 @@ Verify a page (file, folder with index.html, or URL); text first, images on requ
                         pixel evidence (coverage, bounds, brightness of what the canvas shows)
   scene <page>          compact scene-graph tree (--depth 6 --max 80)
   check <page> --eval "<js>"   also print the value of an expression after the page settles
+                        (renderer, scene and camera are bound to the main ones tw observed)
   shot <page> --out f.png [--canvas] [--alpha]   one screenshot; prints its token cost
   sheet <page> --out f.png [--views current,front,right,top]   several angles in one image
   video <page> --out f.mp4|.webm|.gif|.mov --seconds 5 --fps 30 [--alpha] [--frames-dir d]
@@ -121,7 +122,8 @@ const commands = {
       const { digestLogs } = await import('./lib/page.mjs');
       const summary = await ctx.page.eval('window.__tw.summary()');
       const pixels = await canvasPixels(ctx);
-      const evaluated = a.eval ? await ctx.page.eval(String(a.eval)).catch((e) => 'eval failed: ' + e.message) : undefined;
+      const { evalWithTarget } = await import('./lib/page.mjs');
+      const evaluated = a.eval ? await ctx.page.eval(evalWithTarget(String(a.eval))).catch(() => ctx.page.eval(String(a.eval))).catch((e) => 'eval failed: ' + e.message) : undefined;
       const logs = digestLogs(ctx.logs);
       const gl = await glString(ctx.page);
       const ok = !logs.exceptions.length && !logs.errors.length && !logs.network.length && !(summary.errors || []).length && !(summary.warn || []).length && !(pixels && pixels.warn.length);
