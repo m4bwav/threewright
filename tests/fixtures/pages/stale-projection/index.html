@@ -1,0 +1,26 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>fixture: aspect set without updateProjectionMatrix</title>
+  <script type="importmap">
+  { "imports": { "three": "https://cdn.jsdelivr.net/npm/three@0.186.1/build/three.module.js" } }
+  </script>
+</head>
+<body style="margin:0">
+  <script type="module">
+    // Deliberately broken: camera.aspect matches the canvas, but the projection matrix
+    // was built for aspect 1 and never updated, so the box renders stretched.
+    import * as THREE from 'three';
+    const renderer = new THREE.WebGLRenderer();
+    renderer.setSize(innerWidth, innerHeight);
+    document.body.appendChild(renderer.domElement);
+    const scene = new THREE.Scene();
+    const camera = new THREE.PerspectiveCamera(50, 1, 0.1, 50);
+    camera.aspect = innerWidth / innerHeight;
+    camera.position.z = 4;
+    scene.add(new THREE.Mesh(new THREE.BoxGeometry(), new THREE.MeshNormalMaterial()));
+    renderer.setAnimationLoop(() => renderer.render(scene, camera));
+  </script>
+</body>
+</html>

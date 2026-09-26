@@ -23,7 +23,10 @@ Read `evergreen.json` next to this file. If `verify_at_use` is true, re-check th
 - A model: `TW glb <file>` (decoders needed, scale, texture sizes, missing normals).
 - Stale APIs: `TW lint <dir>` (against the project's release; `--target r186` when upgrading).
 - A value at runtime: `TW check <page> --eval "<expression>"` (for example the camera position, a material's `colorSpace`, `renderer.info.memory`).
-- Visual only when text cannot answer: `TW shot <page> --size 640x360`, or `TW sheet <page>` for framing and hidden geometry.
+- A shader that does not compile: `TW shaders <page>` (each WebGL program, its materials, and the failing line with source context; `--dump dir` writes the sources).
+- A leak: `TW check <page> --cycles 5 --cycle "<js that builds and removes one thing>"` fails when geometries, textures or programs grow every cycle.
+- A bug that needs input first: `TW check <page> --actions "click 480,270; key KeyW 500"` (also on shot, sheet and video).
+- Visual only when text cannot answer: `TW shot <page> --size 640x360`, or `TW sheet <page>` for framing and hidden geometry. Add `--labels` to tag objects by name. `TW check <page> --shot a.png --tree` gets several outputs from one launch.
 
 ## Step 3: fix and prove
 

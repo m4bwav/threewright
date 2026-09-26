@@ -26,7 +26,7 @@ Read `evergreen.json` next to this file. If `verify_at_use` is true, re-check th
 
 ## Step 3: optimize to budget
 
-`TW kb show optimize-gltf --section Code` has the exact commands. The usual order: dedupe and prune, weld and simplify if triangles are over budget, resize textures to 2048 px or less, compress textures (KTX2 ETC1S for colour, UASTC for normals; or WebP), compress geometry (meshopt, or Draco). Then wire the decoders into the loader (`load-gltf-with-decoders`) and `TW glb` again: the warnings should be gone or accepted with a reason.
+`TW kb show optimize-gltf --section Code` has the exact commands. The usual order: dedupe and prune, weld and simplify if triangles are over budget, resize textures to 2048 px or less, compress textures (KTX2 ETC1S for colour, UASTC for normals; or WebP; KTX2 needs KTX-Software's `ktx` and `toktx` on PATH, so if they are missing, say so and offer WebP rather than failing silently), compress geometry (meshopt, or Draco). Then wire the decoders into the loader (`load-gltf-with-decoders`) and `TW glb` again: the warnings should be gone or accepted with a reason.
 
 ## Step 4: verify in a page
 

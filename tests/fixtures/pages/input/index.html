@@ -1,0 +1,40 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>fixture: records input events</title>
+  <script type="importmap">
+  { "imports": { "three": "https://cdn.jsdelivr.net/npm/three@0.186.1/build/three.module.js" } }
+  </script>
+</head>
+<body style="margin:0">
+  <script type="module">
+    // Records the input tw --actions sends, and offers a leak-free __tw.cycle().
+    import * as THREE from 'three';
+    const renderer = new THREE.WebGLRenderer();
+    renderer.setSize(innerWidth, innerHeight);
+    document.body.appendChild(renderer.domElement);
+    const scene = new THREE.Scene();
+    scene.add(new THREE.HemisphereLight(0xffffff, 0x404040, 3));
+    const camera = new THREE.PerspectiveCamera(50, innerWidth / innerHeight, 0.1, 50);
+    camera.position.z = 4;
+    const box = new THREE.Mesh(new THREE.BoxGeometry(), new THREE.MeshStandardMaterial({ color: 0x44aa88 }));
+    box.name = 'box';
+    box.rotation.set(0.5, 0.7, 0);
+    scene.add(box);
+    window.__events = [];
+    addEventListener('keydown', (e) => __events.push('down ' + e.code));
+    addEventListener('keyup', (e) => __events.push('up ' + e.code));
+    renderer.domElement.addEventListener('pointerdown', (e) => __events.push(`pointerdown ${e.clientX},${e.clientY}`));
+    renderer.domElement.addEventListener('wheel', (e) => __events.push('wheel ' + Math.sign(e.deltaY)));
+    window.__tw.cycle = () => {
+      const m = new THREE.Mesh(new THREE.SphereGeometry(0.3), box.material);
+      scene.add(m);
+      renderer.render(scene, camera);
+      scene.remove(m);
+      m.geometry.dispose();
+    };
+    renderer.setAnimationLoop(() => renderer.render(scene, camera));
+  </script>
+</body>
+</html>

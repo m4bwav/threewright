@@ -2013,7 +2013,7 @@
     "Verify",
     "Notes"
    ],
-   "bytes": 4854
+   "bytes": 5201
   },
   {
    "slug": "css2d-labels",
@@ -2065,7 +2065,7 @@
     "Verify",
     "Notes"
    ],
-   "bytes": 4773
+   "bytes": 5268
   },
   {
    "slug": "environment-lighting",
@@ -2275,7 +2275,7 @@
     "Verify",
     "Notes"
    ],
-   "bytes": 6011
+   "bytes": 6262
   },
   {
    "slug": "raycast-hover-and-click",
@@ -2302,7 +2302,7 @@
     "Verify",
     "Notes"
    ],
-   "bytes": 6181
+   "bytes": 6377
   },
   {
    "slug": "render-on-demand",
@@ -2354,7 +2354,7 @@
     "Verify",
     "Notes"
    ],
-   "bytes": 4665
+   "bytes": 4946
   },
   {
    "slug": "seeded-randomness",

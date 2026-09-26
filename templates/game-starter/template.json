@@ -7,6 +7,7 @@
   "use_for": ["browser games", "physics toys", "anything an agent must test by driving it (window.__game)"],
   "next": ["npm ci", "npm run dev", "npm test (simulation tests in Node)", "npm run build, then node <threewright>/scripts/tw.mjs check dist --eval \"window.__game.state()\""],
   "verified": [
-    { "date": "2026-09-26", "platform": "Linux container, Chromium 141, SwiftShader, Node 22.22", "checks": "npm ci, typecheck and build, 4 Node simulation tests (determinism, movement, fixed step), tw check dist OK, --eval drove 90 ticks through window.__game (player moved 5.9 m, stable hash), tw shot looked at" }
+    { "date": "2026-09-26", "platform": "Linux container, Chromium 141, SwiftShader, Node 22.22", "checks": "npm ci, typecheck and build, 4 Node simulation tests (determinism, movement, fixed step), tw check dist OK, --eval drove 90 ticks through window.__game (player moved 5.9 m, stable hash), tw shot looked at" },
+    { "date": "2026-09-26", "platform": "Windows 11, Chrome 153 headless, NVIDIA RTX 5060 Ti, Node 24.18", "checks": "after adding window.render_game_to_text(): typecheck and build, 4 Node simulation tests, tw lint src clean, tw check dist OK with --actions \"key KeyW 800\" (player moved from z 7 to 2.2, game: line printed the state JSON), tw shot --labels looked at: tags on ground, walls, ramp, platform, blocks, player, crates and gems in the right places" }
   ]
 }

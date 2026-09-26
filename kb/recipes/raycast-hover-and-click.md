@@ -152,6 +152,7 @@ For an `InstancedMesh` in `pickables`, read `hit.instanceId` off the intersectio
 
 - Checked 2026-09-26 with `node scripts/tw.mjs check` against this exact page (served from `/tmp/claude-0/kbcheck/raycast-hover-and-click`), pinned to `three@0.186.1` on jsDelivr with CDN files served from `node_modules`, using a programmatic `window.__testPick(ndcX, ndcY)` hook that sets the pointer directly and calls the same `pick()` function the real handlers use: `tw check <page> --eval "window.__testPick(0,0)"` returned `"cell-2"`, the middle of five cells laid out left to right; exactly the object under the camera-space center, confirming the NDC conversion and the pick logic without a screenshot.
 - `tw check <page> --eval "<hit test at another NDC coordinate>"` at the extremes (`-0.9`, `0.9`) should return the leftmost/rightmost cell names, or `null` off the row entirely.
+- Real input instead of a test hook: `tw check <page> --actions "move 480,270; click 480,270" --eval "<the selection state>"` sends trusted mouse and pointer events at CSS pixels of the viewport.
 - A visual check (`tw shot`) is only needed to confirm the hover/click color change itself looks right once the hit logic is proven in text.
 
 ## Notes

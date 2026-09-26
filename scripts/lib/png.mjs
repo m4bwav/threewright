@@ -116,7 +116,8 @@ export function pixelStats({ width, height, data }, { tolerance = 12 } = {}) {
 
 export function pixelWarnings(s) {
   const w = [];
-  if (s.colours <= 2) w.push(`the canvas is one flat colour (${s.background}): nothing rendered, or the camera sees nothing`);
+  // Two colours with real coverage is a flat-shaded object on a background, not a blank canvas.
+  if (s.colours <= 1 || (s.colours <= 2 && s.coverage < 0.002)) w.push(`the canvas is one flat colour (${s.background}): nothing rendered, or the camera sees nothing`);
   else if (s.coverage < 0.002) w.push(`only the background (${s.background}) is visible: the objects are off screen, too small, or drawn in the background colour`);
   else if (s.meanLuma < 0.03) w.push('what is drawn is almost black: missing lights or environment, a colour map without SRGBColorSpace, or exposure far too low');
   else if (s.meanLuma > 0.97 && s.coverage > 0.2) w.push('what is drawn is almost white: blown-out lighting or exposure, or a white material under strong light with no tone mapping');

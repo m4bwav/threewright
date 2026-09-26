@@ -28,3 +28,12 @@
 - All ten unexecuted recipes were run by a background agent, and six were fixed. environment-lighting leaked a render target per swap. optimize-gltf's `--slots` values matched nothing in gltf-transform 4.5.0.
 - `npm test`: 43/43 on Windows (unit, browser, and the three package templates built and checked).
 - The product-viewer agent ran `taskkill /F /IM python.exe` to stop its test server, which kills every Python process on the machine. Next time, stop a server by its PID.
+
+## 2026-09-26: fifth session (Windows 11, Chrome 153, RTX 5060 Ti; v0.3.0)
+
+- `gh release create` was blocked again by the auto-mode classifier, so v0.1.0 to v0.3.0 still have tags but no Releases (HANDOFF item 1).
+- Fixed the six tw bugs from the fourth session. glb bounds: gltf-transform `quantize` and `meshopt` write normalized int16 positions whose accessor min and max are raw integers (gltfpack's unnormalized output was already right). Aspect: read from the projection matrix. `map:(none)`: now `map:DataTexture/NoColorSpace`. `--color-scheme light|dark` added and the light palettes of surface and globe looked at. Canvas capture replays the last frame's screen passes. Query strings on local paths.
+- Found and fixed a seventh: two colours with real coverage (one flat-shaded face on a background) was reported as a blank canvas.
+- Built the rest of the tools research list: `--actions`, `check --cycles`, `tw shaders`, `--labels`, several outputs per check launch, `render_game_to_text()` (added to game-starter, which was re-verified).
+- Updated the debug, games, docs and assets skills, four recipes (resize-and-pixel-ratio, dispose-a-scene, raycast-hover-and-click, optimize-gltf) plus a note on capture-stills-and-video, the README and CLI help.
+- `npm test`: 54/54. Version 0.3.0.

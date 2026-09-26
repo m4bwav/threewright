@@ -4,6 +4,11 @@ Every change to [SKILL.md](SKILL.md) and its companions, newest first, each with
 
 Entry shape: `### C-YYYYMMDD-n · date · one-line summary`, then `because:` (IDs or "user request"), `files:` (file and section), and a sentence on what changed. Cite section headings, not line numbers.
 
+### C-20260926-2 · 2026-09-26 · Input bursts and the text snapshot in the smoke test
+- because: ai-docs/research/2026-09-26-mcp-and-ai-tools.md (tw features to add, item 5)
+- files: SKILL.md (Step 3: verify); templates/game-starter/src/debug/hooks.ts, src/env.d.ts
+- tw sends real input with `--actions`; game-starter defines `window.render_game_to_text()`, which `tw check` prints.
+
 ### C-20260926-1 · 2026-09-26 · Created as an evergreen unit
 - because: user request (ai-docs/HANDOFF.md step 6)
 - files: SKILL.md, RESEARCH.md, LEARNINGS.md, TESTS.md, evergreen.json, evals/evals.json, references/

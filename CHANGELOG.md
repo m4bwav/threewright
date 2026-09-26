@@ -2,6 +2,23 @@
 
 Plugin versions. Skill-level changes are in each `skills/*/CHANGELOG.md`; the session record is `ai-docs/log.md`.
 
+## 0.3.0 · 2026-09-26
+
+tw learns to drive a page and to find leaks and shader errors; six tw bugs from the 0.2.0 handoff are fixed.
+- `--actions "key KeyW 500; click 480,270; drag ...; wheel ...; type ...; wait ..."` on check, shot, sheet and video: trusted CDP keyboard, mouse, pointer and wheel input before measuring (virtual-clock waits in video).
+- `tw check --cycles N [--cycle "<js>"]`: runs `window.__tw.cycle()` or the js N times and fails on steady growth of geometries, textures or programs.
+- `tw shaders <page> [--dump dir]`: WebGL programs with their materials and link status, a failing shader's error lines with source context, sources written to files.
+- `--labels` on shot and sheet: name tags at projected object centres (duplicates as xN, overlapping tags pushed apart), with the legend printed as text.
+- `tw check --shot a.png --sheet b.png --tree`: several outputs from one browser launch.
+- `tw check` prints `render_game_to_text()` output as `game:`; game-starter now defines it.
+- `--color-scheme light|dark` emulates `prefers-color-scheme`; the light palettes of surface and globe are now shot and verified.
+- Local paths take a query string or hash (`tw check "page/?model=x.glb"`).
+- Fixed: `tw glb` bounds for `KHR_mesh_quantization` models (normalized accessor min and max are raw integers).
+- Fixed: the aspect check reads the projection matrix, so a missing `updateProjectionMatrix()` is caught.
+- Fixed: `tw scene` names a map's texture kind and `NoColorSpace` instead of `map:(none)`.
+- Fixed: `tw video --capture canvas` recorded blank frames on render-on-demand pages; the last frame's screen passes are replayed when a step drew nothing.
+- Fixed: a flat-shaded object on a plain background (two colours with real coverage) was reported as a blank canvas.
+
 ## 0.2.0 · 2026-09-26
 
 Second release: every planned template is built, every recipe has been run, and WebGPU has been verified on a real GPU.

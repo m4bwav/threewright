@@ -31,7 +31,7 @@ Read `evergreen.json` next to this file. If `verify_at_use` is true, re-check th
 
 1. `TW check <page>`: `result: OK`, and the `pixels:` line shows content inside the frame.
 2. `TW shot <page> --size 960x540` once: labels and legend legible (CSS2D labels show in shots, not in `TW sheet`).
-3. `TW check <page> --reduced-motion` passes.
+3. `TW check <page> --reduced-motion` passes. If the page has a light palette, look at one `TW shot <page> --color-scheme light` too (headless Chrome reports dark by default).
 4. Fallbacks as the destination needs: `TW video <page> --out fig.gif --seconds 4 --fps 15 --size 640x360` (check the file size), a still with `TW shot`, a GLB through `GLTFExporter` then `TW glb fig.glb`.
 
 ## Step 5: place and report

@@ -5,13 +5,14 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { spawnSync } from 'node:child_process';
-import { existsSync, mkdtempSync, rmSync, statSync } from 'node:fs';
+import { existsSync, mkdtempSync, readFileSync, rmSync, statSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { dirname, join, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { findChrome } from '../scripts/lib/cdp.mjs';
 import { listTemplates } from '../scripts/lib/templates.mjs';
 import { cmdSpec } from '../scripts/lib/proc.mjs';
+import { decodePng, pixelStats } from '../scripts/lib/png.mjs';
 
 const ROOT = resolve(dirname(fileURLToPath(import.meta.url)), '..');
 const TW = join(ROOT, 'scripts/tw.mjs');
@@ -63,6 +64,53 @@ test('the black-mesh fixture is reported as rendering black', { skip, timeout: 3
   const r = tw('check', join(ROOT, 'tests/fixtures/pages/black-mesh'), '--json', '--size', '480x270');
   assert.equal(r.code, 1);
   assert.ok(r.json.summary.warn.some((w) => w.includes('render black')), JSON.stringify(r.json.summary.warn));
+});
+
+test('a stale projection matrix is caught even when camera.aspect is right', { skip, timeout: 300000 }, () => {
+  const r = tw('check', join(ROOT, 'tests/fixtures/pages/stale-projection'), '--json', '--size', '480x270');
+  assert.equal(r.code, 1);
+  assert.ok(r.json.summary.warn.some((w) => w.includes('projection matrix still uses 1')), JSON.stringify(r.json.summary.warn));
+});
+
+test('video --capture canvas gets real frames from a render-on-demand page', { skip, timeout: 300000 }, () => {
+  const dir = mkdtempSync(join(tmpdir(), 'tw-frames-'));
+  try {
+    const r = tw('video', join(ROOT, 'templates/surface'), '--frames-dir', dir, '--frames', '3', '--fps', '10', '--capture', 'canvas', '--reduced-motion', '--size', '480x270', '--json');
+    assert.equal(r.code, 0, r.err || r.out);
+    for (let i = 0; i < 3; i++) {
+      const s = pixelStats(decodePng(readFileSync(join(dir, `frame-0000${i}.png`))));
+      assert.ok(s.coverage > 0.05 && s.colours > 50, `frame ${i} is blank: ${JSON.stringify(s)}`);
+    }
+  } finally { rmSync(dir, { recursive: true, force: true }); }
+});
+
+test('--actions sends trusted keys, clicks and wheel; --cycles passes a leak-free hook and flags a leak', { skip, timeout: 300000 }, () => {
+  const page = join(ROOT, 'tests/fixtures/pages/input');
+  let r = tw('check', page, '--json', '--size', '480x270', '--actions', 'key KeyW 50; click 100,80; wheel 240,135 120', '--eval', '__events', '--cycles', '4');
+  assert.equal(r.code, 0, r.out + r.err);
+  assert.deepEqual(r.json.eval, ['down KeyW', 'up KeyW', 'pointerdown 100,80', 'wheel 1']);
+  assert.deepEqual(r.json.cycles.leaks, []);
+  r = tw('check', page, '--json', '--size', '480x270', '--cycles', '4', '--cycle', 'scene.add(new (find("box").constructor)(find("box").geometry.clone(), find("box").material))');
+  assert.equal(r.code, 1);
+  assert.ok(r.json.cycles.leaks.some((l) => l.startsWith('geometries grow')), JSON.stringify(r.json.cycles));
+});
+
+test('check writes a shot, a labelled sheet and the tree from one launch', { skip, timeout: 300000 }, () => {
+  const dir = mkdtempSync(join(tmpdir(), 'tw-multi-'));
+  try {
+    const r = tw('check', join(ROOT, 'tests/fixtures/pages/input'), '--json', '--size', '480x270', '--tree', '--shot', join(dir, 'a.png'), '--sheet', join(dir, 'b.png'), '--labels');
+    assert.equal(r.code, 0, r.out + r.err);
+    assert.ok(r.json.tree.includes('Mesh "box"'), r.json.tree);
+    assert.ok(statSync(join(dir, 'a.png')).size > 1000 && statSync(join(dir, 'b.png')).size > 1000);
+    assert.ok(r.json.shot.labels.some((l) => l.startsWith('box ')), JSON.stringify(r.json.shot.labels));
+    assert.ok(r.json.sheet.labels[0].startsWith('current: box'), JSON.stringify(r.json.sheet.labels));
+  } finally { rmSync(dir, { recursive: true, force: true }); }
+});
+
+test('tw shaders names the failing ShaderMaterial and its line', { skip, timeout: 300000 }, () => {
+  const r = tw('shaders', join(ROOT, 'tests/fixtures/pages/bad-shader'), '--size', '480x270');
+  assert.equal(r.code, 1);
+  assert.ok(r.out.includes('FAILED #') && r.out.includes('"glow"') && r.out.includes("'glowColour' : undeclared identifier"), r.out);
 });
 
 test('a bare import without an import map gets the import-map hint', { skip, timeout: 300000 }, () => {

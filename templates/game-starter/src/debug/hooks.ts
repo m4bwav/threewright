@@ -115,6 +115,8 @@ export function installHooks(app: App) {
     },
   };
   window.__game = hooks;
+  // The render_game_to_text() convention: one text snapshot for agents (tw check prints it).
+  window.render_game_to_text = () => (app.game() ? JSON.stringify(hooks.state()) : 'loading');
   return hooks;
 }
 

@@ -7,7 +7,7 @@ import { dirname, join, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
 import { parseArgs, list } from '../scripts/lib/args.mjs';
-import { imageFit, parseSize, evalWithTarget, digestLogs } from '../scripts/lib/page.mjs';
+import { imageFit, parseSize, evalWithTarget, digestLogs, resolveTarget } from '../scripts/lib/page.mjs';
 import { cmdSpec, quoteWin } from '../scripts/lib/proc.mjs';
 import vm from 'node:vm';
 import { hintsFor } from '../scripts/lib/hints.mjs';
@@ -17,7 +17,11 @@ import { compileRule, lintText, loadRules, stripComments, markdownCode, releaseI
 import { imageSize, parseGlb, loadModel, report } from '../scripts/lib/glb.mjs';
 import { parseFrontmatter, parseRange, sections, tokens, emDashLine } from '../scripts/lib/kb.mjs';
 import { compareVersions } from '../scripts/lib/versions.mjs';
+import { cycleGrowth } from '../scripts/lib/runs.mjs';
+import { errorContext, formatShaders } from '../scripts/lib/shaders.mjs';
 import { glFlags, sandboxFlags } from '../scripts/lib/cdp.mjs';
+import { pixelWarnings } from '../scripts/lib/png.mjs';
+import { parseActions, keyInfo } from '../scripts/lib/actions.mjs';
 
 const ROOT = resolve(dirname(fileURLToPath(import.meta.url)), '..');
 const tmp = () => mkdtempSync(join(tmpdir(), 'tw-test-'));
@@ -239,6 +243,74 @@ test('glb: parses chunks, counts, texture pixels, bounds with node transforms, d
     assert.ok(r.warn.some((w) => w.includes('without normals')));
   } finally { rmSync(dir, { recursive: true, force: true }); }
   assert.deepEqual(imageSize(Buffer.from('89504e470d0a1a0a0000000d49484452000000400000002008060000', 'hex')), { type: 'image/png', width: 64, height: 32 });
+});
+
+test('glb: bounds dequantize normalized KHR_mesh_quantization positions', () => {
+  const dir = tmp();
+  try {
+    const f = join(dir, 'q.gltf');
+    writeFileSync(f, JSON.stringify({
+      asset: { version: '2.0' }, extensionsUsed: ['KHR_mesh_quantization'], extensionsRequired: ['KHR_mesh_quantization'],
+      scene: 0, scenes: [{ nodes: [0] }], nodes: [{ mesh: 0, scale: [2, 2, 2] }], meshes: [{ primitives: [{ attributes: { POSITION: 0 } }] }],
+      accessors: [{ componentType: 5122, normalized: true, type: 'VEC3', count: 3, min: [-32767, 0, -32768], max: [32767, 32767, 0] }],
+    }));
+    assert.deepEqual(report(loadModel(f)).bounds.size, [4, 2, 2]);
+  } finally { rmSync(dir, { recursive: true, force: true }); }
+});
+
+test('pixels: a flat-shaded object on a background is not a blank canvas', () => {
+  const base = { background: '#000000', meanLuma: 0.5 };
+  assert.ok(pixelWarnings({ ...base, colours: 1, coverage: 0 })[0].includes('one flat colour'));
+  assert.ok(pixelWarnings({ ...base, colours: 2, coverage: 0.0001 })[0].includes('one flat colour'));
+  assert.deepEqual(pixelWarnings({ ...base, colours: 2, coverage: 0.09 }), []);
+});
+
+test('page: a query or hash on a local folder or file goes on the served URL', async () => {
+  const dir = tmp();
+  try {
+    writeFileSync(join(dir, 'index.html'), '<!doctype html>');
+    for (const [t, tail] of [[dir + '?model=x.glb', '/index.html?model=x.glb'], [join(dir, 'index.html') + '#top', '/index.html#top'], [dir, '/index.html']]) {
+      const r = await resolveTarget(t);
+      try { assert.ok(r.url.endsWith(tail), r.url); } finally { await r.server.close(); }
+    }
+    await assert.rejects(resolveTarget(join(dir, 'nope') + '?a=1'), /not found/);
+  } finally { rmSync(dir, { recursive: true, force: true }); }
+});
+
+test('runs: leak cycles flag steady growth, not warm-up or flat counters', () => {
+  const s = (g, t) => ({ geometries: g, textures: t, programs: 2, heapMB: 5 });
+  const leak = cycleGrowth([s(1, 1), s(2, 1), s(3, 1), s(4, 1), s(5, 1)]);
+  assert.equal(leak.leaks.length, 1);
+  assert.ok(leak.leaks[0].startsWith('geometries grow by about 1 per cycle'));
+  assert.deepEqual(cycleGrowth([s(1, 1), s(4, 3), s(4, 3), s(4, 3), s(4, 3)]).leaks, [], 'first-cycle warm-up is not a leak');
+  assert.deepEqual(cycleGrowth([s(1, 1), s(2, 1), s(3, 1), s(2, 1), s(3, 1)]).leaks, [], 'falling back is not a steady leak');
+  assert.equal(cycleGrowth([{ geometries: null }, { geometries: null }]).counters.geometries, undefined);
+});
+
+test('shaders: error lines get their source context, grouped by line', () => {
+  const src = ['a', 'b', 'c', 'd', 'e', 'f'].join('NL');
+  const ctx = errorContext(src.split('NL').join(String.fromCharCode(10)), "ERROR: 0:4: 'x' : undeclared identifier" + String.fromCharCode(10) + "ERROR: 0:4: 'constructor' : not enough data", 1);
+  assert.deepEqual(ctx, ["line 4: 'x' : undeclared identifier; 'constructor' : not enough data", '     3 | c', '>    4 | d', '     5 | e']);
+  const text = formatShaders({ backend: 'webgl', programs: [{ id: 1, type: 'ShaderMaterial', name: 'glow', usedTimes: 1, materials: [], linked: false, programLog: 'Fragment shader is not compiled.', vertex: { log: '', source: 'v' }, fragment: { log: '', source: 'f' } }] });
+  assert.ok(text.includes('1 FAILED') && text.includes('program: Fragment shader is not compiled.'), text);
+});
+
+test('actions: parse the input burst language and map keys for CDP', () => {
+  assert.deepEqual(parseActions('key KeyW 500; click 480,270; drag 10,20 30,40 5; wheel 5,5 -120; wait 100; type hi there; move 1.5,2'), [
+    { op: 'key', key: 'KeyW', hold: 500 },
+    { op: 'click', at: [480, 270], button: 'left' },
+    { op: 'drag', from: [10, 20], to: [30, 40], steps: 5 },
+    { op: 'wheel', at: [5, 5], dy: -120, dx: 0 },
+    { op: 'wait', ms: 100 },
+    { op: 'type', text: 'hi there' },
+    { op: 'move', at: [1.5, 2] },
+  ]);
+  assert.deepEqual(keyInfo('w'), { key: 'w', code: 'KeyW', windowsVirtualKeyCode: 87, text: 'w' });
+  assert.equal(keyInfo('ArrowLeft').text, undefined);
+  assert.equal(keyInfo('Space').key, ' ');
+  assert.throws(() => parseActions('jump'), /unknown action/);
+  assert.throws(() => parseActions('click 3'), /point x,y/);
+  assert.throws(() => parseActions('key Frobnicate'), /unknown key/);
 });
 
 test('kb: frontmatter subset, release ranges, sections, tokens', () => {

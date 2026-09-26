@@ -44,6 +44,10 @@ export function parseSize(s, fallback = [960, 540]) {
 // Turn a file path or URL into something the browser can load.
 export async function resolveTarget(target, root) {
   if (/^(https?|data|about):/i.test(target)) return { url: target, server: null, base: null };
+  // A query or hash after a local path (page/?model=x.glb, page.html#view) goes on the served URL.
+  let suffix = '';
+  const q = target.match(/^(.*?)([?#].*)$/);
+  if (q && !existsSync(resolve(target)) && existsSync(resolve(q[1]))) { target = q[1]; suffix = q[2]; }
   const file = resolve(target);
   if (!existsSync(file)) throw new Error(`not found: ${target}`);
   const isDir = statSync(file).isDirectory();
@@ -51,7 +55,7 @@ export async function resolveTarget(target, root) {
   const rel = relative(base, isDir ? resolve(file, 'index.html') : file);
   if (rel.startsWith('..')) throw new Error(`--root ${base} must contain ${file}`);
   const server = await serve(base);
-  return { url: server.url + '/' + rel.split(sep).join('/'), server, base };
+  return { url: server.url + '/' + rel.split(sep).join('/') + suffix, server, base };
 }
 
 export async function openPage(target, opts = {}) {
@@ -106,7 +110,13 @@ export async function openPage(target, opts = {}) {
   await page.send('Network.enable');
   await page.send('Page.enable');
   await page.send('Emulation.setDeviceMetricsOverride', { width, height, deviceScaleFactor: dpr, mobile: false });
-  if (opts.reducedMotion) await page.send('Emulation.setEmulatedMedia', { features: [{ name: 'prefers-reduced-motion', value: 'reduce' }] });
+  const media = [];
+  if (opts.reducedMotion) media.push({ name: 'prefers-reduced-motion', value: 'reduce' });
+  if (opts.colorScheme) {
+    if (!['light', 'dark'].includes(opts.colorScheme)) throw new Error(`--color-scheme takes light or dark, not ${opts.colorScheme}`);
+    media.push({ name: 'prefers-color-scheme', value: opts.colorScheme });
+  }
+  if (media.length) await page.send('Emulation.setEmulatedMedia', { features: media });
   await page.send('Page.addScriptToEvaluateOnNewDocument', { source: injectScript({ clock: !!opts.clock }) });
   if (cdn.enabled) {
     page.on('Fetch.requestPaused', (p) => { cdn.handle(page, p); });

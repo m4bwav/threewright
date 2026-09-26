@@ -28,7 +28,7 @@ New game: `TW new game-starter <dir>`, then `npm install`. It pins three 0.186.1
 
 ## Step 3: verify (the done checklist)
 
-Read [references/done-checklist.md](references/done-checklist.md) and run every line that applies: typecheck and build, `TW lint src`, `TW check dist`, the Node determinism test (same seed and inputs, same hash twice), the scripted smoke test through `TW check dist --eval "..."` using `window.__game`, frame-rate independence, pause on hide, touch and gamepad paths, size and draw-call budgets, one `TW shot` at 640x360.
+Read [references/done-checklist.md](references/done-checklist.md) and run every line that applies: typecheck and build, `TW lint src`, `TW check dist`, the Node determinism test (same seed and inputs, same hash twice), the scripted smoke test through `TW check dist --eval "..."` using `window.__game` (real keys and clicks first with `--actions "key KeyW 800; key Space"`; the starter's `render_game_to_text()` prints as `game:`), frame-rate independence, pause on hide, touch and gamepad paths, size and draw-call budgets, one `TW shot` at 640x360.
 
 ## Step 4: report
 

@@ -4,6 +4,11 @@ Every change to [SKILL.md](SKILL.md) and its companions, newest first, each with
 
 Entry shape: `### C-YYYYMMDD-n · date · one-line summary`, then `because:` (IDs or "user request"), `files:` (file and section), and a sentence on what changed. Cite section headings, not line numbers.
 
+### C-20260926-3 · 2026-09-26 · KTX-Software prerequisite in Step 3; quantized bounds fixed
+- because: ai-docs/HANDOFF.md (Not done, items 3 and 5)
+- files: SKILL.md (Step 3); kb/recipes/optimize-gltf.md (Verify, Notes)
+- Step 3 names the KTX-Software tools the etc1s and uastc steps need. `tw glb` bounds are right for quantized models now, so the recipe no longer says to ignore them.
+
 ### C-20260926-2 · 2026-09-26 · Asset recipes run; splats template added
 - because: ai-docs/HANDOFF.md steps 3 and 4
 - files: kb/recipes/optimize-gltf.md, load-gltf-with-decoders.md, export-glb.md (Code, Verify); kb/topics/gaussian-splats.md; templates/splats

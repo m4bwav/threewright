@@ -106,6 +106,9 @@ export function loadModel(file) {
   return { file, fileBytes: statSync(file).size, isGlb, json, jsonBytes, binBytes: bin ? bin.length : 0, buffers, images };
 }
 
+// Divisors for normalized integer accessors (glTF 2.0 spec, "Animations" and KHR_mesh_quantization).
+const NORM = { 5120: 127, 5121: 255, 5122: 32767, 5123: 65535 };
+
 export function report(model) {
   const { json, images } = model;
   const acc = json.accessors || [];
@@ -128,8 +131,11 @@ export function report(model) {
       for (const p of (meshes[n.mesh] || {}).primitives || []) {
         const a = acc[p.attributes && p.attributes.POSITION];
         if (!a || !a.min || !a.max) continue;
+        // KHR_mesh_quantization: min/max of a normalized accessor are raw integers.
+        const q = a.normalized ? NORM[a.componentType] : null;
+        const lo = q ? a.min.map((x) => Math.max(x / q, -1)) : a.min, hi = q ? a.max.map((x) => Math.max(x / q, -1)) : a.max;
         for (let c = 0; c < 8; c++) {
-          const v = [c & 1 ? a.max[0] : a.min[0], c & 2 ? a.max[1] : a.min[1], c & 4 ? a.max[2] : a.min[2]];
+          const v = [c & 1 ? hi[0] : lo[0], c & 2 ? hi[1] : lo[1], c & 4 ? hi[2] : lo[2]];
           for (let k = 0; k < 3; k++) {
             const w = m[k] * v[0] + m[4 + k] * v[1] + m[8 + k] * v[2] + m[12 + k];
             if (w < min[k]) min[k] = w;

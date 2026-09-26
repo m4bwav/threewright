@@ -78,3 +78,24 @@ export function frameStats(ms) {
     over33: ms.filter((v) => v > 33.4).length,
   };
 }
+
+// Leak cycles: samples[0] is before the first cycle, samples[i] after cycle i.
+// A counter leaks when it ends higher than it started and rose in at least half the
+// cycles, at half an object or more per cycle, without ever falling back to the start
+// (one-off warm-up growth is not a leak: the first cycle is ignored). The JS heap is reported, not judged (GC makes it noisy).
+export function cycleGrowth(samples, keys = ['geometries', 'textures', 'programs']) {
+  const out = { cycles: samples.length - 1, counters: {}, leaks: [] };
+  for (const k of [...keys, 'heapMB']) {
+    const v = samples.map((s) => s[k]);
+    if (v.some((x) => typeof x !== 'number')) continue;
+    out.counters[k] = v;
+    if (k === 'heapMB' || v.length < 3) continue;
+    const tail = v.slice(1);
+    const rises = tail.slice(1).filter((x, i) => x > tail[i]).length;
+    const perCycle = (tail[tail.length - 1] - tail[0]) / (tail.length - 1);
+    if (perCycle >= 0.5 && rises >= (tail.length - 1) / 2 && Math.min(...tail.slice(1)) > tail[0] - 1e-9) {
+      out.leaks.push(`${k} grow by about ${Math.round(perCycle * 10) / 10} per cycle (${v.join(' -> ')}): something is created each cycle and never disposed`);
+    }
+  }
+  return out;
+}

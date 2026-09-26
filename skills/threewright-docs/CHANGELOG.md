@@ -4,6 +4,11 @@ Every change to [SKILL.md](SKILL.md) and its companions, newest first, each with
 
 Entry shape: `### C-YYYYMMDD-n · date · one-line summary`, then `because:` (IDs or "user request"), `files:` (file and section), and a sentence on what changed. Cite section headings, not line numbers.
 
+### C-20260926-3 · 2026-09-26 · Light palette check in Step 4
+- because: ai-docs/HANDOFF.md (tw bugs: no way to emulate prefers-color-scheme: light)
+- files: SKILL.md (Step 4)
+- tw gained `--color-scheme light|dark`; Step 4 now asks for one light shot when the page has a light palette.
+
 ### C-20260926-2 · 2026-09-26 · Templates surface and globe built and verified
 - because: ai-docs/HANDOFF.md steps 3 and 4
 - files: kb/scenarios/3d-chart-in-docs.md (Build); templates/surface, templates/globe

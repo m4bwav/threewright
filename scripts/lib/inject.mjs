@@ -24,6 +24,7 @@ function pageMain(cfg) {
   T.loaders = 0;
   T.errors = [];
   T.renderCalls = 0;
+  T.screenRenders = 0;
   const cams = new Map(); // scene -> Map(camera -> { n, screen })
   // scene -> { frames: distinct animation frames it was rendered in, screen: renders to the canvas, last: frame id }
   const use = new Map();
@@ -35,9 +36,16 @@ function pageMain(cfg) {
     const orig = r.render;
     r.render = function (scene, camera) {
       T.renderCalls++;
+      let toScreen = true;
+      try { toScreen = typeof this.getRenderTarget !== 'function' || this.getRenderTarget() === null; } catch { /* ignore */ }
+      // Screen passes of the latest frame, replayed by capture() when a render-on-demand
+      // page drew nothing since (a composer's last pass renders a Mesh, not a Scene).
+      if (toScreen && scene && scene.isObject3D && camera && camera.isCamera) {
+        T.screenRenders++;
+        if (this.__twFrame !== frameId) { this.__twFrame = frameId; this.__twPasses = []; }
+        this.__twPasses.push([scene, camera]);
+      }
       if (scene && scene.isScene && camera && camera.isCamera) {
-        let toScreen = true;
-        try { toScreen = typeof this.getRenderTarget !== 'function' || this.getRenderTarget() === null; } catch { /* ignore */ }
         const u0 = use.get(scene) || { frames: 0, screen: 0, last: -1, env: true };
         if (u0.last !== frameId) { u0.frames++; u0.last = frameId; }
         if (toScreen) u0.screen++;
@@ -66,6 +74,17 @@ function pageMain(cfg) {
   });
   hook.addEventListener('register', () => {});
   window.__THREE_DEVTOOLS__ = hook;
+
+  // Keep each shader's source for tw shaders: three deletes shaders right after linking,
+  // and a deleted shader can no longer be read back.
+  for (const C of [window.WebGLRenderingContext, window.WebGL2RenderingContext]) {
+    if (!C) continue;
+    const src = C.prototype.shaderSource;
+    C.prototype.shaderSource = function (shader, source) {
+      try { shader.__twSource = source; } catch { /* ignore */ }
+      return src.apply(this, arguments);
+    };
+  }
 
   window.addEventListener('error', (e) => T.errors.push(String(e.message || e)));
   window.addEventListener('unhandledrejection', (e) => T.errors.push('unhandled rejection: ' + String(e.reason && (e.reason.stack || e.reason.message) || e.reason)));
@@ -171,7 +190,12 @@ function pageMain(cfg) {
     if (Array.isArray(m)) return m.map(matInfo);
     const i = { type: m.type };
     if (hex(m.color)) i.color = hex(m.color);
-    if (m.map) i.map = { cs: m.map.colorSpace || '(none)', img: !!(m.map.image || m.map.source && m.map.source.data) };
+    if (m.map) {
+      // DataTexture and friends default to NoColorSpace (''); say so rather than '(none)', which read as 'no map'.
+      const t = m.map, kind = ['Data', 'Canvas', 'Video', 'Compressed', 'DataArray', 'Depth', 'Cube', 'RenderTarget'].find((k) => t['is' + k + 'Texture']);
+      i.map = { cs: t.colorSpace || 'NoColorSpace', img: !!(t.image || t.source && t.source.data) };
+      if (kind) i.map.kind = kind + 'Texture';
+    }
     if (m.transparent) i.transparent = true;
     if (m.opacity !== undefined && m.opacity < 1) i.opacity = r2(m.opacity);
     if (m.wireframe) i.wireframe = true;
@@ -197,7 +221,7 @@ function pageMain(cfg) {
     if (o.geometry) { const g = geomInfo(o.geometry); parts.push(`${g.type} v${g.verts}`); }
     if (o.material) {
       const ms = Array.isArray(o.material) ? o.material : [o.material];
-      parts.push(ms.map((m) => { const i = matInfo(m); return [i.type, i.color, i.map ? 'map:' + i.map.cs : '', i.transparent ? 'transparent' : '', i.wireframe ? 'wire' : ''].filter(Boolean).join(' '); }).join(' / '));
+      parts.push(ms.map((m) => { const i = matInfo(m); return [i.type, i.color, i.map ? 'map:' + (i.map.kind ? i.map.kind + '/' : '') + i.map.cs : '', i.transparent ? 'transparent' : '', i.wireframe ? 'wire' : ''].filter(Boolean).join(' '); }).join(' / '));
     }
     if (o.isLight) parts.push(`intensity ${r2(o.intensity)} ${hex(o.color) || ''}${o.castShadow ? ' shadow' : ''}${o.distance ? ' dist ' + r2(o.distance) : ''}`);
     if (o.isCamera) parts.push(o.isPerspectiveCamera ? `fov ${r2(o.fov)} near ${o.near} far ${o.far}` : `ortho near ${o.near} far ${o.far}`);
@@ -353,7 +377,16 @@ function pageMain(cfg) {
       if (st.shadowCasterLights && ri.shadows === false) warn.push('a light casts shadows but renderer.shadowMap.enabled is false');
       if (camera && camera.isPerspectiveCamera && renderer.domElement) {
         const a = renderer.domElement.width / renderer.domElement.height;
-        if (camera.aspect && Math.abs(a - camera.aspect) > 0.02) warn.push(`camera.aspect ${r2(camera.aspect)} does not match the canvas ${r2(a)}: call camera.updateProjectionMatrix() after resizing`);
+        // The projection matrix is what renders: e[5] / e[0] is its aspect (zoom cancels out).
+        // camera.aspect alone misses a resize that set aspect but never called updateProjectionMatrix().
+        const e = camera.projectionMatrix && camera.projectionMatrix.elements;
+        const pa = e && e[0] ? e[5] / e[0] : camera.aspect;
+        const offset = camera.view && camera.view.enabled;
+        if (!offset && pa && Math.abs(a - pa) / a > 0.02) {
+          warn.push(camera.aspect && Math.abs(a - camera.aspect) / a <= 0.02
+            ? `camera.aspect is ${r2(camera.aspect)} but the projection matrix still uses ${r2(pa)}: call camera.updateProjectionMatrix() after setting aspect`
+            : `camera aspect ${r2(pa)} does not match the canvas ${r2(a)}: on resize set camera.aspect = width / height, then call camera.updateProjectionMatrix()`);
+        }
       }
       if (ri.drawCalls > 1000) warn.push(`${ri.drawCalls} draw calls per frame: merge, instance or batch`);
     }
@@ -364,17 +397,106 @@ function pageMain(cfg) {
   };
 
   // Current main canvas as a PNG data URL (call in the same task as the render).
-  T.capture = (type = 'image/png', quality) => {
+  // since: T.screenRenders before the step; if nothing reached the screen after it, the
+  // drawing buffer is already cleared, so the last frame's screen passes are drawn again.
+  T.capture = (type = 'image/png', quality, since) => {
     const { renderer } = target();
     const c = renderer && renderer.domElement;
+    if (c && since !== undefined && T.screenRenders === since && renderer.__twPasses) {
+      for (const [s, cam] of renderer.__twPasses) renderer.render(s, cam);
+    }
     return c ? c.toDataURL(type, quality) : null;
   };
+
+  // Name tags for --labels: the projected centre of each visible mesh, points, line or
+  // sprite big enough to see, named by itself or its nearest named ancestor (else its
+  // type). Duplicates become one tag "name xN" on the largest. x and y are 0..1 of the view.
+  T.labels = (cam, opts = {}) => {
+    const { scene, camera } = target();
+    cam = cam || camera;
+    if (!scene || !cam) return [];
+    const H = opts.height || 540, minPx = opts.minPx ?? 6, max = opts.max ?? 24;
+    scene.updateMatrixWorld(); cam.updateMatrixWorld();
+    const c = cam.position.clone(), camPos = cam.position.clone().setFromMatrixPosition(cam.matrixWorld);
+    const groups = new Map();
+    scene.traverseVisible((o) => {
+      if (!(o.isMesh || o.isPoints || o.isLine || o.isSprite)) return;
+      let named = o;
+      while (named && !named.name) named = named.parent;
+      const text = named && named !== scene ? named.name : o.type;
+      const g = o.geometry;
+      if (g && !g.boundingSphere && g.computeBoundingSphere) g.computeBoundingSphere();
+      const bs = g && g.boundingSphere;
+      c.copy(bs ? bs.center : c.set(0, 0, 0)).applyMatrix4(o.matrixWorld);
+      const radius = (bs ? bs.radius : 0.5) * o.matrixWorld.getMaxScaleOnAxis();
+      const dist = c.distanceTo(camPos);
+      const px = cam.isPerspectiveCamera ? (radius / Math.max(1e-6, dist * Math.tan((cam.fov * Math.PI) / 360))) * (H / 2)
+        : (radius * cam.zoom / Math.max(1e-6, (cam.top - cam.bottom) / 2)) * (H / 2);
+      c.project(cam);
+      if (px < minPx || c.z > 1 || c.z < -1 || Math.abs(c.x) > 1 || Math.abs(c.y) > 1) return;
+      const e = groups.get(text) || { text, n: 0, px: -1 };
+      e.n++;
+      if (px > e.px) { e.px = px; e.x = (c.x + 1) / 2; e.y = (1 - c.y) / 2; }
+      groups.set(text, e);
+    });
+    // Largest first; a tag that would overlap a placed one moves down a line.
+    const W = opts.width || H * 16 / 9, placed = [];
+    return [...groups.values()].sort((a, b) => b.px - a.px).slice(0, max).map((e) => {
+      const text = e.n > 1 ? `${e.text} x${e.n}` : e.text, w = text.length * 6.5 + 8;
+      const X = e.x * W;
+      let Y = e.y * H;
+      while (placed.some((p) => Math.abs(p.X - X) < (p.w + w) / 2 && Math.abs(p.Y - Y) < 16)) Y += 17;
+      placed.push({ X, Y, w });
+      return { text, x: r2(e.x), y: r2(Y / H) };
+    });
+  };
+
+  // WebGL programs with their materials, link status, logs and sources (tw shaders).
+  T.shaders = () => {
+    const { renderer, scene } = target();
+    if (!renderer) return { error: 'no renderer observed' };
+    if (!renderer.getContext || !renderer.properties || !renderer.info || !Array.isArray(renderer.info.programs)) {
+      return { backend: 'webgpu', programs: [], note: 'WebGPURenderer compiles WGSL per pipeline; its errors reach tw check as [fragment error] and [vertex error] messages. Program listing is WebGL only.' };
+    }
+    const gl = renderer.getContext();
+    const owners = new Map(), mats = new Set();
+    for (const s of T.scenes.concat(scene ? [scene] : [])) s.traverse((o) => [].concat(o.material || []).forEach((m) => mats.add(m)));
+    for (const m of mats) {
+      const cp = renderer.properties.get(m).currentProgram;
+      if (!cp) continue;
+      if (!owners.has(cp)) owners.set(cp, []);
+      owners.get(cp).push(m.name ? `${m.type} "${m.name}"` : m.type);
+    }
+    return {
+      backend: 'webgl',
+      programs: renderer.info.programs.map((p) => {
+        const d = p.diagnostics;
+        return {
+          id: p.id, type: p.type, name: p.name || '', usedTimes: p.usedTimes, materials: owners.get(p) || [],
+          linked: !!gl.getProgramParameter(p.program, gl.LINK_STATUS),
+          programLog: d ? d.programLog : (gl.getProgramInfoLog(p.program) || '').trim(),
+          vertex: { log: d ? d.vertexShader.log : '', source: p.vertexShader.__twSource || '' },
+          fragment: { log: d ? d.fragmentShader.log : '', source: p.fragmentShader.__twSource || '' },
+        };
+      }),
+    };
+  };
+
+  function drawTags(ctx, tags, x0, y0, w, h) {
+    ctx.font = '11px sans-serif'; ctx.textBaseline = 'middle';
+    for (const t of tags) {
+      const x = x0 + t.x * w, y = y0 + t.y * h, tw = ctx.measureText(t.text).width + 8;
+      ctx.fillStyle = 'rgba(0,0,0,.7)'; ctx.fillRect(x - tw / 2, y - 8, tw, 16);
+      ctx.fillStyle = '#ffeb3b'; ctx.fillText(t.text, x - tw / 2 + 4, y);
+    }
+  }
 
   // Contact sheet: render the main scene from several angles into one image.
   T.sheet = (opts = {}) => {
     const { scene, camera, renderer } = target();
     if (!scene || !camera || !renderer) return null;
     const views = opts.views || ['current', 'front', 'right', 'top'];
+    T.sheetLabels = [];
     const tileW = opts.tileW || 480, tileH = opts.tileH || 270;
     const cols = Math.min(views.length, opts.cols || 2), rows = Math.ceil(views.length / cols);
     const sheet = document.createElement('canvas');
@@ -402,6 +524,11 @@ function pageMain(cfg) {
       const s = Math.min(tileW / src.width, tileH / src.height);
       const w = src.width * s, h = src.height * s;
       ctx.drawImage(src, x + (tileW - w) / 2, y + (tileH - h) / 2, w, h);
+      if (opts.labels) {
+        const tags = T.labels(camera, { width: w, height: h });
+        drawTags(ctx, tags, x + (tileW - w) / 2, y + (tileH - h) / 2, w, h);
+        T.sheetLabels.push(`${v}: ${tags.map((t) => t.text).join(', ') || '(none)'}`);
+      }
       ctx.fillStyle = 'rgba(0,0,0,.6)'; ctx.fillRect(x, y, 70, 18);
       ctx.fillStyle = '#fff'; ctx.font = '12px sans-serif'; ctx.fillText(v, x + 5, y + 13);
       camera.position.copy(saved.pos); camera.quaternion.copy(saved.quat); camera.up.copy(saved.up);

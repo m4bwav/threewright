@@ -48,7 +48,7 @@ export async function captureFrames(ctx, { frames, fps, mode = 'page', onFrame, 
     let png;
     if (mode === 'canvas') {
       const step = custom ? `await window.__tw.renderFrame(${i}, ${fps});` : `window.__tw.advance(${dt});`;
-      const url = await page.eval(`(async () => { ${step} return window.__tw.capture('image/png'); })()`);
+      const url = await page.eval(`(async () => { const n = window.__tw.screenRenders; ${step} return window.__tw.capture('image/png', undefined, n); })()`);
       if (!url) throw new Error('no renderer canvas found for canvas capture; use --capture page');
       png = Buffer.from(url.slice(url.indexOf(',') + 1), 'base64');
     } else {

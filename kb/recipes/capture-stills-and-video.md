@@ -92,3 +92,4 @@ ffmpeg -hide_banner -i clip.mp4 -vf "blackdetect=d=0.1:pix_th=0.05,freezedetect=
 ## Notes
 
 - 2026-09-26: written from the tw video, shot and sheet runs on templates/html-importmap and templates/html-webgpu (MP4, WebM, GIF, MOV, canvas capture, frames directory all verified with a static ffmpeg build; alpha verified in WebM VP9 and ProRes 4444 after tw learned to clear Chrome's page background); the in-page toDataURL rule is from the three.js manual Tips page. Capture of the WebGPU backend itself (not the WebGL 2 fallback) is unverified.
+- 2026-09-26: tw video --capture canvas used to record blank frames on render-on-demand pages (nothing drawn since the last present). tw now replays the last frame's screen passes when a step drew nothing; checked on templates/surface and globe. The default page capture still includes HTML overlays such as CSS2D labels; canvas capture does not.

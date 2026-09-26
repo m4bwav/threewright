@@ -1,0 +1,32 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>fixture: a ShaderMaterial that does not compile</title>
+  <script type="importmap">
+  { "imports": { "three": "https://cdn.jsdelivr.net/npm/three@0.186.1/build/three.module.js" } }
+  </script>
+</head>
+<body style="margin:0">
+  <script type="module">
+    // Deliberately broken: the fragment shader uses an undeclared variable.
+    import * as THREE from 'three';
+    const renderer = new THREE.WebGLRenderer();
+    renderer.setSize(innerWidth, innerHeight);
+    document.body.appendChild(renderer.domElement);
+    const scene = new THREE.Scene();
+    const camera = new THREE.PerspectiveCamera(50, innerWidth / innerHeight, 0.1, 50);
+    camera.position.z = 4;
+    scene.add(new THREE.Mesh(new THREE.BoxGeometry(), new THREE.MeshNormalMaterial({ name: 'ok' })));
+    const glow = new THREE.ShaderMaterial({
+      name: 'glow',
+      vertexShader: 'void main() { gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0); }',
+      fragmentShader: 'void main() { gl_FragColor = vec4(glowColour, 1.0); }',
+    });
+    const m = new THREE.Mesh(new THREE.SphereGeometry(0.5), glow);
+    m.position.x = 1.5;
+    scene.add(m);
+    renderer.setAnimationLoop(() => renderer.render(scene, camera));
+  </script>
+</body>
+</html>
