@@ -1,0 +1,29 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>fixture: page scrolled below a canvas that sits lower down</title>
+  <script type="importmap">
+  { "imports": { "three": "https://cdn.jsdelivr.net/npm/three@0.186.1/build/three.module.js" } }
+  </script>
+</head>
+<body style="margin:0;background:#fff">
+  <div style="height:1500px"></div>
+  <script type="module">
+    // The canvas is 1500 px down the page and the page is scrolled to it, so the
+    // canvas box on screen differs from its box on the page.
+    import * as THREE from 'three';
+    const renderer = new THREE.WebGLRenderer();
+    renderer.setSize(innerWidth, innerHeight);
+    document.body.appendChild(renderer.domElement);
+    document.body.appendChild(Object.assign(document.createElement('div'), { style: 'height:1500px' }));
+    scrollTo(0, 1500);
+    const scene = new THREE.Scene();
+    scene.background = new THREE.Color(0x202830);
+    const camera = new THREE.PerspectiveCamera(50, innerWidth / innerHeight, 0.1, 50);
+    camera.position.z = 3;
+    scene.add(new THREE.Mesh(new THREE.BoxGeometry(), new THREE.MeshNormalMaterial()));
+    renderer.setAnimationLoop(() => renderer.render(scene, camera));
+  </script>
+</body>
+</html>

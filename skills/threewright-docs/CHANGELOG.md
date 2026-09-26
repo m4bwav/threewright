@@ -4,6 +4,11 @@ Every change to [SKILL.md](SKILL.md) and its companions, newest first, each with
 
 Entry shape: `### C-YYYYMMDD-n · date · one-line summary`, then `because:` (IDs or "user request"), `files:` (file and section), and a sentence on what changed. Cite section headings, not line numbers.
 
+### C-20260926-2 · 2026-09-26 · Templates surface and globe built and verified
+- because: ai-docs/HANDOFF.md steps 3 and 4
+- files: kb/scenarios/3d-chart-in-docs.md (Build); templates/surface, templates/globe
+- `tw new chart-3d-scatter|surface|globe` now all resolve. The scenario no longer claims all three have axes (the globe has none).
+
 ### C-20260926-1 · 2026-09-26 · Created as an evergreen unit
 - because: user request (ai-docs/HANDOFF.md step 6)
 - files: SKILL.md, RESEARCH.md, LEARNINGS.md, TESTS.md, evergreen.json, evals/evals.json

@@ -36,12 +36,20 @@ Each one passes `tw check`; `node scripts/tw.mjs templates` lists where and how 
 | `chart-3d-scatter` | 3D scatter for documents: axes, legend, reduced motion |
 | `video-turntable` | Product turntable with `__tw.renderFrame` for exact video frames |
 | `game-starter` | Vite, TypeScript, Rapier; deterministic simulation with Node tests and `window.__game` hooks |
+| `surface` | 3D surface chart for documents: colour map, contours, axes, hover readout |
+| `globe` | Globe with great-circle routes, city labels that hide on the far side, no map downloads |
+| `product-viewer` | GLB viewer: environment light, soft shadow, fit to model, colour variants, loading and error states |
+| `scroll-hero` | Scroll-driven hero with GSAP ScrollTrigger and Lenis; reduced motion cuts between sections |
+| `splats` | Gaussian splat viewer on r186 `GaussianSplat` (WebGPU, WebGL 2 fallback) |
 
 ## CLI
 
 ```
 node scripts/tw.mjs check page/              # errors, failed requests, renderer, scene numbers, pixel evidence
-node scripts/tw.mjs check page/ --eval "window.__game.state()"
+node scripts/tw.mjs check page/ --eval "renderer.info.render.calls"   # renderer, scene, camera, find(name) in scope
+node scripts/tw.mjs check page/ --save before.json   # later: --against before.json lists what changed
+node scripts/tw.mjs perf page/ --seconds 5   # frame time p50/p95/p99/max, draw calls, memory growth
+node scripts/tw.mjs shot page/ --eval "__tw.setProgress(0.5)" --out mid.png   # set a state, then capture
 node scripts/tw.mjs sheet page/ --out s.png  # four angles in one image, prints its token cost
 node scripts/tw.mjs video page/ --out turn.mp4 --seconds 3 --fps 30
 node scripts/tw.mjs lint src/                # stale APIs, with the release that changed them and the fix

@@ -42,7 +42,10 @@
     const scene = new THREE.Scene();
     scene.background = new THREE.Color(0x0b0d12);
     const pmrem = new THREE.PMREMGenerator(renderer);
-    scene.environment = pmrem.fromScene(new RoomEnvironment(), 0.04).texture;
+    // RoomEnvironment builds meshes only to bake the environment: dispose them after.
+    const room = new RoomEnvironment();
+    scene.environment = pmrem.fromScene(room, 0.04).texture;
+    room.dispose();
 
     const camera = new THREE.PerspectiveCamera(45, window.innerWidth / window.innerHeight, 0.1, 100);
     camera.position.set(3, 2.2, 4);

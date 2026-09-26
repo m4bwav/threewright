@@ -4,6 +4,11 @@ Every change to [SKILL.md](SKILL.md) and its companions, newest first, each with
 
 Entry shape: `### C-YYYYMMDD-n · date · one-line summary`, then `because:` (IDs or "user request"), `files:` (file and section), and a sentence on what changed. Cite section headings, not line numbers.
 
+### C-20260926-2 · 2026-09-26 · All recipes executed; tw check, perf, save and against
+- because: ai-docs/HANDOFF.md steps 3 and 4
+- files: kb/recipes/*.md (Verify, Notes), kb/topics/performance.md (Verify)
+- Ten unexecuted recipes were run, and six were fixed (see the root CHANGELOG 0.2.0). `tw perf`, `check --save/--against` and `shot --eval` are documented in the performance topic.
+
 ### C-20260926-1 · 2026-09-26 · Created as an evergreen unit
 - because: user request (ai-docs/HANDOFF.md step 6)
 - files: SKILL.md, RESEARCH.md, LEARNINGS.md, TESTS.md, evergreen.json, evals/evals.json, references/

@@ -20,7 +20,12 @@ Verify a page (file, folder with index.html, or URL); text first, images on requ
   check <page> --eval "<js>"   also print the value of an expression after the page settles
                         (renderer, scene and camera are bound to the main ones tw observed)
   check <page> --strict        also fail on any console warning (three's own deprecation warnings always fail)
+  check <page> --save run.json ; check <page> --against run.json   what changed since a saved run:
+                        renderer and scene counts, object types, new or gone problems, changed frame region
+  perf <page> [--seconds 5] [--cpu-throttle 4]   frame time p50/p95/p99/max, frames over 33 ms,
+                        draw calls and triangles per frame, geometry, texture and heap growth
   shot <page> --out f.png [--canvas] [--alpha]   one screenshot; prints its token cost
+                        (shot and sheet take --eval "<js>" to set a state first, e.g. scrollTo(0, 2000))
   sheet <page> --out f.png [--views current,front,right,top]   several angles in one image
   video <page> --out f.mp4|.webm|.gif|.mov --seconds 5 --fps 30 [--alpha] [--frames-dir d]
                         deterministic capture via ffmpeg (alpha: .webm or .mov, page cleared transparent)
@@ -77,6 +82,11 @@ function formatCheck(r) {
   if (r.summary.camera) { const c = r.summary.camera; L.push(`camera: ${c.type} pos ${c.pos}${c.fov ? ' fov ' + c.fov : ''} near ${c.near} far ${c.far}${c.aspect ? ' aspect ' + c.aspect : ''}`); }
   if (r.pixels) L.push(formatPixels(r.pixels));
   if (r.eval !== undefined) L.push('eval: ' + JSON.stringify(r.eval).slice(0, 2000));
+  if (r.against) {
+    L.push(`against ${r.against.file} (${r.against.date}): ${r.against.changes.length ? r.against.changes.length + ' change(s)' : 'no changes'}`);
+    for (const c of r.against.changes.slice(0, 30)) L.push('  ' + c);
+  }
+  if (r.saved) L.push(`saved ${r.saved}`);
   const d = r.logs;
   const sec = (name, arr) => { if (arr && arr.length) { L.push(`${name} (${arr.length}):`); for (const x of arr.slice(0, 12)) L.push('  ' + x.replace(/\n/g, '\n    ')); if (arr.length > 12) L.push(`  … ${arr.length - 12} more`); } };
   sec('EXCEPTIONS', d.exceptions);
@@ -97,13 +107,27 @@ function formatPixels(p) {
 
 // Measure what the main canvas shows, from a small screenshot of its box.
 async function canvasPixels(ctx) {
-  const box = await ctx.page.eval('(() => { const t = window.__tw && window.__tw.target && window.__tw.target(); const c = (t && t.renderer && t.renderer.domElement) || document.querySelector("canvas"); if (!c) return null; const b = c.getBoundingClientRect(); return b.width > 0 && b.height > 0 ? { x: b.x, y: b.y, width: b.width, height: b.height } : null; })()');
+  const box = await ctx.page.eval('(() => { const t = window.__tw && window.__tw.target && window.__tw.target(); const c = (t && t.renderer && t.renderer.domElement) || document.querySelector("canvas"); if (!c) return null; const b = c.getBoundingClientRect(); return b.width > 0 && b.height > 0 ? { x: b.x + scrollX, y: b.y + scrollY, width: b.width, height: b.height } : null; })()');
   if (!box) return null;
   const { decodePng, pixelStats, pixelWarnings } = await import('./lib/png.mjs');
   const scale = Math.min(1, 240 / box.width);
   const { data } = await ctx.page.send('Page.captureScreenshot', { format: 'png', clip: { ...box, scale }, captureBeyondViewport: false });
-  const stats = pixelStats(decodePng(Buffer.from(data, 'base64')));
-  return { ...stats, warn: pixelWarnings(stats) };
+  const img = decodePng(Buffer.from(data, 'base64'));
+  const stats = pixelStats(img);
+  const out = { ...stats, warn: pixelWarnings(stats) };
+  // For --save and --against; hidden from --json output.
+  const { lumaGrid } = await import('./lib/runs.mjs');
+  Object.defineProperty(out, 'grid', { value: lumaGrid(img), enumerable: false });
+  return out;
+}
+
+// shot and sheet --eval: set a state (scroll, a material, a camera) before capture,
+// then let the page draw it.
+async function preCapture(ctx, a) {
+  if (!a.eval) return;
+  const { evalWithTarget } = await import('./lib/page.mjs');
+  await ctx.page.eval(evalWithTarget(String(a.eval)));
+  await ctx.settle({ wait: Number(a.evalWait || 300) });
 }
 
 async function withPage(target, a, fn, extra = {}) {
@@ -132,8 +156,64 @@ const commands = {
       const { hintsFor } = await import('./lib/hints.mjs');
       const hints = hintsFor([...logs.exceptions, ...logs.errors, ...logs.network, ...logs.warnings, ...(summary.errors || [])]);
       const r = { url: ctx.url, ok, gl, cdn: ctx.cdn.stats(), summary, pixels, logs, hints, ...(a.eval ? { eval: evaluated } : {}) };
+      if (a.save || a.against) {
+        const { snapshotRun, compareRuns } = await import('./lib/runs.mjs');
+        const { readFileSync, writeFileSync } = await import('node:fs');
+        const snap = snapshotRun(r, pixels && pixels.grid);
+        if (a.against) {
+          const before = JSON.parse(readFileSync(String(a.against), 'utf8'));
+          r.against = { file: String(a.against), date: before.date, changes: compareRuns(before, snap) };
+        }
+        if (a.save) { writeFileSync(String(a.save), JSON.stringify(snap)); r.saved = String(a.save); }
+      }
       print(r, a.json, formatCheck);
       if (!ok) process.exitCode = 1;
+    });
+  },
+
+  async perf(a) {
+    const seconds = Number(a.seconds || 5), throttle = Number(a.cpuThrottle || 1);
+    return withPage(a._[1], a, async (ctx) => {
+      await ctx.settle({ wait: Number(a.wait || 1000) });
+      if (throttle > 1) await ctx.page.send('Emulation.setCPUThrottlingRate', { rate: throttle });
+      // Frame times from requestAnimationFrame, with renderer counters per frame.
+      const raw = await ctx.page.eval(`new Promise((done) => {
+        const t = window.__tw && window.__tw.target ? window.__tw.target() : {};
+        const info = () => { const r = t.renderer && t.renderer.info; return r ? [r.render.drawCalls ?? r.render.calls ?? 0, r.render.triangles ?? 0, r.memory.geometries ?? 0, r.memory.textures ?? 0] : null; };
+        const heap = () => (performance.memory ? performance.memory.usedJSHeapSize : null);
+        const frames = [], counts = [], start = { info: info(), heap: heap() };
+        let last = performance.now();
+        const end = last + ${seconds * 1000};
+        const step = (now) => {
+          frames.push(now - last); last = now;
+          const c = info(); if (c) counts.push(c);
+          if (now < end) requestAnimationFrame(step);
+          else done({ frames: frames.slice(1), counts, start, end: { info: info(), heap: heap() } });
+        };
+        requestAnimationFrame(step);
+      })`, { timeoutMs: seconds * 1000 + 30000 });
+      const { frameStats } = await import('./lib/runs.mjs');
+      const { digestLogs } = await import('./lib/page.mjs');
+      const col = (i) => raw.counts.map((c) => c[i]);
+      const range = (xs) => (xs.length ? [Math.min(...xs), Math.max(...xs)] : null);
+      const r = {
+        url: ctx.url, seconds, cpuThrottle: throttle, note: 'headless, uncalibrated',
+        ...frameStats(raw.frames),
+        drawCalls: range(col(0)), triangles: range(col(1)),
+        geometries: raw.start.info && raw.end.info ? [raw.start.info[2], raw.end.info[2]] : null,
+        textures: raw.start.info && raw.end.info ? [raw.start.info[3], raw.end.info[3]] : null,
+        heapMB: raw.start.heap && raw.end.heap ? [raw.start.heap, raw.end.heap].map((v) => Math.round(v / 1e5) / 10) : null,
+        problems: (({ exceptions, errors }) => [...exceptions, ...errors])(digestLogs(ctx.logs)).length,
+      };
+      const span = (v) => (v ? (v[0] === v[1] ? String(v[0]) : `${v[0]}-${v[1]}`) : '?');
+      const grow = (v, unit = '') => (v ? `${v[0]}${unit} -> ${v[1]}${unit}` : 'n/a');
+      print(r, a.json, (x) => [
+        `perf ${x.seconds}s${x.cpuThrottle > 1 ? ` at ${x.cpuThrottle}x CPU throttle` : ''} (${x.note}): ${x.frames} frames · ${x.fps} fps`,
+        `frame ms: p50 ${x.p50} · p95 ${x.p95} · p99 ${x.p99} · max ${x.max} · over 33 ms: ${x.over33}`,
+        `per frame: draw calls ${span(x.drawCalls)} · triangles ${span(x.triangles)}`,
+        `memory: geometries ${grow(x.geometries)} · textures ${grow(x.textures)} · JS heap ${grow(x.heapMB, ' MB')}`,
+        ...(x.problems ? [`${x.problems} error(s) during the run: tw check shows them`] : []),
+      ].join('\n'));
     });
   },
 
@@ -149,6 +229,7 @@ const commands = {
     const out = a.out || 'shot.png';
     return withPage(a._[1], a, async (ctx) => {
       await ctx.settle({ wait: Number(a.wait || 1000) });
+      await preCapture(ctx, a);
       const { screenshot, digestLogs } = await import('./lib/page.mjs');
       const r = await screenshot(ctx, out, { canvasOnly: !!a.canvas, alpha: !!a.alpha });
       const { readFileSync } = await import('node:fs');
@@ -167,6 +248,7 @@ const commands = {
     const [tw, th] = (a.tile || '480x270').split('x').map(Number);
     return withPage(a._[1], a, async (ctx) => {
       await ctx.settle({ wait: Number(a.wait || 1000) });
+      await preCapture(ctx, a);
       const { writeDataUrl, imageFit } = await import('./lib/page.mjs');
       const url = await ctx.page.eval(`window.__tw.sheet(${JSON.stringify({ views: views.length ? views : undefined, tileW: tw, tileH: th, cols: a.cols ? Number(a.cols) : undefined })})`);
       if (!url) throw new Error('no scene, camera or renderer observed; run tw check');

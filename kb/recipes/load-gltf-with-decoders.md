@@ -61,10 +61,12 @@ Only wire the decoder(s) a given file actually needs. `tw glb model.glb` names t
 
 ## Verify
 
-- `tw glb model.glb` reports size, draw calls, triangles, texture pixel dimensions, extensions used and exactly which decoders they need; read this before writing the loader code, not after a failure.
-- `tw check <page>` lists FAILED REQUESTS for a missing `.bin` or texture file, and prints the loader's own error text (a missing decoder, a bad transcoder path, CORS) with a fix hint, rather than a generic failure.
-- `tw check <page> --eval "scene.getObjectByName('<a name from the model>') !== undefined"` confirms the model actually loaded and attached, in text, before any screenshot.
+- `tw glb model.glb` reports size, draw calls, triangles, texture pixel dimensions, the extensions used and a `needs:` line per decoder (`KHR_draco_mesh_compression -> DRACOLoader`, `EXT_meshopt_compression -> MeshoptDecoder`, `KHR_texture_basisu -> KTX2Loader`). Read it before writing the loader code, not after a failure.
+- `tw check <page>` lists FAILED REQUESTS for a missing `.bin` or texture file and prints the loader's own error with a fix hint. With `setDRACOLoader` removed it printed `THREE.GLTFLoader: No DRACOLoader instance provided.` and the hint `the model is Draco compressed: gltfLoader.setDRACOLoader(...)`.
+- `tw check <page> --eval "scene.getObjectByName('<a name from the model>') !== undefined"` confirms in text that the model loaded and attached, before any screenshot.
+- Verified 2026-09-26 on Windows 11, Chrome 153 headless, RTX 5060 Ti (WebGL), three 0.186.1 from node_modules (decoders, transcoder and meshopt module served by tw from the pinned jsDelivr URLs). Models were made for the test: a scene exported with GLTFExporter (see `export-glb`), then `@gltf-transform/cli` 4.5.0 with KTX-Software 4.4.2 produced a Draco plus KTX2 file and a Meshopt plus KTX2 file (see `optimize-gltf`). The recipe code loaded all three files in one page with `setDecoderPath` left commented out. `tw check --eval` reported `plain.glb: size 4.90x2.09x0.99 tris 4110 map image knot true`, and for both compressed files `size 4.90x2.09x0.99 tris 2062 map compressed 36492 knot true` (36492 is BC7, which the transcoder picked for this GPU), then `result: OK`. `tw lint` found 0 errors and 0 warnings. The `tw shot` showed all three copies with their checker textures. The WebGPURenderer path was not run.
 
 ## Notes
 
 - 2026-09-26: written from the core r160-r186 research (sections 2, 6, the r185 Draco default decoder path change) checked against `node_modules/three/examples/jsm/loaders/DRACOLoader.js`, `KTX2Loader.js` and `GLTFLoader.js` in the installed 0.186.1. Not run through `tw check` with a real GLB in this pass; the API calls themselves match the installed source exactly.
+- 2026-09-26: ran it with generated Draco, Meshopt and KTX2 files (see Verify). The code was right. The r185 default Draco decoder path works through tw's offline CDN, and `KTX2Loader` in r186 also defaults its transcoder path next to the module (`import.meta.url`), so `setTranscoderPath` is optional in the same way.

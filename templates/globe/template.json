@@ -1,0 +1,12 @@
+{
+  "name": "globe",
+  "summary": "Globe for docs with no downloads beyond three.js: land drawn from a coarse inline outline into a CanvasTexture, 15 degree graticule, real city coordinates, great-circle route arcs (TubeGeometry), latLonToVector3 helper, CSS2D city labels hidden on the far side and when they collide, hover or keyboard tooltips, OrbitControls with min and max distance, auto-rotation that stops for reduced motion, route table with great-circle distances, no build",
+  "renderer": "webgl",
+  "three": "0.186.1",
+  "entry": "index.html",
+  "use_for": ["routes, flows or links between places where true distance and direction matter", "a few dozen labelled points on the Earth inside a three.js page"],
+  "next": ["replace CITIES, HUBS and routes in the Data section", "node <threewright>/scripts/tw.mjs check <dir>", "for real map data (country polygons, tiles, terrain, photogrammetry) move to globe.gl or three-globe, or 3d-tiles-renderer for 3D Tiles; see kb/scenarios/geospatial-and-globes.md", "the inline coastline is about one degree accurate: swap in Natural Earth 110m GeoJSON if the map itself must be right"],
+  "verified": [
+    { "date": "2026-09-26", "platform": "Windows 11, Chrome 153 headless, NVIDIA RTX 5060 Ti", "checks": "tw check OK (54 draw calls, 48k tris, pixels 12% coverage), tw check --reduced-motion OK (3 render calls, rotation off), tw lint clean, --eval: far-side labels hidden (6 of 12 shown from the home view), N key faced each city in turn and filled the live region, a hover scan picked cities and routes and ignored the far side, longest route Singapore to Los Angeles 14,122 km; tw sheet (current, front, right, top) showed consistent land placement; tw shot at 960x720 looked at: Europe, Africa and the Atlantic in view, hub labels readable on a translucent backing, arcs clear of the frame, Mumbai label hidden where it would overlap Dubai; headless Chrome reported the dark colour scheme, so the light palette was not shot" }
+  ]
+}

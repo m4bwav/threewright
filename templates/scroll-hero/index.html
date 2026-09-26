@@ -1,0 +1,278 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Scroll hero</title>
+  <link rel="icon" href="data:,">
+  <style>
+    :root { --ink: #eef1f6; --muted: #aab3c2; --panel: rgba(12, 15, 22, 0.62); --accent: #ffb070; }
+    html { background: #0b0e14; }
+    body { margin: 0; color: var(--ink); font: 17px/1.55 system-ui, -apple-system, "Segoe UI", sans-serif; }
+    /* Lenis' own stylesheet (lenis@1.3.26/dist/lenis.css), the rules this page needs. */
+    html.lenis, html.lenis body { height: auto; }
+    .lenis.lenis-smooth iframe { pointer-events: none; }
+    /* One canvas for the whole page, fixed behind the text. */
+    canvas { position: fixed; inset: 0; width: 100%; height: 100%; display: block; z-index: 0; }
+    main { position: relative; z-index: 1; }
+    section { min-height: 100vh; display: flex; align-items: center; padding: 0 6vw; box-sizing: border-box; }
+    section.right { justify-content: flex-end; }
+    section.center { justify-content: center; align-items: flex-end; padding-bottom: 12vh; text-align: center; }
+    .panel { max-width: 25rem; padding: 22px 26px; background: var(--panel); border: 1px solid rgba(255, 255, 255, 0.08); border-radius: 14px; backdrop-filter: blur(6px); -webkit-backdrop-filter: blur(6px); }
+    .eyebrow { margin: 0 0 6px; font-size: 13px; letter-spacing: 0.12em; text-transform: uppercase; color: var(--accent); }
+    h1, h2 { margin: 0 0 10px; font-weight: 680; letter-spacing: -0.02em; line-height: 1.1; }
+    h1 { font-size: clamp(34px, 5vw, 56px); }
+    h2 { font-size: clamp(26px, 3.4vw, 38px); }
+    p { margin: 0; color: var(--muted); }
+    .hint { margin-top: 14px; font-size: 14px; }
+    a { color: var(--accent); }
+    @media (max-width: 640px) {
+      section, section.right { justify-content: center; align-items: flex-end; padding-bottom: 8vh; }
+    }
+  </style>
+  <!-- Pin exact versions: an unpinned CDN URL changes under you. -->
+  <script type="importmap">
+  {
+    "imports": {
+      "three": "https://cdn.jsdelivr.net/npm/three@0.186.1/build/three.module.js",
+      "three/addons/": "https://cdn.jsdelivr.net/npm/three@0.186.1/examples/jsm/",
+      "gsap": "https://cdn.jsdelivr.net/npm/gsap@3.15.0/index.js",
+      "gsap/ScrollTrigger": "https://cdn.jsdelivr.net/npm/gsap@3.15.0/ScrollTrigger.js",
+      "lenis": "https://cdn.jsdelivr.net/npm/lenis@1.3.26/dist/lenis.mjs"
+    }
+  }
+  </script>
+</head>
+<body>
+  <main id="story">
+    <section class="left" id="s1">
+      <div class="panel">
+        <p class="eyebrow">Orbit</p>
+        <h1>A hero that moves with the page</h1>
+        <p>One fixed canvas behind the text. Scrolling scrubs a GSAP timeline, so the camera and the object follow the reader, not the clock.</p>
+        <p class="hint">Scroll to begin.</p>
+      </div>
+    </section>
+    <section class="right" id="s2">
+      <div class="panel">
+        <p class="eyebrow">Closer</p>
+        <h2>Every section is a keyframe</h2>
+        <p>Each section of the page is one step of the timeline: camera position, where the camera looks, the object's turn and the tilt of its rings.</p>
+      </div>
+    </section>
+    <section class="left" id="s3">
+      <div class="panel">
+        <p class="eyebrow">Below</p>
+        <h2>Smooth, but still scroll</h2>
+        <p>Lenis smooths the wheel and feeds GSAP's ticker, so one loop runs the page. Keyboard, Page Down and screen readers still scroll the document normally.</p>
+      </div>
+    </section>
+    <section class="center" id="s4">
+      <div class="panel">
+        <p class="eyebrow">Settled</p>
+        <h2>Less motion when asked</h2>
+        <p>With reduced motion requested there is no smooth scroll and no flight: each section cuts straight to its view.</p>
+      </div>
+    </section>
+  </main>
+  <script type="module">
+    // Scroll-driven hero: GSAP ScrollTrigger scrubs one timeline over the whole page,
+    // Lenis smooths the scroll, and three.js draws a single fixed canvas only when the
+    // timeline has moved (render on demand).
+    //
+    // Jump to a point of the story (0 = top, 1 = end), for screenshots and links:
+    //   ?progress=0.5   or   #progress=0.5   or   window.__tw.setProgress(0.5)
+    // The page scrolls to that point, so the text and the 3D view match.
+    // With prefers-reduced-motion: reduce, Lenis is not started, the timeline is never
+    // scrubbed, and each section jumps to its keyframe as it reaches the middle of the view.
+    import * as THREE from 'three';
+    import { RoomEnvironment } from 'three/addons/environments/RoomEnvironment.js';
+    import { gsap } from 'gsap';
+    import { ScrollTrigger } from 'gsap/ScrollTrigger';
+    import Lenis from 'lenis';
+
+    gsap.registerPlugin(ScrollTrigger);
+    const reduceMotion = matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+    // --- scene -------------------------------------------------------------------
+    const renderer = new THREE.WebGLRenderer({ antialias: true });
+    renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+    renderer.setSize(window.innerWidth, window.innerHeight);
+    // Neutral keeps the core's orange saturated; AgX washes it towards pastel.
+    renderer.toneMapping = THREE.NeutralToneMapping;
+    renderer.domElement.setAttribute('aria-hidden', 'true'); // decoration; the story is the text
+    document.body.prepend(renderer.domElement);
+
+    const scene = new THREE.Scene();
+    scene.background = new THREE.Color(0x0b0e14);
+    scene.fog = new THREE.Fog(0x0b0e14, 9, 22);
+    const pmrem = new THREE.PMREMGenerator(renderer);
+    const room = new RoomEnvironment();
+    scene.environment = pmrem.fromScene(room, 0.04).texture;
+    scene.environmentIntensity = 0.55;
+    room.dispose();
+    pmrem.dispose();
+
+    const keyLight = new THREE.DirectionalLight(0xffd2a8, 2.2);
+    keyLight.position.set(-4, 5, 3);
+    const rimLight = new THREE.DirectionalLight(0x7fa8ff, 2.5);
+    rimLight.position.set(5, -1, -4);
+    scene.add(keyLight, rimLight);
+
+    // The object: a lacquered core, two thin rings and a swarm of small beads.
+    const object = new THREE.Group();
+    object.name = 'orbit';
+    scene.add(object);
+
+    const core = new THREE.Mesh(
+      new THREE.SphereGeometry(1, 96, 64),
+      new THREE.MeshPhysicalMaterial({ color: 0xe0703a, roughness: 0.38, clearcoat: 1, clearcoatRoughness: 0.12, sheen: 0.4, sheenColor: 0xffc49a })
+    );
+    core.name = 'core';
+    object.add(core);
+
+    const metal = new THREE.MeshStandardMaterial({ color: 0xdfe3ea, metalness: 1, roughness: 0.22 });
+    const rings = new THREE.Group();
+    rings.name = 'rings';
+    const ringA = new THREE.Mesh(new THREE.TorusGeometry(1.55, 0.025, 16, 200), metal);
+    const ringB = new THREE.Mesh(new THREE.TorusGeometry(1.85, 0.015, 12, 220), metal);
+    ringA.rotation.x = Math.PI / 2;
+    ringB.rotation.x = Math.PI / 2;
+    rings.add(ringA, ringB);
+    object.add(rings);
+
+    // Beads on a tilted band around the core; one draw call for all of them.
+    const BEADS = 90;
+    const beads = new THREE.InstancedMesh(
+      new THREE.IcosahedronGeometry(0.05, 2),
+      new THREE.MeshStandardMaterial({ color: 0xf3efe8, roughness: 0.35, metalness: 0.1 }),
+      BEADS
+    );
+    beads.name = 'beads';
+    {
+      const m = new THREE.Matrix4();
+      const q = new THREE.Quaternion();
+      const s = new THREE.Vector3();
+      const p = new THREE.Vector3();
+      let seed = 7;
+      const rand = () => ((seed = (seed * 16807) % 2147483647) / 2147483647); // repeatable
+      for (let i = 0; i < BEADS; i++) {
+        const a = (i / BEADS) * Math.PI * 2 + rand() * 0.2;
+        const r = 2.2 + rand() * 0.7;
+        p.set(Math.cos(a) * r, (rand() - 0.5) * 0.35, Math.sin(a) * r);
+        s.setScalar(0.5 + rand() * 1.2);
+        beads.setMatrixAt(i, m.compose(p, q, s));
+      }
+    }
+    const beadBand = new THREE.Group();
+    beadBand.rotation.set(0.35, 0, -0.2);
+    beadBand.add(beads);
+    object.add(beadBand);
+
+    const camera = new THREE.PerspectiveCamera(35, window.innerWidth / window.innerHeight, 0.1, 60);
+
+    // --- keyframes -----------------------------------------------------------------
+    // One keyframe per section. objX pushes the object away from the text panel;
+    // it shrinks on narrow screens, where the panels sit at the bottom instead.
+    const KEYS = [
+      { camX: 0, camY: 0.6, camZ: 9, lookY: 0, objX: 1.6, turn: 0.2, tilt: 0.25, spread: 1 },
+      { camX: -1.2, camY: 1.8, camZ: 7, lookY: 0.2, objX: -1.8, turn: 1.6, tilt: 0.9, spread: 1.08 },
+      { camX: 1.6, camY: -1.4, camZ: 7.4, lookY: 0.3, objX: 1.8, turn: 3.0, tilt: 1.35, spread: 1.2 },
+      { camX: 0, camY: 3.4, camZ: 9, lookY: -1.4, objX: 0, turn: 4.2, tilt: 0.1, spread: 0.95 },
+    ];
+    const state = { ...KEYS[0] };
+    const tl = gsap.timeline({ paused: true, onUpdate: () => { dirty = true; } });
+    KEYS.slice(1).forEach((k, i) => tl.to(state, { ...k, duration: 1, ease: 'power1.inOut' }, i));
+
+    const look = new THREE.Vector3();
+    function apply() {
+      const narrow = Math.min(1, camera.aspect / 1.5);
+      object.position.x = state.objX * narrow;
+      object.rotation.y = state.turn;
+      rings.rotation.x = state.tilt;
+      rings.rotation.z = state.tilt * 0.35;
+      beadBand.scale.setScalar(state.spread);
+      camera.position.set(state.camX, state.camY, state.camZ / Math.max(0.6, narrow));
+      look.set(0, state.lookY, 0);
+      camera.lookAt(look);
+    }
+
+    // --- render on demand ------------------------------------------------------------
+    let dirty = true;
+    function render() {
+      apply();
+      renderer.render(scene, camera);
+      dirty = false;
+    }
+    // GSAP's ticker is the page's only animation loop: it steps Lenis, then draws a
+    // frame only when the timeline or the window size changed.
+    gsap.ticker.add(() => { if (dirty) render(); });
+
+    // --- scroll ----------------------------------------------------------------------
+    let lenis = null;
+    const maxScroll = () => document.documentElement.scrollHeight - window.innerHeight;
+    const sections = [...document.querySelectorAll('#story > section')];
+    const last = KEYS.length - 1;
+
+    if (!reduceMotion) {
+      lenis = new Lenis();
+      lenis.on('scroll', ScrollTrigger.update);
+      gsap.ticker.add((time) => lenis.raf(time * 1000));
+      gsap.ticker.lagSmoothing(0);
+      // scrub: true follows the (already smoothed) scroll position exactly, so a
+      // given scroll position always gives the same frame.
+      ScrollTrigger.create({
+        trigger: '#story', start: 'top top', end: 'bottom bottom', scrub: true, animation: tl,
+      });
+    } else {
+      // Jump cuts: when a section reaches the middle of the view, show its keyframe.
+      sections.forEach((section, i) => ScrollTrigger.create({
+        trigger: section, start: 'top center', end: 'bottom center',
+        onToggle: (self) => { if (self.isActive) tl.progress(i / last); },
+      }));
+    }
+
+    // Jump to a point of the story. With reduced motion the view snaps to the nearest
+    // section, as it does while scrolling.
+    function setProgress(p) {
+      p = THREE.MathUtils.clamp(Number(p) || 0, 0, 1);
+      if (reduceMotion) p = Math.round(p * last) / last;
+      const y = p * maxScroll();
+      if (lenis) lenis.scrollTo(y, { immediate: true, force: true });
+      else window.scrollTo(0, y);
+      ScrollTrigger.update();
+      tl.progress(p);
+      render();
+      return p;
+    }
+
+    function progressFromUrl() {
+      const q = new URLSearchParams(location.search).get('progress');
+      const h = new URLSearchParams(location.hash.slice(1)).get('progress');
+      const v = h ?? q;
+      return v === null ? null : Number(v);
+    }
+    window.addEventListener('hashchange', () => { const p = progressFromUrl(); if (p !== null) setProgress(p); });
+
+    window.addEventListener('resize', () => {
+      camera.aspect = window.innerWidth / window.innerHeight;
+      camera.updateProjectionMatrix();
+      renderer.setSize(window.innerWidth, window.innerHeight);
+      dirty = true;
+    });
+
+    const tw = (window.__tw ??= {});
+    tw.setProgress = setProgress;
+    tw.progress = () => tl.progress();
+    tw.ready = (async () => {
+      // Compile shaders before the first scroll so the first flight does not hitch.
+      await renderer.compileAsync(scene, camera);
+      ScrollTrigger.refresh();
+      const p = progressFromUrl();
+      if (p !== null) setProgress(p);
+      else if (reduceMotion) tl.progress(0);
+      render();
+    })();
+  </script>
+</body>
+</html>

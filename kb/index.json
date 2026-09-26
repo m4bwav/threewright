@@ -188,7 +188,7 @@
     "Verify",
     "Notes"
    ],
-   "bytes": 5689
+   "bytes": 6099
   },
   {
    "slug": "headless-and-ci",
@@ -415,7 +415,7 @@
     "Verify",
     "Notes"
    ],
-   "bytes": 5159
+   "bytes": 5897
   },
   {
    "slug": "post-processing",
@@ -497,7 +497,7 @@
     "Verify",
     "Notes"
    ],
-   "bytes": 5758
+   "bytes": 5750
   },
   {
    "slug": "testing",
@@ -607,7 +607,7 @@
     "Verify",
     "Notes"
    ],
-   "bytes": 5442
+   "bytes": 5434
   },
   {
    "slug": "webxr",
@@ -667,7 +667,7 @@
     "Verify",
     "Notes"
    ],
-   "bytes": 6843
+   "bytes": 7262
   },
   {
    "slug": "architecture-bim-cad",
@@ -852,7 +852,7 @@
     "Verify",
     "Notes"
    ],
-   "bytes": 4542
+   "bytes": 4934
   },
   {
    "slug": "product-viewer",
@@ -874,7 +874,7 @@
    "status": "current",
    "renderer": "webgl",
    "last_verified": "2026-09-26",
-   "template": "r3f",
+   "template": "product-viewer",
    "sections": [
     "When",
     "Stack",
@@ -883,7 +883,7 @@
     "Verify",
     "Notes"
    ],
-   "bytes": 5672
+   "bytes": 5900
   },
   {
    "slug": "scientific-visualization",
@@ -935,7 +935,7 @@
    "status": "current",
    "renderer": "webgl",
    "last_verified": "2026-09-26",
-   "template": "html-importmap",
+   "template": "scroll-hero",
    "sections": [
     "When",
     "Stack",
@@ -945,7 +945,7 @@
     "Verify",
     "Notes"
    ],
-   "bytes": 5286
+   "bytes": 5488
   },
   {
    "slug": "splat-scenes",
@@ -976,7 +976,7 @@
     "Verify",
     "Notes"
    ],
-   "bytes": 4919
+   "bytes": 5184
   },
   {
    "slug": "video-and-turntables",
@@ -2065,7 +2065,7 @@
     "Verify",
     "Notes"
    ],
-   "bytes": 3704
+   "bytes": 4773
   },
   {
    "slug": "environment-lighting",
@@ -2091,7 +2091,7 @@
     "Verify",
     "Notes"
    ],
-   "bytes": 3371
+   "bytes": 4966
   },
   {
    "slug": "export-glb",
@@ -2116,7 +2116,7 @@
     "Verify",
     "Notes"
    ],
-   "bytes": 2896
+   "bytes": 4011
   },
   {
    "slug": "fit-camera-to-object",
@@ -2170,7 +2170,7 @@
     "Verify",
     "Notes"
    ],
-   "bytes": 3666
+   "bytes": 4690
   },
   {
    "slug": "instanced-scatter",
@@ -2222,7 +2222,7 @@
     "Verify",
     "Notes"
    ],
-   "bytes": 4853
+   "bytes": 6484
   },
   {
    "slug": "load-gltf-with-decoders",
@@ -2249,7 +2249,7 @@
     "Verify",
     "Notes"
    ],
-   "bytes": 3734
+   "bytes": 5182
   },
   {
    "slug": "optimize-gltf",
@@ -2275,7 +2275,7 @@
     "Verify",
     "Notes"
    ],
-   "bytes": 3984
+   "bytes": 6011
   },
   {
    "slug": "raycast-hover-and-click",
@@ -2354,7 +2354,7 @@
     "Verify",
     "Notes"
    ],
-   "bytes": 3319
+   "bytes": 4665
   },
   {
    "slug": "seeded-randomness",
@@ -2379,7 +2379,7 @@
     "Verify",
     "Notes"
    ],
-   "bytes": 3374
+   "bytes": 4057
   },
   {
    "slug": "tsl-custom-material",
@@ -2430,7 +2430,7 @@
     "Verify",
     "Notes"
    ],
-   "bytes": 4534
+   "bytes": 5974
   },
   {
    "slug": "webgpu-backend-check",

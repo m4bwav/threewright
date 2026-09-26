@@ -10,7 +10,7 @@ renderer: webgl
 last_verified: 2026-09-26
 sources: [ai-docs/research/2026-09-26-scenarios-xr-and-testing.md, ai-docs/research/2026-09-26-ecosystem-libraries.md, https://github.com/google/model-viewer, https://github.com/KhronosGroup/glTF/blob/main/extensions/2.0/Khronos/KHR_materials_variants/README.md]
 related: [model-viewer, camera-controls, gltf-transform, three-vrm, renderer-choice, environment-lighting, fit-camera-to-object, export-glb, optimize-gltf]
-template: r3f
+template: product-viewer
 ---
 
 # Product viewers and configurators
@@ -35,7 +35,7 @@ template: r3f
 
 ## Build
 
-- No verified `product-viewer` template exists yet. Start from `tw new r3f <dir>` (verified: build, typecheck, `tw check` on dist all clean) and add drei `Stage`/`Environment`/`Bounds`, or from `tw new html-importmap <dir>` for a vanilla page and add `camera-controls` plus `GLTFLoader`.
+- Vanilla: `tw new product-viewer <dir>` (verified 2026-09-26): GLTFLoader with Draco and Meshopt wired, `RoomEnvironment` light, `NeutralToneMapping`, a soft shadow on a `ShadowMaterial` floor, the camera fitted to the model on load, `OrbitControls` with damping and limits, loading and error states, colour buttons and reduced motion. Its `model.glb` is a procedural speaker written by `make-model.mjs` with `GLTFExporter` in Node. React: `tw new r3f <dir>` and add drei `Stage`/`Environment`/`Bounds`.
 - Author variants in one GLB with `KHR_materials_variants`; three's `GLTFLoader` variants plugin reads them (example `webgl_loader_gltf_variants`), and glTF Transform's `KHRMaterialsVariants` class edits them in a pipeline. Load only the selected variant's textures; do not eagerly fetch every variant's textures on page load.
 - Lighting: an HDR or EXR environment through `PMREMGenerator`, or `RoomEnvironment` for a fast-loading studio look that needs no external file (works offline, in CI, and in sandboxed pages such as Claude artifacts). Use `AgXToneMapping` or `NeutralToneMapping`, not the default, for product color accuracy.
 - Shadows: a contact-shadow plane or a baked shadow texture reads better and costs less than a real-time shadow map for a single hero product.

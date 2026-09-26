@@ -18,3 +18,13 @@
 - Knowledge base grown from 7 to 89 entries by three parallel agents, following the HANDOFF slug plan.
 - Lint rules consolidated to 67, with release numbers checked against npm tarballs.
 - Packaging written: README, AGENTS.md, CLAUDE.md, Copilot instructions, `.claude-plugin/` manifests and CHANGELOG. Em dashes removed from the knowledge base and skills.
+
+## 2026-09-26: fourth session (Windows 11, Chrome 153, RTX 5060 Ti; v0.2.0)
+
+- Deleted the two merged `claude/*` branches on GitHub and pushed tag `v0.1.0`. Creating the GitHub Releases was blocked by the local agent's permission rules, so the owner still has to run `gh release create` for v0.1.0 and v0.2.0 (see HANDOFF).
+- Real WebGPU verified: `tw doctor` shows a WebGPU adapter in headless Chrome 153. html-webgpu, bloom-webgpu, tsl-custom-material and webgpu-backend-check all ran on the WebGPU backend. The bloom-webgpu shot was blown out on both backends; lower values fixed it. `result: OK` cannot tell a glow from a blowout, so look at the shot.
+- tw: `check --eval` binds renderer, scene, camera and `find(name)`, because most pages keep them module scoped and the knowledge base's `--eval "renderer..."` advice failed. Also: `perf`, `check --save/--against`, `shot/sheet --eval`, failing on three deprecation warnings (`--strict` for all warnings), ignoring the favicon 404, splat bounds, a scroll-offset crop fix, no DEP0190, build-then-check tests for the package templates, and an em-dash check in `kb validate`.
+- Templates: splats (built in this session), plus surface, globe, product-viewer and scroll-hero (built by background agents; this session looked at their shots). All 12 templates are verified.
+- All ten unexecuted recipes were run by a background agent, and six were fixed. environment-lighting leaked a render target per swap. optimize-gltf's `--slots` values matched nothing in gltf-transform 4.5.0.
+- `npm test`: 43/43 on Windows (unit, browser, and the three package templates built and checked).
+- The product-viewer agent ran `taskkill /F /IM python.exe` to stop its test server, which kills every Python process on the machine. Next time, stop a server by its PID.

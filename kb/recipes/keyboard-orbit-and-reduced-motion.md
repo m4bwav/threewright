@@ -89,16 +89,25 @@ function resetView() {
   // restore your own known-good starting camera position/target here
   controls.update();
 }
+
+// Auto-rotate and damping only advance when update() runs every frame.
+renderer.setAnimationLoop(() => {
+  controls.update();
+  renderer.render(scene, camera);
+});
 ```
 
 Give the canvas an `aria-label` and, if it carries information rather than decoration, `role="img"` plus `aria-describedby` pointing at a written summary and a DOM table; see `accessibility` for the full checklist this recipe only covers the motion/keyboard piece of.
 
 ## Verify
 
-- `tw check <page> --reduced-motion` runs the page with `prefers-reduced-motion: reduce` emulated; `tw check <page> --eval "controls.autoRotate"` in that run should read `false`, and without the flag (a normal run) it should read `true` if the page intends to auto-rotate by default.
-- `tw check <page> --eval "document.activeElement === renderer.domElement"` after simulating a Tab key (or just checking `canvas.tabIndex`) confirms the canvas is actually focusable, a prerequisite for any keyboard scheme to reach it at all.
-- A manual keyboard pass (Tab to the canvas, try each key) is the real proof that rotate/zoom/reset work as intended; text checks above confirm the wiring exists, not that it feels right.
+- `controls` lives in module scope, so `tw check --eval` cannot see it by name; put `window.controls = controls` (or a small report function) in the page first.
+- `tw check <page> --reduced-motion --eval "controls.autoRotate"` must read `false`, and the same check without the flag must read `true` when the page auto-rotates by default. Measure the camera azimuth over one second too: it should not move under `--reduced-motion`.
+- Dispatch `keydown` events on the canvas from `--eval` and read the camera's spherical coordinates: each arrow key changes theta or phi by `ROTATE_SPEED`, `+` and `-` change the radius, and `event.defaultPrevented` is true only for the handled keys.
+- `canvas.focus()` then `document.activeElement === renderer.domElement` confirms the canvas is focusable. A manual keyboard pass (Tab to the canvas, try each key) is still the proof that it feels right.
+- Verified 2026-09-26 on Windows 11, Chrome 153 headless, RTX 5060 Ti (WebGL), three 0.186.1 from node_modules. Harness: the recipe code unchanged, a torus knot, a `#pause-rotate` button and report functions. Normal run: `autoRotate true damping true buttonHidden false tabIndex 0 azimuthDrift1s -0.1254` (1.2 x 2 pi / 60 = 0.126 rad/s). `--reduced-motion`: `autoRotate false damping true buttonHidden true azimuthDrift1s 0.0000`. Keys under `--reduced-motion`: ArrowLeft and ArrowRight gave dTheta -0.030 and 0.030, ArrowUp and ArrowDown gave dPhi -0.030 and 0.030, `+` took the radius 5.10 to 4.33, `-` took 4.33 to 4.98, all prevented; `x` was not prevented; `focused true`. Clicking the pause button set `aria-pressed true` and `autoRotate false`; damping coasted 0.038 rad in the first second, then 0.0004 rad per second. `tw lint` found 0 errors and 0 warnings. The `tw shot` showed the knot and the button.
 
 ## Notes
 
 - 2026-09-26: written from the dataviz research (section 5, the arrow-keys-pan-by-default fact and the WCAG 2.2.2/`prefers-reduced-motion` rules) cross-checked against `node_modules/three/examples/jsm/controls/OrbitControls.js` `_handleKeyDown` in the installed 0.186.1 (confirmed directly in `cameras-and-controls`).
+- 2026-09-26: ran it (see Verify). The code worked. Added the animation loop with `controls.update()`, which auto-rotate and damping need and the snippet left out, and the note that `controls` must be exposed before `tw check --eval` can read it. Damping stays on under reduced motion; it only follows user input, but it does let the view coast for about a second after a pause.

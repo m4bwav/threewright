@@ -1,42 +1,44 @@
 # HANDOFF
 
-Updated 2026-09-26 (third session). Read this first, then `ai-docs/log.md`, then `ai-docs/research/`.
+Updated 2026-09-26 (fourth session). Read this first, then `ai-docs/log.md`, then `ai-docs/research/`.
 
 ## Goal (from the owner)
 
 An expansive evergreen three.js plugin: skills plus a knowledge base plus token-saving scripts and tests, for everything from 3D charts in docs to videos to games. Research and use the latest, most popular three.js AI skills, tools and docs. Teach the latest three.js (r186, 0.186.1, 2026-09-24) and where it is heading (WebGPU, TSL); stale material is only for old versions. Public repo m4bwav/threewright. Follow the chartwright plugin layout (m4bwav/chartwright) and the evergreen protocol (m4bwav/evergreen-protocol). No AI attribution anywhere.
 
-## State (2026-09-26, after the third session; v0.1.0)
+## State (2026-09-26, after the fourth session; v0.2.0)
 
-Everything lives on `main`. There are no side branches to use: the two old `claude/*` branches are fully merged; delete them on GitHub if they still show.
+Everything is on `main`, with no side branches. Tags `v0.1.0` and `v0.2.0` are pushed.
 
 Done and verified:
-- CLI: see README. `npm test` passes 25/25 (17 unit, 8 browser) in the Linux container.
-- Knowledge base: 89 entries, `tw kb validate --strict` clean, index generated. Nine one-page recipes were run through `tw check`. Recipes written but not executed: load-gltf-with-decoders, environment-lighting, resize-and-pixel-ratio, fixed-timestep-loop, dispose-a-scene, keyboard-orbit-and-reduced-motion, optimize-gltf (its gltf-transform flags are unverified), export-glb, seeded-randomness, upgrade-an-old-project.
-- Lint: 67 rules, no `verify` flags, `tw deprecations` shows 0 pending for r186.
-- Templates (7, all `tw check` clean): html-importmap, html-webgpu (WebGL 2 fallback only), vite-ts, r3f, chart-3d-scatter, video-turntable, game-starter.
-- Research: ten notes in `ai-docs/research/`, including the video track.
-- Packaging: README, AGENTS.md, CLAUDE.md, `.github/copilot-instructions.md`, `.claude-plugin/plugin.json` and `marketplace.json`, CHANGELOG.md. Version 0.1.0 in plugin.json and package.json; the tag could not be pushed from the cloud container (its git proxy drops tag and branch-delete pushes).
+- CLI: see README. `npm test` passes 43/43 on Windows 11 with Chrome 153 and an RTX 5060 Ti. Browser tests build vite-ts, r3f and game-starter when their `node_modules` exists (`npm ci` in the template folder).
+- Knowledge base: 89 entries, `tw kb validate --strict` clean (now includes an em-dash check), index generated. All 20 recipes have been executed.
+- WebGPU verified on a real GPU: html-webgpu, splats, bloom-webgpu, tsl-custom-material, webgpu-backend-check.
+- Templates (12, all verified): html-importmap, html-webgpu, vite-ts, r3f, chart-3d-scatter, video-turntable, game-starter, surface, globe, product-viewer, scroll-hero, splats.
+- Lint: 67 rules; `tw deprecations` 0 pending for r186.
 
 ## Not done (in order)
 
-1. Tag `v0.1.0` on the head of main and publish a GitHub Release for it (notes: the 0.1.0 section of CHANGELOG.md): `git tag -a v0.1.0 -m "threewright 0.1.0" && git push origin v0.1.0`, then `gh release create v0.1.0`.
+1. Publish GitHub Releases for `v0.1.0` and `v0.2.0` (both tags are pushed). The agent's permission rules blocked `gh release create` here. Run: `gh release create v0.1.0 --title "threewright 0.1.0" --notes-file <0.1.0 section of CHANGELOG.md>`, then the same for v0.2.0.
 2. Run each skill's evals from a fresh session after installing the plugin (a plugin installed mid-session is invisible to that session's Skill tool). Fill in the baselines and record the results in TESTS.md and evergreen.json.
-3. Templates not started: surface, globe, product-viewer (with a generated CC0 `model.glb`), scroll-hero (GSAP 3.15.0, Lenis 1.3.26, `?progress=` jump), splats. Splats need the WebGPU backend: r186 GaussianSplat uses storage buffers and a compute sort. Verify it on a machine with a current Chrome, not the cloud container. Each must pass `tw check`, `tw check --reduced-motion`, `tw lint` and a looked-at `tw shot`.
-4. Run the unexecuted recipes (listed above) as scratch pages or scripts and record the result in each Verify section.
-5. Verify WebGPU for real on a current Chrome with a GPU: html-webgpu, bloom-webgpu, tsl-custom-material, and webgpu-backend-check.
-6. tw follow-ups:
-   - `check` ignores console warnings; decide whether deprecation warnings should fail it.
-   - A `/favicon.ico` 404 from an external dev server counts as a failed request.
-   - The browser tests skip templates with a package.json; add build-then-check when `node_modules` exists. game-starter was checked by hand.
-   - Features ranked by the tools research: perf percentiles, leak cycles, `--actions` input bursts, labels, a shaders listing, `--save`/`--against`.
-7. Consider an em-dash check in `tw kb validate --strict` (house style; the third session removed them by hand).
+3. tw bugs found this session:
+   - `tw glb` bounds are wrong for `KHR_mesh_quantization` files: it reported 68,490 units across a model that is 4.9 across.
+   - The aspect warning compares only `camera.aspect`, so a stale projection matrix (a missing `updateProjectionMatrix()`) passes. Compare the projection matrix instead.
+   - `tw scene` shows `map:(none)` for a DataTexture map.
+   - There is no flag to emulate `prefers-color-scheme: light`; headless reports dark, so the light palettes of surface and globe were never shot.
+   - `tw video --capture canvas` records blank frames on render-on-demand pages (surface, globe). The default page capture is fine.
+   - tw does not accept a query string on a folder path; use `--eval` or a served URL.
+4. tw features still open from the tools research (`ai-docs/research/2026-09-26-mcp-and-ai-tools.md`, section "tw features to add"): leak cycles (`--cycles N` with `__tw.cycle()`), `--actions` input bursts, `--labels` on shot and sheet, `tw shaders`, and several outputs per launch.
+5. The optimize-gltf etc1s and uastc steps need KTX-Software (`ktx` 4.4.2). It was unpacked into the session scratchpad only, not installed; say so in threewright-assets if users hit it.
 
 ## Gotchas
 
 - Chrome blocks module imports from `file://`; tw serves the folder over localhost (also needed for `navigator.gpu`).
-- ANGLE D3D "warning X4122" shader notes are filtered as noise.
-- The cloud container: Chromium 141 (Playwright build) has a WebGPU adapter through SwiftShader, but three r186's WebGPU backend throws there (`swizzle: 'rgba'` is not a `GPUTextureComponentSwizzle`), so WebGPU pages are verified on the WebGL 2 fallback only; newer Chrome builds cannot be downloaded there. curl reaches registry.npmjs.org and raw.githubusercontent.com only (jsDelivr, unpkg, threejs.org and github.com are blocked); WebFetch and WebSearch work. Playwright's bundled ffmpeg encodes VP8 only; a full static ffmpeg and ffprobe come from npm `@ffmpeg-installer/linux-x64` and `@ffprobe-installer/linux-x64` (chmod +x).
-- Release numbers from memory and even from research notes were wrong several times (UMD builds went in r161, `physicallyCorrectLights` in r160, `computeAsync` is not deprecated): check npm tarballs (`npm pack three@<v> --dry-run --json`) or the installed source.
-- `node --test tests/` does not expand a folder on Node 22; use `node --test tests/*.test.mjs` (`npm test`).
+- On this Windows machine headless Chrome picks the real WebGPU adapter by default; `--gl swiftshader` forces the WebGL 2 fallback (SwiftShader has no WebGPU adapter). On the Linux cloud container, Chromium 141 has an adapter but three r186's WebGPU backend throws there (`swizzle: 'rgba'`).
+- WebGPURenderer's `info.render.calls` counts `render()` calls since start; the per-frame number is `info.render.drawCalls`.
+- `result: OK` does not mean it looks right (bloom-webgpu passed while blown out). Look at one shot.
+- Headless Chrome ran at a 60 fps vsync cap here, so `tw perf` fps is uninformative; read p95, p99 and max.
+- Release numbers from memory and from research notes were wrong several times: check npm tarballs (`npm pack three@<v> --dry-run --json`) or the installed source.
+- Bash heredocs on this machine turn `\\` into `\` even when quoted; write files with the Write tool or Edit when they contain backslashes.
+- Never stop a test server with `taskkill /IM python.exe`; kill it by PID.
 - No AI attribution anywhere: commits and files carry none.

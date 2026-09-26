@@ -149,8 +149,8 @@ export async function openPage(target, opts = {}) {
 // The object literal is evaluated at global scope so typeof sees top-level let/const.
 export function evalWithTarget(expr) {
   const g = (n) => `${n}: typeof ${n} !== 'undefined' ? ${n} : undefined`;
-  return `((__t, __g) => ((renderer, scene, camera) => (${expr}
-))(`
+  // The newline lets an expression end in a // comment; find(name) is scene.getObjectByName.
+  return `((__t, __g) => ((renderer, scene, camera) => ((find) => (${expr}\n))((n) => scene && scene.getObjectByName(n)))(`
     + `__g.renderer ?? __t.renderer, __g.scene ?? __t.scene, __g.camera ?? __t.camera))(`
     + `(window.__tw && window.__tw.target && window.__tw.target()) || {}, { ${g('renderer')}, ${g('scene')}, ${g('camera')} })`;
 }
@@ -165,7 +165,7 @@ export async function screenshot(ctx, out, { canvasOnly = false, alpha = false }
   if (alpha) await ctx.page.send('Emulation.setDefaultBackgroundColorOverride', { color: { r: 0, g: 0, b: 0, a: 0 } });
   let clip;
   if (canvasOnly) {
-    const r = await ctx.page.eval('(() => { const t = window.__tw && window.__tw.target && window.__tw.target(); const c = (t && t.renderer && t.renderer.domElement) || document.querySelector("canvas"); if (!c) return null; const b = c.getBoundingClientRect(); return { x: b.x, y: b.y, width: b.width, height: b.height }; })()');
+    const r = await ctx.page.eval('(() => { const t = window.__tw && window.__tw.target && window.__tw.target(); const c = (t && t.renderer && t.renderer.domElement) || document.querySelector("canvas"); if (!c) return null; const b = c.getBoundingClientRect(); return { x: b.x + scrollX, y: b.y + scrollY, width: b.width, height: b.height }; })()');
     if (r && r.width > 0) clip = { ...r, scale: 1 };
   }
   const { data } = await ctx.page.send('Page.captureScreenshot', { format: 'png', ...(clip ? { clip } : {}), captureBeyondViewport: false });

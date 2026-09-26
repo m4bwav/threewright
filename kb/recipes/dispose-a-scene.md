@@ -46,8 +46,9 @@ function disposeObject(root) {
       material.dispose();
     }
 
-    // r186: disposes the object's own GPU resources too, and fires a 'dispose'
-    // event. It does not reach into geometry/material/texture disposal itself.
+    // r186: Object3D.dispose() fires a 'dispose' event (WebGPURenderer drops its
+    // render objects on it); InstancedMesh and BatchedMesh override it to free
+    // their own buffers. It never disposes geometry, material or textures.
     if (typeof node.dispose === 'function') node.dispose();
   });
 
@@ -67,10 +68,12 @@ Share resources (an environment texture, a material reused across many meshes) t
 
 ## Verify
 
-- `tw check <page> --eval "JSON.stringify(renderer.info.memory)"` before adding a model, right after adding it, and right after `disposeObject()` removes it: the third reading should match the first (baseline), confirming nothing leaked. A number that stays elevated after disposal means some reference (a still-assigned texture, a resource shared with something still in the scene) is keeping it alive.
-- Repeat the add/dispose cycle several times in one `--eval` call and confirm `info.memory.geometries`/`textures` stay flat across cycles rather than climbing; this is the actual leak-detection test, not a single before/after snapshot.
-- `tw scene <page>` after a swap-and-dispose cycle should show the same shape and counts as before the cycle started, confirming nothing extra survived into the visible graph either.
+- Take the baseline after the first render of a lit material, not before it. In r186 `WebGLRenderer` creates one shared DFG lookup texture for physically based materials the first time it renders one (`getDFGLUT()` in `WebGLRenderer.js`) and keeps it, so `renderer.info.memory.textures` reads 1 with an empty scene from then on. That texture is not a leak.
+- `tw check <page> --eval "cycle(5)"`, where the page's `cycle(n)` disposes the current model, reads `renderer.info.memory`, swaps in a new model n times with `swapModel()`, then calls `disposeObject()` on the last one: `geometries` and `textures` must return to the baseline and stay flat across the swaps. A number that stays high after disposal means a reference (a texture still assigned, a resource shared with something still in the scene) keeps it alive.
+- `tw scene <page>` after a swap should show one `Group "model"` with the same children as before, so nothing extra survived into the graph.
+- Verified 2026-09-26 on Windows 11, Chrome 153 headless, RTX 5060 Ti (WebGL), three 0.186.1 from node_modules. Harness: the recipe code unchanged plus a model of three boxes, each with its own `MeshStandardMaterial` and a 2x2 `DataTexture` used as `map` and `roughnessMap`. `tw check --eval "cycle(5)"` printed `before: geo 3 tex 4 | baseline: geo 0 tex 1 | added 0..4: geo 3 tex 4 | after dispose: geo 0 tex 1` and `result: OK`. `tw lint` found 0 errors and 0 warnings. The `tw shot` showed the three textured boxes.
 
 ## Notes
 
 - 2026-09-26: written from the core r160-r186 research (section 6, `Object3D.dispose()` new in r186) and the scenarios research (section B5, the `renderer.info.memory` leak-detection pattern), checked against `node_modules/three/src/core/Object3D.js` in the installed 0.186.1.
+- 2026-09-26: ran it (see Verify). Memory returned to baseline across five swaps. Added the DFG lookup texture caveat, since a baseline read before the first PBR render is off by one texture. Corrected the `Object3D.dispose()` comment: in r186 the base method only fires the `dispose` event; InstancedMesh and BatchedMesh override it.

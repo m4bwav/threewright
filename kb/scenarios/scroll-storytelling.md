@@ -10,7 +10,7 @@ renderer: webgl
 last_verified: 2026-09-26
 sources: [ai-docs/research/2026-09-26-scenarios-xr-and-testing.md, ai-docs/research/2026-09-26-direction.md, https://github.com/darkroomengineering/lenis]
 related: [gsap, lenis, react-three-fiber, renderer-choice, accessibility, keyboard-orbit-and-reduced-motion, render-on-demand]
-template: html-importmap
+template: scroll-hero
 ---
 
 # Scroll-driven storytelling and hero sections
@@ -33,7 +33,7 @@ template: html-importmap
 
 ## Build
 
-- No verified `scroll-hero` template exists yet (it is planned but not built). Start from `tw new html-importmap <dir>` for vanilla, or `tw new r3f <dir>` for React, and add the scroll stack by hand.
+- Vanilla: `tw new scroll-hero <dir>` (verified 2026-09-26): GSAP 3.15.0 ScrollTrigger scrubbing one timeline over four sections, Lenis 1.3.26 fed from GSAP's ticker, one fixed canvas rendered on demand, jump cuts with reduced motion, and `?progress=0..1` (or `#progress=`, or `window.__tw.setProgress(p)`) to jump to any point for screenshots. React: `tw new r3f <dir>` and add the scroll stack by hand.
 - One persistent canvas, fixed behind the DOM; never one canvas per section.
 - Drive a GSAP timeline from scroll progress; scrub camera position and material uniforms from it. Keep scroll logic out of the render loop itself; read a progress value inside the loop instead.
 - Sync Lenis to the GSAP ticker so only one `requestAnimationFrame` loop runs the whole page: `gsap.ticker.add((time) => lenis.raf(time * 1000))`, call `ScrollTrigger.update` on Lenis's `scroll` event, and set `gsap.ticker.lagSmoothing(0)`.

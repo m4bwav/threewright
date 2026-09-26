@@ -70,10 +70,12 @@ Read input once per simulation step (`sim.step()`), not once per render frame, i
 
 ## Verify
 
-- `tw check <page> --eval "renderer.info.render.frame"` rising at real wall-clock speed (not faster or slower) confirms the loop's overall pacing is correct.
-- `tw video <page> --seconds 4 --fps 30` then `--fps 60` on the same page should show identical motion at both frame rates (the simulation ran the same number of fixed steps either way); a difference in speed means something is still driving motion from render-frame count instead of the accumulator.
-- `tw check <page> --eval "<your own accumulator/step debug hook>"` lets you confirm the accumulator never grows unbounded on a slow machine, which is what `MAX_STEPS` exists to prevent.
+- Count steps, not frames. Give the page a step counter and a function that samples it over a few real seconds, then run `tw check <page> --eval "measure()"`: steps per second must be 60 (1 / STEP) whatever the frame rate, and the largest accumulator seen must stay under STEP. `renderer.info.render.frame` only shows the display rate.
+- Block the main thread once (a busy loop of 1000 ms inside the measured window): steps per second drop because the 0.25 s delta clamp and `MAX_STEPS` throw the lost time away, and the accumulator still stays under STEP. That is the no-spiral guarantee.
+- `tw video <page> --seconds 2 --fps 30` and `--fps 60` (virtual clock), then compare frames at the same time: `tw diff` of the last frames should PASS. A large offset means something still moves per render frame instead of per step.
+- Verified 2026-09-26 on Windows 11, Chrome 153 headless, RTX 5060 Ti (WebGL), three 0.186.1 from node_modules. Harness: the recipe loop unchanged, plus a step counter and an x wrap so the box stays in view. `tw check --eval "measure()"` printed `steps/s 60.3 frames/s 60.0 maxAccumulator 0.0167 (STEP 0.0167)`. With a 1000 ms block, `measure(1000)` printed `steps/s 46.2 frames/s 45.5 maxAccumulator 0.0166`. Videos at 30 and 60 fps: the frames at 2 s differed in 7 pixels (`tw diff` PASS); the frames at 1 s differed in 645 pixels (0.124%), a one or two pixel shift at the box edges seen in the diff image. `tw lint` found 0 errors and 0 warnings; the `tw shot` showed the box.
 
 ## Notes
 
 - 2026-09-26: written from the games research (section 2.1), which documents this exact accumulator/interpolation pattern (citing Glenn Fiedler, "Fix Your Timestep!") built on `THREE.Timer`, cross-checked against `node_modules/three/src/core/Timer.js` in the installed 0.186.1.
+- 2026-09-26: ran it (see Verify). The code was right. Rewrote Verify to measure steps per second with a page hook, since frame count only reflects the display rate.

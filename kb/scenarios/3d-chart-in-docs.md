@@ -35,7 +35,7 @@ related: [when-3d-is-justified, capture-stills-and-video, verification-ladder, i
 
 ## Build
 
-- Start from `tw new chart-3d-scatter <dir>`, `tw new surface <dir>` or `tw new globe <dir>`; each has axes with ticks, a legend, a tooltip, keyboard orbit, a pause control for auto-rotation, and a data table.
+- Start from `tw new chart-3d-scatter <dir>`, `tw new surface <dir>` or `tw new globe <dir>` (all three verified 2026-09-26). Each has a legend, a tooltip, keyboard orbit, a pause control for auto-rotation that stays off under reduced motion, and a data table. The scatter and the surface have axes with ticks; the surface adds a viridis colour bar, contour lines and render on demand; the globe has a graticule, great-circle arcs and city labels that hide on the far side.
 - Encode data colour unlit (`MeshBasicMaterial`, `PointsMaterial`) or, on a shaded surface, with a map that varies mostly in hue or saturation (a cool-warm diverging map), because shading changes luminance and competes with a luminance ramp such as viridis (TVCG 2024, colormaps for shaded surfaces; Moreland).
 - Pair the 3D view with an exact-value path: the DOM table below the canvas, a 2D cross-section or small multiples. Never ask a reader to read values off depth.
 - Accessibility: the canvas container has `role="img"`, an `aria-label` and `aria-describedby` pointing at a sentence that states the finding; the table sits in the DOM after the canvas, not inside it; the canvas is focusable with a visible focus ring and arrow keys rotate (OrbitControls arrows only pan); `prefers-reduced-motion` turns auto-rotation off; auto-rotation has a pause button (WCAG 2.2.2).
@@ -75,3 +75,4 @@ What each place can show (the fallback chain is interactive HTML, then `<model-v
 ## Notes
 
 - 2026-09-26: written from the 2026-09-26 research (3d-dataviz-and-docs, direction). Platform support is as of that date; GitHub rendering, Office formats and Claude artifact limits are the claims most likely to change.
+- 2026-09-26: the `surface` and `globe` templates were built and verified (tw check, --reduced-motion, lint, shot) on Windows 11, Chrome 153, RTX 5060 Ti.

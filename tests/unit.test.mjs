@@ -302,3 +302,19 @@ test('kb: em dashes are found in prose, not in code fences', () => {
   assert.equal(emDashLine(`# T\n\nplain line\n`), 0);
   assert.equal(emDashLine(`# T\n\`\`\`js\n// a ${d} b\n\`\`\`\nprose ${d} here\n`), 5);
 });
+
+test('runs: frame stats, luma grid and run comparison', async () => {
+  const { frameStats, lumaGrid, compareRuns } = await import('../scripts/lib/runs.mjs');
+  const f = frameStats([16, 16, 16, 17, 50]);
+  assert.equal(f.frames, 5); assert.equal(f.p50, 16); assert.equal(f.max, 50); assert.equal(f.over33, 1);
+  const img = { width: 4, height: 2, data: new Uint8Array(4 * 2 * 4).fill(255) };
+  assert.deepEqual(lumaGrid(img, { cols: 2, rows: 1 }).data, [255, 255]);
+  const base = { renderer: { drawCalls: 3, backend: 'WebGPU' }, scene: { meshes: 2, types: { Mesh: 2 } }, problems: ['old warning'], pixels: { meanLuma: 0.4, grid: { cols: 2, rows: 1, data: [10, 10] } } };
+  assert.deepEqual(compareRuns(base, base), []);
+  const after = { renderer: { drawCalls: 5, backend: 'WebGPU' }, scene: { meshes: 3, types: { Mesh: 3 } }, problems: ['new error'], pixels: { meanLuma: 0.5, grid: { cols: 2, rows: 1, data: [10, 200] } } };
+  const c = compareRuns(base, after);
+  assert.ok(c.includes('draw calls 3 -> 5 (+2)'), c.join('\n'));
+  assert.ok(c.includes('Mesh 2 -> 3'));
+  assert.ok(c.includes('NEW new error') && c.includes('gone old warning'));
+  assert.ok(c.some((l) => l.startsWith('pixels: 50% of the frame changed · region x 0.5-1')), c.join('\n'));
+});

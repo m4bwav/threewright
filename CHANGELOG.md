@@ -2,8 +2,16 @@
 
 Plugin versions. Skill-level changes are in each `skills/*/CHANGELOG.md`; the session record is `ai-docs/log.md`.
 
-## Unreleased
+## 0.2.0 · 2026-09-26
 
+Second release: every planned template is built, every recipe has been run, and WebGPU has been verified on a real GPU.
+- New templates, all verified on Windows 11, Chrome 153 and an RTX 5060 Ti: surface, globe, product-viewer (with a generated `model.glb` and its `make-model.mjs`), scroll-hero (GSAP 3.15.0, Lenis 1.3.26) and splats.
+- All ten recipes that had never been run now have been. Six needed fixes: environment-lighting leaked one geometry and one texture per swap; optimize-gltf's `--slots` values matched nothing in @gltf-transform/cli 4.5.0; dispose-a-scene, resize-and-pixel-ratio, keyboard-orbit-and-reduced-motion and upgrade-an-old-project needed corrections or missing steps.
+- `tw perf`: frame-time percentiles, draw calls per frame, memory growth, `--cpu-throttle`.
+- `tw check --save` and `--against`: a text diff between two runs.
+- `tw shot` and `tw sheet` take `--eval` to set a state before capture.
+- `tw check` pixel stats and `shot --canvas` measure the right area on a scrolled page.
+- RoomEnvironment is disposed after baking in html-importmap, html-webgpu and vite-ts.
 - `tw check --eval` binds `renderer`, `scene` and `camera` to the ones tw observed, so `--eval "renderer.info.render.calls"` works on pages that keep them module scoped (most do). The page's own globals still win.
 - `tw check` fails on three's own deprecation warnings (`THREE.X ... deprecated`), shown under their own heading; `--strict` also fails on any other console warning. Warnings from other libraries still only print by default.
 - `tw check` ignores a 404 for `/favicon.ico` (browsers request it on their own).
@@ -11,7 +19,6 @@ Plugin versions. Skill-level changes are in each `skills/*/CHANGELOG.md`; the se
 - npm is spawned without the Node 24 DEP0190 warning on Windows (`scripts/lib/proc.mjs`).
 - Browser tests build vite-ts, r3f and game-starter and check their `dist` when the template's `node_modules` exists.
 - `tw kb validate` warns on an em dash outside code fences (house style); `--strict` fails on it.
-- New template: splats (r186 native `GaussianSplat`, generated sample scene), verified on WebGPU and on the WebGL 2 fallback.
 - WebGPU verified on the real backend (Windows, Chrome 153, RTX 5060 Ti): the html-webgpu template and the bloom-webgpu, tsl-custom-material and webgpu-backend-check recipes.
 - bloom-webgpu: lower emissive and bloom strength and add a directional light; the old values blew the whole frame out on both backends.
 

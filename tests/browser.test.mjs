@@ -103,3 +103,34 @@ test('check --eval binds renderer from the page even when it is module scoped', 
   assert.equal(r.code, 0, r.err || r.out);
   assert.equal(r.json.eval, true);
 });
+
+test('perf prints frame percentiles; --save then --against reports no changes on the same page', { skip, timeout: 300000 }, () => {
+  const p = tw('perf', join(ROOT, 'templates/html-importmap'), '--seconds', '1', '--json', '--size', '480x270');
+  assert.equal(p.code, 0, p.err || p.out);
+  assert.ok(p.json.frames > 10 && p.json.p95 > 0, p.out);
+  const dir = mkdtempSync(join(tmpdir(), 'tw-run-'));
+  try {
+    const file = join(dir, 'run.json');
+    assert.equal(tw('check', join(ROOT, 'templates/html-importmap'), '--save', file, '--size', '480x270').code, 0);
+    const r = tw('check', join(ROOT, 'templates/html-importmap'), '--against', file, '--json', '--size', '480x270');
+    assert.deepEqual(r.json.against.changes, []);
+  } finally { rmSync(dir, { recursive: true, force: true }); }
+});
+
+test('pixel stats measure the canvas on a scrolled page', { skip, timeout: 300000 }, () => {
+  const r = tw('check', join(ROOT, 'tests/fixtures/pages/scrolled'), '--json', '--size', '480x270');
+  assert.equal(r.code, 0, r.out);
+  assert.equal(r.json.pixels.background, '#202830');
+  assert.ok(r.json.pixels.coverage > 0.05, JSON.stringify(r.json.pixels));
+});
+
+test('shot --eval changes the scene before the capture', { skip, timeout: 300000 }, () => {
+  const dir = mkdtempSync(join(tmpdir(), 'tw-eval-'));
+  try {
+    const page = join(ROOT, 'templates/html-importmap');
+    const a = tw('shot', page, '--out', join(dir, 'a.png'), '--json', '--size', '480x270');
+    const b = tw('shot', page, '--out', join(dir, 'b.png'), '--json', '--size', '480x270', '--eval', "find('knot').visible = false");
+    assert.equal(b.code, 0, b.err);
+    assert.ok(b.json.pixels.bbox.y0 > a.json.pixels.bbox.y0, `${JSON.stringify(a.json.pixels.bbox)} vs ${JSON.stringify(b.json.pixels.bbox)}`);
+  } finally { rmSync(dir, { recursive: true, force: true }); }
+});

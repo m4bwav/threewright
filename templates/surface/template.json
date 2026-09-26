@@ -1,0 +1,12 @@
+{
+  "name": "surface",
+  "summary": "3D surface chart z = f(x, y) for docs: indexed BufferGeometry grid with viridis vertex colours (unlit), contour lines at the z ticks, axes with ticks and CSS2D labels, colour bar legend, hover readout of x, y and z, keyboard orbit, pause and reset, reduced-motion aware, render on demand, tables of extremes and a coarse grid, no build",
+  "renderer": "webgl",
+  "three": "0.186.1",
+  "entry": "index.html",
+  "use_for": ["a function of two variables or a gridded measurement where the reader needs the shape (hills, pits, ridges, saddles)", "response surfaces, terrain samples, loss landscapes"],
+  "next": ["replace AXES and f in the Data section, or fill grid (y rows outer, x inner) from your own samples", "node <threewright>/scripts/tw.mjs check <dir>", "for a static document, also give a 2D heatmap or contour plot, or export a still or turntable with tw shot or tw video (use the default page capture; render on demand leaves the canvas empty between changes)"],
+  "verified": [
+    { "date": "2026-09-26", "platform": "Windows 11, Chrome 153 headless, NVIDIA RTX 5060 Ti", "checks": "tw check OK (93 render calls, 12 draw calls, 7.2k tris, pixels 11% coverage), tw check --reduced-motion OK (3 render calls: render on demand holds still, button reads Start rotation), tw lint clean, --eval hover and N key gave correct tooltip and live-region text, tw sheet (current, front, right, top), tw shot at 960x720 and 420x640 looked at: axes, ticks and titles readable, viridis surface with contours and mesh lines, colour bar -6 to 8, nothing clipped (the lowest z tick and first x tick sit close at the front corner, still legible); headless Chrome reported the dark colour scheme, so the light palette was not shot" }
+  ]
+}

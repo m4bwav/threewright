@@ -35,7 +35,7 @@ template: html-importmap
 
 ## Build
 
-- No verified geospatial template exists yet (a `globe` template is planned but not built). Start from `tw new html-importmap <dir>` and add `3d-tiles-renderer` or `globe.gl` from there.
+- For a data globe inside a three.js page, start from `tw new globe <dir>` (verified 2026-09-26): a `latLonToVector3` helper, great-circle arcs, CSS2D city labels hidden on the far side, and a coastline drawn from an inline outline, so nothing downloads but three.js. It is not a map: for country polygons, tiles or terrain move to `globe.gl` or `3d-tiles-renderer`. For those, start from `tw new html-importmap <dir>` and add the library.
 - ECEF or a local ENU (east-north-up) frame with a rebased origin around the camera; do not render directly in raw ECEF coordinates at planet scale, or float precision jitters visibly.
 - A logarithmic depth buffer, or reversed depth, at globe scale to avoid z-fighting between near and far geometry.
 - Set a tile error target and an LRU cache size deliberately; tiles plus volumetric clouds can exceed mobile memory with defaults left untouched.
@@ -57,3 +57,4 @@ template: html-importmap
 ## Notes
 
 - 2026-09-26: written from the 2026-09-26 research (scenarios-xr-and-testing A4, ecosystem-libraries). WebGPU support in `3d-tiles-renderer`'s core loader, `globe.gl`'s `useWebGPU` exposure, and deck.gl/luma.gl's WebGPU status are all unverified and likely to change.
+- 2026-09-26: the `globe` template was built and verified (tw check, --reduced-motion, lint, shot) on Windows 11, Chrome 153, RTX 5060 Ti.

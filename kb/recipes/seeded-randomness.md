@@ -57,10 +57,12 @@ For a uniformly distributed point inside a disc (a common scatter pattern), use 
 
 ## Verify
 
-- Run the page twice with the same seed and diff two screenshots (`tw shot` twice, then `tw diff a.png b.png --threshold 0.1 --max 0.001`): identical seeds should produce a PASS with zero or near-zero pixel difference.
-- `tw check <page> --eval "<call sceneRand a few times and print the sequence>"` with the same seed on two separate runs should print the identical sequence of numbers, which is the direct proof the PRNG (not just the visual result) is deterministic.
-- Grep the page's own source for `Math.random(` outside of the PRNG's own implementation; any hit is a place determinism can silently break.
+- Run the page twice with the same seed and diff two screenshots (`tw shot` twice, then `tw diff a.png b.png --threshold 0.1 --max 0.001`): the same seed must give a PASS with zero or near-zero pixel difference.
+- Expose a helper that prints the first few values for a seed and run `tw check <page> --eval "sequence(1)"` on two separate runs: the sequences must be identical. This proves the PRNG itself is deterministic, not only the picture.
+- Grep the page's own source for `Math.random(` outside the PRNG; any hit is a place determinism can silently break.
+- Verified 2026-09-26 on Windows 11, Chrome 153 headless, RTX 5060 Ti (WebGL), three 0.186.1 from node_modules. Harness: the recipe code unchanged, scattering 60 boxes in a disc with `sceneRand` (seed from the string `default`, hashed to 1544803905). Two `tw check --eval` runs both printed `seed1: 0.62707394 0.00273572 0.52744704 0.98105097 0.96837790` and `seed2: 0.73425094 0.32499843 ...`; Node 24 printed the same first three values for seed 1. Two `tw shot` runs gave `0 pixel(s) differ ... PASS` in `tw diff`. `tw lint` found 0 errors and 0 warnings, and grep found no `Math.random(` in the page. The shot showed the scattered boxes.
 
 ## Notes
 
 - 2026-09-26: written from the scenarios research (section A7, the determinism checklist for generative art and fxhash-style platforms, which names mulberry32 and sfc32 as common seeded PRNG choices) and three.js's own e2e test practice of replacing `Math.random()` for deterministic screenshot comparisons (section B1).
+- 2026-09-26: ran it (see Verify). The code was right; no change beyond the Verify record.

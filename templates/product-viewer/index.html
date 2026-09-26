@@ -1,0 +1,291 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Product viewer</title>
+  <link rel="icon" href="data:,">
+  <style>
+    :root { --ink: #1f2226; --muted: #5d636b; --bg: #ebe9e5; --accent: #1f2226; }
+    html, body { margin: 0; height: 100%; overflow: hidden; background: var(--bg); color: var(--ink); font: 15px/1.45 system-ui, -apple-system, "Segoe UI", sans-serif; }
+    canvas { display: block; width: 100%; height: 100%; touch-action: none; }
+    canvas:focus-visible { outline: 3px solid #2f6fdb; outline-offset: -3px; }
+    header { position: fixed; top: 20px; left: 24px; max-width: 22rem; pointer-events: none; }
+    header h1 { margin: 0; font-size: 22px; font-weight: 650; letter-spacing: -0.01em; }
+    header p { margin: 4px 0 0; color: var(--muted); }
+    .bar { position: fixed; left: 0; right: 0; bottom: 20px; display: flex; justify-content: center; align-items: center; gap: 14px; flex-wrap: wrap; padding: 0 16px; }
+    .swatches { display: flex; gap: 8px; align-items: center; }
+    .swatch { width: 30px; height: 30px; border-radius: 50%; border: 2px solid #fff; background: var(--c); box-shadow: 0 0 0 1px #0003; cursor: pointer; padding: 0; }
+    .swatch[aria-pressed="true"] { box-shadow: 0 0 0 2px var(--accent); }
+    .swatch:focus-visible, .toggle:focus-visible { outline: 3px solid #2f6fdb; outline-offset: 2px; }
+    #variant-name { min-width: 6.5em; color: var(--muted); }
+    .toggle { font: inherit; font-size: 13px; color: var(--ink); background: #fff9; border: 1px solid #0002; border-radius: 999px; padding: 5px 12px; cursor: pointer; }
+    #status { position: fixed; inset: 0; display: grid; place-items: center; text-align: center; pointer-events: none; }
+    #status[hidden] { display: none; }
+    #status .box { max-width: 26rem; padding: 0 16px; }
+    #status .track { width: 180px; height: 3px; margin: 12px auto 0; background: #0001; border-radius: 2px; overflow: hidden; }
+    #status .fill { height: 100%; width: 0; background: var(--ink); transition: width 0.2s; }
+    #status.error { color: #a1261b; }
+    #status.error .track { display: none; }
+    .sr-only { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
+    @media (prefers-reduced-motion: reduce) { #status .fill { transition: none; } }
+  </style>
+  <!-- Pin the exact version: an unpinned CDN URL changes under you. -->
+  <script type="importmap">
+  {
+    "imports": {
+      "three": "https://cdn.jsdelivr.net/npm/three@0.186.1/build/three.module.js",
+      "three/addons/": "https://cdn.jsdelivr.net/npm/three@0.186.1/examples/jsm/"
+    }
+  }
+  </script>
+</head>
+<body>
+  <header>
+    <h1>Field speaker</h1>
+    <p>Drag to turn, scroll or pinch to zoom. With the view focused: arrow keys turn, + and - zoom, Home resets.</p>
+  </header>
+  <p id="description" class="sr-only">A cylindrical portable speaker with a fabric sleeve, a metal top cap with three buttons, a rubber foot, a carry strap on the back and a metal badge on the front.</p>
+  <div id="status" role="status" aria-live="polite"><div class="box"><div id="status-text">Loading model</div><div class="track"><div class="fill" id="progress"></div></div></div></div>
+  <div class="bar" hidden id="bar">
+    <div class="swatches" role="group" aria-label="Colour" id="swatches"></div>
+    <span id="variant-name" aria-live="polite"></span>
+    <button class="toggle" id="spin" type="button" aria-pressed="false">Pause turning</button>
+  </div>
+  <script type="module">
+    // A product viewer for one GLB: studio light from a generated room, a soft shadow
+    // on an invisible floor, the camera fitted to the model once it loads, orbit with
+    // limits, a loading and an error state, and colour buttons.
+    //
+    // URL parameters, all optional:
+    //   ?model=url   a .glb or .gltf to show instead of model.glb (made by make-model.mjs)
+    //   ?bg=ebe9e5   background colour as hex
+    //
+    // Colour buttons change the materials named "fabric" and "trim" (see VARIANTS). A
+    // model without those names gets no buttons. For real variants authored in one
+    // file, use KHR_materials_variants instead (see the product-viewer scenario).
+    import * as THREE from 'three';
+    import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
+    import { RoomEnvironment } from 'three/addons/environments/RoomEnvironment.js';
+    import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
+    import { DRACOLoader } from 'three/addons/loaders/DRACOLoader.js';
+    import { MeshoptDecoder } from 'three/addons/libs/meshopt_decoder.module.js';
+
+    const VARIANTS = [
+      { name: 'Sage', fabric: 0x5b7a6e, trim: 0xc9ccd0, swatch: '#5b7a6e' },
+      { name: 'Sand', fabric: 0xcdb99a, trim: 0xd9c7a7, swatch: '#cdb99a' },
+      { name: 'Graphite', fabric: 0x34373c, trim: 0x55585e, swatch: '#34373c' },
+      { name: 'Coral', fabric: 0xd0654f, trim: 0xe0d6cf, swatch: '#d0654f' },
+    ];
+
+    const params = new URLSearchParams(location.search);
+    const modelUrl = params.get('model') || 'model.glb';
+    const bgParam = (params.get('bg') || '').replace(/^#/, '');
+    const BG = /^([0-9a-f]{3}){1,2}$/i.test(bgParam) ? '#' + bgParam : '#ebe9e5';
+    const reduceMotion = matchMedia('(prefers-reduced-motion: reduce)').matches;
+    document.body.style.background = BG;
+
+    const renderer = new THREE.WebGLRenderer({ antialias: true });
+    renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+    renderer.setSize(window.innerWidth, window.innerHeight);
+    // Neutral tone mapping keeps base colours close to their sRGB values, which is
+    // what a product page needs; ACES darkens and shifts saturated colours.
+    renderer.toneMapping = THREE.NeutralToneMapping;
+    renderer.shadowMap.enabled = true;
+    renderer.shadowMap.type = THREE.VSMShadowMap;
+    const canvas = renderer.domElement;
+    canvas.tabIndex = 0;
+    canvas.setAttribute('role', 'img');
+    canvas.setAttribute('aria-label', '3D view of the product');
+    canvas.setAttribute('aria-describedby', 'description');
+    document.body.prepend(canvas);
+
+    const scene = new THREE.Scene();
+    scene.background = new THREE.Color(BG);
+    const pmrem = new THREE.PMREMGenerator(renderer);
+    const room = new RoomEnvironment();
+    scene.environment = pmrem.fromScene(room, 0.04).texture;
+    room.dispose();
+    pmrem.dispose();
+
+    // The room lights the model. These two lights only cast shadows: a soft key
+    // shadow falling back and left, and a small, heavily blurred top shadow that
+    // acts as the contact shadow under the foot.
+    const key = new THREE.DirectionalLight(0xffffff, 0.8);
+    key.castShadow = true;
+    // A small map blurred hard gives a soft studio shadow; a big map stays crisp.
+    key.shadow.mapSize.set(512, 512);
+    key.shadow.radius = 18;
+    key.shadow.blurSamples = 24;
+    const top = new THREE.DirectionalLight(0xffffff, 0.3);
+    top.castShadow = true;
+    top.shadow.mapSize.set(256, 256);
+    top.shadow.radius = 6;
+    top.shadow.blurSamples = 16;
+    // VSM stores depth as half floats; a floor that faces the light head-on would
+    // shadow itself without this bias.
+    top.shadow.bias = -0.002;
+    scene.add(key, key.target, top, top.target);
+
+    // ShadowMaterial draws only the shadow, so the floor has no edge. It stays inside
+    // the shadow cameras' box (see fit()) so no line appears at the box edge.
+    const floor = new THREE.Mesh(new THREE.CircleGeometry(1, 64).rotateX(-Math.PI / 2), new THREE.ShadowMaterial({ opacity: 0.22 }));
+    floor.name = 'floor';
+    floor.receiveShadow = true;
+    scene.add(floor);
+
+    const camera = new THREE.PerspectiveCamera(32, window.innerWidth / window.innerHeight, 0.01, 100);
+    const controls = new OrbitControls(camera, canvas);
+    controls.enableDamping = !reduceMotion; // inertia is motion the visitor did not ask for
+    controls.enablePan = false;
+    controls.maxPolarAngle = Math.PI / 2 - 0.08; // never look from under the floor
+    controls.minPolarAngle = 0.15;
+    controls.autoRotate = !reduceMotion;
+    controls.autoRotateSpeed = 0.8; // about 75 seconds a turn
+
+    // --- loading ---------------------------------------------------------------
+    const statusEl = document.getElementById('status');
+    const statusText = document.getElementById('status-text');
+    const progressEl = document.getElementById('progress');
+
+    const draco = new DRACOLoader(); // fetches its decoder only if the file uses Draco
+    const loader = new GLTFLoader().setDRACOLoader(draco).setMeshoptDecoder(MeshoptDecoder);
+
+    function load(url) {
+      return new Promise((resolve, reject) => {
+        loader.load(url, resolve, (e) => {
+          if (e.lengthComputable && e.total) progressEl.style.width = `${Math.round((100 * e.loaded) / e.total)}%`;
+        }, reject);
+      });
+    }
+
+    // Stand the model on y = 0 at the origin, then fit the camera, the limits, the
+    // shadow boxes and the floor to its size.
+    function fit(object) {
+      object.traverse((o) => { if (o.isMesh) { o.castShadow = true; } });
+      const box = new THREE.Box3().setFromObject(object);
+      const center = box.getCenter(new THREE.Vector3());
+      object.position.sub(new THREE.Vector3(center.x, box.min.y, center.z));
+      scene.add(object);
+
+      const size = box.getSize(new THREE.Vector3());
+      const radius = size.length() / 2; // bounding sphere of the box
+      const target = new THREE.Vector3(0, size.y / 2, 0);
+      const vFov = THREE.MathUtils.degToRad(camera.fov);
+      const hFov = 2 * Math.atan(Math.tan(vFov / 2) * camera.aspect);
+      // 1.35 leaves room for the title above and the buttons below.
+      const distance = (radius / Math.sin(Math.min(vFov, hFov) / 2)) * 1.35;
+      const direction = new THREE.Vector3(0.45, 0.32, 1).normalize(); // front, a little right and above
+      camera.position.copy(target).addScaledVector(direction, distance);
+      camera.near = distance / 50;
+      camera.far = distance * 20;
+      camera.updateProjectionMatrix();
+      controls.target.copy(target);
+      controls.minDistance = radius * 1.6;
+      controls.maxDistance = distance * 2.5;
+      controls.update();
+      controls.saveState(); // Home returns here
+
+      key.position.set(-0.8, 3, 1.4).normalize().multiplyScalar(radius * 4);
+      top.position.set(0, radius * 4, 0);
+      for (const light of [key, top]) {
+        const s = light.shadow.camera;
+        s.left = s.bottom = -radius * 2;
+        s.right = s.top = radius * 2;
+        s.near = radius;
+        s.far = radius * 8;
+        s.updateProjectionMatrix();
+      }
+      floor.scale.setScalar(radius * 1.8);
+    }
+
+    // --- colour buttons --------------------------------------------------------
+    function setupVariants(object) {
+      const byName = {};
+      object.traverse((o) => { if (o.isMesh && o.material.name) byName[o.material.name] = o.material; });
+      if (!byName.fabric) return; // not our model: no buttons
+      const group = document.getElementById('swatches');
+      const label = document.getElementById('variant-name');
+      const buttons = VARIANTS.map((variant, i) => {
+        const b = document.createElement('button');
+        b.type = 'button';
+        b.className = 'swatch';
+        b.style.setProperty('--c', variant.swatch);
+        b.setAttribute('aria-label', variant.name);
+        b.addEventListener('click', () => choose(i));
+        group.append(b);
+        return b;
+      });
+      function choose(i) {
+        const variant = VARIANTS[i];
+        byName.fabric.color.setHex(variant.fabric);
+        if (byName.trim) byName.trim.color.setHex(variant.trim);
+        buttons.forEach((b, j) => b.setAttribute('aria-pressed', String(i === j)));
+        label.textContent = variant.name;
+      }
+      choose(0);
+      tw.variant = choose; // for captures: window.__tw.variant(2)
+    }
+
+    // --- motion and keys -------------------------------------------------------
+    const spin = document.getElementById('spin');
+    function setSpin(on) {
+      controls.autoRotate = on;
+      spin.setAttribute('aria-pressed', String(!on));
+      spin.textContent = on ? 'Pause turning' : 'Turn';
+    }
+    setSpin(!reduceMotion);
+    spin.addEventListener('click', () => setSpin(!controls.autoRotate));
+    controls.addEventListener('start', () => setSpin(false)); // the visitor took over
+
+    // OrbitControls' own arrow keys pan; this page turns and zooms instead.
+    canvas.addEventListener('keydown', (e) => {
+      const step = Math.PI / 24;
+      const actions = {
+        ArrowLeft: () => controls.rotateLeft(step), ArrowRight: () => controls.rotateLeft(-step),
+        ArrowUp: () => controls.rotateUp(step), ArrowDown: () => controls.rotateUp(-step),
+        '+': () => controls.dollyIn(1.1), '=': () => controls.dollyIn(1.1), '-': () => controls.dollyOut(1.1),
+        Home: () => controls.reset(),
+      };
+      const act = actions[e.key];
+      if (!act) return;
+      e.preventDefault();
+      setSpin(false);
+      act();
+    });
+
+    const timer = new THREE.Timer();
+    timer.connect(document);
+    function loop(time) {
+      timer.update(time);
+      controls.update(timer.getDelta());
+      renderer.render(scene, camera);
+    }
+
+    const tw = (window.__tw ??= {});
+    async function start() {
+      try {
+        const gltf = await load(modelUrl);
+        fit(gltf.scene);
+        setupVariants(gltf.scene);
+        statusEl.hidden = true;
+        document.getElementById('bar').hidden = false;
+      } catch (err) {
+        statusEl.classList.add('error');
+        statusText.textContent = `Could not load ${modelUrl}. ${location.protocol === 'file:' ? 'Serve this folder over http; browsers block module and model loads from file://.' : err.message || err}`;
+        console.error(err);
+      }
+      renderer.render(scene, camera);
+      timer.reset();
+      renderer.setAnimationLoop(loop);
+    }
+    tw.ready = start();
+
+    window.addEventListener('resize', () => {
+      camera.aspect = window.innerWidth / window.innerHeight;
+      camera.updateProjectionMatrix();
+      renderer.setSize(window.innerWidth, window.innerHeight);
+    });
+  </script>
+</body>
+</html>

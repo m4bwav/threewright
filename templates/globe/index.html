@@ -1,0 +1,645 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Globe: routes from four hubs</title>
+  <style>
+    /* Every colour lives here. The 3D scene reads the same variables, so a
+       document can restyle the globe, light or dark, with CSS alone. */
+    :root {
+      color-scheme: light dark;
+      --page: #ffffff; --ink: #1f2328; --muted: #59636e; --rule: #d1d9e0;
+      --plot-bg: #fbfbfc; --ocean: #d9e4ee; --land: #b4bfca; --graticule: #9fb0c0;
+      --city: #3d444d; --focus: #0969da; --tip-bg: #1f2328; --tip-ink: #ffffff;
+      --label-bg: rgb(255 255 255 / .82);
+    }
+    @media (prefers-color-scheme: dark) {
+      :root {
+        --page: #0f1115; --ink: #e6e8eb; --muted: #9aa4b1; --rule: #2b3139;
+        --plot-bg: #14171c; --ocean: #1c283a; --land: #4a596b; --graticule: #334154;
+        --city: #d0d7de; --focus: #58a6ff; --tip-bg: #f0f2f5; --tip-ink: #111317;
+        --label-bg: rgb(20 23 28 / .78);
+      }
+    }
+    * { box-sizing: border-box; }
+    html, body { margin: 0; background: var(--page); color: var(--ink); }
+    body { font: 15px/1.5 system-ui, -apple-system, "Segoe UI", Roboto, sans-serif; }
+    main { max-width: 1040px; margin: 0 auto; padding: 12px 16px 40px; }
+    h1 { font-size: 1.15rem; line-height: 1.3; margin: 0; }
+    h2 { font-size: 1rem; margin: 28px 0 8px; }
+    .sub { margin: 0 0 8px; color: var(--muted); font-size: .9rem; }
+    figure { margin: 0; }
+    .bar { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 6px 16px; margin-bottom: 6px; }
+    .legend { display: flex; flex-wrap: wrap; gap: 4px 16px; margin: 0; padding: 0; list-style: none; font-size: .85rem; }
+    .legend li { display: flex; align-items: center; gap: 6px; }
+    .legend svg { width: 22px; height: 10px; }
+    .buttons { display: flex; gap: 6px; }
+    button {
+      font: inherit; font-size: .8rem; color: var(--ink); background: var(--page);
+      border: 1px solid var(--rule); border-radius: 6px; padding: 3px 10px; cursor: pointer;
+    }
+    button:hover { border-color: var(--muted); }
+    button:focus-visible { outline: 2px solid var(--focus); outline-offset: 2px; }
+    .stage {
+      position: relative; overflow: hidden; border: 1px solid var(--rule); border-radius: 8px;
+      background: var(--plot-bg);
+      height: clamp(280px, min(calc(100vh - 150px), 75vw), 640px);
+    }
+    .viz { position: absolute; inset: 0; }
+    .viz canvas { display: block; width: 100%; height: 100%; }
+    .viz canvas:focus-visible { outline: 3px solid var(--focus); outline-offset: -3px; }
+    .labels { position: absolute; inset: 0; pointer-events: none; }
+    .city-label { font-size: 12px; color: var(--ink); white-space: nowrap; }
+    .city-label > span { display: inline-block; margin-left: 8px; padding: 0 4px; border-radius: 3px; background: var(--label-bg); }
+    .city-label.hub { font-weight: 600; }
+    .tip {
+      position: absolute; left: 0; top: 0; pointer-events: none; z-index: 2;
+      background: var(--tip-bg); color: var(--tip-ink); border-radius: 6px; padding: 6px 9px;
+      font-size: 12px; line-height: 1.4; white-space: nowrap; font-variant-numeric: tabular-nums;
+      box-shadow: 0 2px 8px rgb(0 0 0 / .25);
+    }
+    .tip b { font-weight: 600; }
+    figcaption { margin-top: 10px; }
+    figcaption p { margin: 0 0 6px; max-width: 75ch; }
+    .hint { color: var(--muted); font-size: .85rem; }
+    kbd { font: inherit; font-size: .8em; border: 1px solid var(--rule); border-bottom-width: 2px; border-radius: 4px; padding: 0 4px; }
+    table { border-collapse: collapse; font-size: .85rem; font-variant-numeric: tabular-nums; }
+    caption { text-align: left; color: var(--muted); font-size: .85rem; padding-bottom: 6px; }
+    th, td { padding: 4px 12px; text-align: right; border-bottom: 1px solid var(--rule); }
+    th { font-weight: 600; }
+    th:nth-child(-n+2), td:nth-child(-n+2) { text-align: left; }
+    .scroll { max-height: 22rem; overflow: auto; border: 1px solid var(--rule); border-radius: 6px; display: inline-block; max-width: 100%; }
+    .scroll:focus-visible { outline: 2px solid var(--focus); outline-offset: 2px; }
+    .scroll caption { padding: 8px 12px 6px; }
+    .scroll thead th { position: sticky; top: 0; background: var(--page); box-shadow: inset 0 -1px var(--rule); }
+    .sr-only { position: absolute; width: 1px; height: 1px; overflow: hidden; clip-path: inset(50%); white-space: nowrap; }
+  </style>
+  <!-- Pin the exact version: an unpinned CDN URL changes under you. -->
+  <script type="importmap">
+  {
+    "imports": {
+      "three": "https://cdn.jsdelivr.net/npm/three@0.186.1/build/three.module.js",
+      "three/addons/": "https://cdn.jsdelivr.net/npm/three@0.186.1/examples/jsm/"
+    }
+  }
+  </script>
+</head>
+<body>
+<main>
+  <h1>Direct routes from four hub airports</h1>
+  <p class="sub">Great-circle routes between real city coordinates. Flight counts are synthetic, from a seeded generator.
+    Coastlines are a coarse inline outline for orientation only.</p>
+  <figure>
+    <div class="bar">
+      <ul class="legend" id="legend" aria-label="Hub"></ul>
+      <div class="buttons">
+        <button type="button" id="spin">Pause rotation</button>
+        <button type="button" id="home">Reset view</button>
+      </div>
+    </div>
+    <div class="stage">
+      <div class="viz" id="viz" role="img"
+           aria-label="Rotatable globe with flight routes from London, Dubai, Singapore and New York"
+           aria-describedby="finding"></div>
+      <div class="tip" id="tip" hidden aria-hidden="true"></div>
+    </div>
+    <figcaption>
+      <p id="finding">Each hub reaches its own region first: London and New York face each other across the
+        Atlantic, Dubai sits between Europe, Africa and South Asia, and Singapore serves East Asia and Australia.
+        <span id="longest"></span> A great circle is the shortest path on the sphere, which is why long routes
+        bend toward the poles on a flat map.</p>
+      <p class="hint">Drag to turn the globe, scroll or pinch to zoom, hover or tap a city or a route for details.
+        With the globe focused: arrow keys turn it, <kbd>+</kbd> and <kbd>-</kbd> zoom, <kbd>Home</kbd> resets,
+        <kbd>N</kbd> and <kbd>P</kbd> step through the cities and turn to face each one, <kbd>Esc</kbd> clears.</p>
+    </figcaption>
+  </figure>
+  <p class="sr-only" id="status" aria-live="polite"></p>
+
+  <h2 id="routes-title">Routes</h2>
+  <div class="scroll" role="region" aria-labelledby="routes-title" tabindex="0">
+    <table id="routes">
+      <caption>One row per route, the same data as the globe. Distance is the great-circle distance on a 6,371 km sphere.</caption>
+      <thead><tr><th scope="col">Hub</th><th scope="col">Destination</th><th scope="col">Distance (km)</th><th scope="col">Flights a week</th></tr></thead>
+      <tbody></tbody>
+    </table>
+  </div>
+</main>
+
+<script type="module">
+  import * as THREE from 'three';
+  import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
+  import { CSS2DRenderer, CSS2DObject } from 'three/addons/renderers/CSS2DRenderer.js';
+
+  // A globe earns 3D when the reader needs true distances, directions or
+  // adjacency across oceans and poles. For values by country, a 2D choropleth
+  // reads better. For real map data (tiles, terrain, GeoJSON countries), move to
+  // globe.gl or 3d-tiles-renderer (see kb/scenarios/geospatial-and-globes.md).
+
+  // ---- Data: replace CITIES, HUBS and ROUTES with your own.
+  // Coordinates are degrees, latitude north and longitude east positive.
+  // label: true puts a name on the globe; every city gets a tooltip and a row.
+  const CITIES = [
+    { name: 'London', lat: 51.51, lon: -0.13, label: true },
+    { name: 'Dubai', lat: 25.20, lon: 55.27, label: true },
+    { name: 'Singapore', lat: 1.35, lon: 103.82, label: true },
+    { name: 'New York', lat: 40.71, lon: -74.01, label: true },
+    { name: 'Los Angeles', lat: 34.05, lon: -118.24, label: true },
+    { name: 'Toronto', lat: 43.65, lon: -79.38 },
+    { name: 'Mexico City', lat: 19.43, lon: -99.13 },
+    { name: 'Lima', lat: -12.05, lon: -77.04 },
+    { name: 'Santiago', lat: -33.45, lon: -70.67 },
+    { name: 'Buenos Aires', lat: -34.60, lon: -58.38 },
+    { name: 'São Paulo', lat: -23.55, lon: -46.63, label: true },
+    { name: 'Reykjavik', lat: 64.15, lon: -21.94 },
+    { name: 'Paris', lat: 48.86, lon: 2.35 },
+    { name: 'Istanbul', lat: 41.01, lon: 28.98 },
+    { name: 'Moscow', lat: 55.76, lon: 37.62 },
+    { name: 'Cairo', lat: 30.04, lon: 31.24 },
+    { name: 'Lagos', lat: 6.52, lon: 3.38, label: true },
+    { name: 'Nairobi', lat: -1.29, lon: 36.82 },
+    { name: 'Johannesburg', lat: -26.20, lon: 28.05, label: true },
+    { name: 'Mumbai', lat: 19.08, lon: 72.88, label: true },
+    { name: 'Delhi', lat: 28.61, lon: 77.21 },
+    { name: 'Bangkok', lat: 13.76, lon: 100.50 },
+    { name: 'Jakarta', lat: -6.21, lon: 106.85 },
+    { name: 'Beijing', lat: 39.90, lon: 116.41, label: true },
+    { name: 'Seoul', lat: 37.57, lon: 126.98 },
+    { name: 'Tokyo', lat: 35.68, lon: 139.69, label: true },
+    { name: 'Perth', lat: -31.95, lon: 115.86 },
+    { name: 'Sydney', lat: -33.87, lon: 151.21, label: true },
+    { name: 'Honolulu', lat: 21.31, lon: -157.86 },
+    { name: 'Anchorage', lat: 61.22, lon: -149.90 },
+  ];
+  // Okabe-Ito colours stay distinct for common colour-vision deficiencies; the
+  // hub is also named in every tooltip and table row, so colour is never the only cue.
+  const HUBS = [
+    { name: 'London', color: '#E69F00', to: ['New York', 'Toronto', 'Los Angeles', 'São Paulo', 'Lagos', 'Johannesburg', 'Mumbai', 'Singapore', 'Tokyo', 'Moscow', 'Cairo', 'Reykjavik'] },
+    { name: 'Dubai', color: '#56B4E9', to: ['London', 'Paris', 'Istanbul', 'Cairo', 'Nairobi', 'Johannesburg', 'Mumbai', 'Delhi', 'Bangkok', 'Beijing', 'Jakarta', 'Sydney'] },
+    { name: 'Singapore', color: '#009E73', to: ['Dubai', 'Mumbai', 'Bangkok', 'Jakarta', 'Perth', 'Sydney', 'Beijing', 'Seoul', 'Tokyo', 'Honolulu', 'Los Angeles'] },
+    { name: 'New York', color: '#CC79A7', to: ['London', 'Paris', 'Reykjavik', 'Istanbul', 'Toronto', 'Los Angeles', 'Mexico City', 'Lima', 'Santiago', 'Buenos Aires', 'São Paulo', 'Anchorage', 'Tokyo'] },
+  ];
+
+  // Seeded PRNG: the same flight counts, table and screenshots on every load.
+  function mulberry32(seed) {
+    return () => {
+      seed = (seed + 0x6d2b79f5) | 0;
+      let t = Math.imul(seed ^ (seed >>> 15), 1 | seed);
+      t = (t + Math.imul(t ^ (t >>> 7), 61 | t)) ^ t;
+      return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
+    };
+  }
+  const rand = mulberry32(20260926);
+  const byName = new Map(CITIES.map((c) => [c.name, c]));
+
+  // ---- Geography helpers
+  const EARTH_KM = 6371;
+  // Latitude and longitude to a point on a sphere of radius r: +y is north,
+  // longitude 0 faces +z and 90 degrees east faces +x.
+  function latLonToVector3(lat, lon, r = 1, target = new THREE.Vector3()) {
+    const phi = THREE.MathUtils.degToRad(lat), lambda = THREE.MathUtils.degToRad(lon);
+    return target.set(r * Math.cos(phi) * Math.sin(lambda), r * Math.sin(phi), r * Math.cos(phi) * Math.cos(lambda));
+  }
+  function vector3ToLatLon(v) {
+    const n = v.clone().normalize();
+    return { lat: THREE.MathUtils.radToDeg(Math.asin(n.y)), lon: THREE.MathUtils.radToDeg(Math.atan2(n.x, n.z)) };
+  }
+  // Central angle between two cities (radians); times EARTH_KM it is the great-circle distance.
+  const centralAngle = (a, b) => latLonToVector3(a.lat, a.lon).angleTo(latLonToVector3(b.lat, b.lon));
+
+  // Great-circle arc: slerp between the two unit vectors, lifted off the surface
+  // by a sine bump that grows with distance so long routes clear the short ones.
+  function greatCirclePoints(a, b, segments = 64) {
+    const va = latLonToVector3(a.lat, a.lon), vb = latLonToVector3(b.lat, b.lon);
+    const q = new THREE.Quaternion().setFromUnitVectors(va, vb), qt = new THREE.Quaternion();
+    const lift = 0.02 + 0.16 * va.angleTo(vb) / Math.PI;
+    const pts = [];
+    for (let s = 0; s <= segments; s++) {
+      const t = s / segments;
+      qt.identity().slerp(q, t);
+      pts.push(va.clone().applyQuaternion(qt).multiplyScalar(1.003 + lift * Math.sin(Math.PI * t)));
+    }
+    return pts;
+  }
+
+  // Routes: one per city pair (a return route is not drawn twice).
+  const routes = [];
+  const seen = new Set();
+  for (const hub of HUBS) for (const dest of hub.to) {
+    const key = [hub.name, dest].sort().join('|');
+    if (seen.has(key)) continue;
+    seen.add(key);
+    const a = byName.get(hub.name), b = byName.get(dest);
+    routes.push({ hub, from: a, to: b, km: Math.round(centralAngle(a, b) * EARTH_KM), weekly: 7 + Math.floor(rand() * 22) });
+  }
+
+  // ---- Land: a coarse outline, [lon, lat] pairs, about one degree accurate.
+  // Drawn into a canvas texture so the page downloads nothing but three.js.
+  // Replace with GeoJSON (Natural Earth 110m) if you need it to be right.
+  const LAND = [
+    // North America
+    [-168,66,-162,70,-156,71.3,-140,69.6,-128,70,-115,68.5,-95,72,-85,69.5,-80,63,-94,59,-92,57,-82,55,-78,52,-79,62,-72,62,-64,60,-61,56,-56,52,-60,47.5,-65,45,-70,43,-70,41.5,-74,40.5,-76,37,-75.5,35.3,-81,31.5,-80,25.5,-82.5,28,-84,30,-89,30.2,-94,29.5,-97.5,26,-97.5,22,-95,18.5,-91,19,-90.5,21,-87,21.5,-88,16,-83.5,15,-83.5,11,-79.5,9.3,-77.5,8.5,-80,7.5,-83,8.5,-86,11,-88,13.3,-92,14.5,-95,16,-100,17,-105.5,20,-105.5,23,-109,25.8,-112.7,31.5,-114.7,31.7,-112,29,-109.5,23,-112,26,-114.2,28.5,-115.8,30.3,-117.1,32.5,-120.5,34.5,-122.5,37.5,-124,40.5,-124.5,43,-124,46.5,-124.7,48.4,-123,49,-127.5,50.5,-130,54,-133,57,-137,59,-141,60,-146,60.5,-152,59,-154,57.5,-158,56.5,-162,55,-165,54.5,-158,58.5,-162,59,-165,60.5,-165,62.5,-164.5,63.5,-161,64.5,-166,65],
+    // South America
+    [-77.5,8.5,-75.5,10.8,-72,12,-71.5,10.5,-68,10.5,-62,10.7,-60,8.5,-57,6,-52,5,-50,1.8,-48,-1,-44,-2.5,-39,-3.5,-35,-5.5,-35,-9,-37.5,-12.5,-39,-17.5,-40.5,-22,-44,-23,-48,-26,-49,-29,-52,-32.5,-53.5,-34,-58,-34.5,-57.5,-36.5,-62,-39,-65,-41,-64,-43,-67.5,-46,-66,-48,-69,-51,-68.5,-53,-65.5,-55,-71,-55,-75,-52,-74,-47,-73.5,-42,-73.5,-37,-71.5,-33,-71.5,-28,-70.3,-23,-70.3,-18.5,-75,-15.5,-77,-12,-79.5,-8,-81.2,-5.5,-80,-2.5,-80,1,-78.8,1.8,-77.3,4,-77.5,7],
+    // Africa
+    [-17,21,-16,24,-13,27.5,-10,29.5,-9.5,32.5,-6.5,34,-5.5,35.8,-2,35.1,3,36.8,10,37.2,11,35,10,34,15,32.3,19,30.3,20,32,23,32.6,25,31.7,29,31,32.3,31.3,34,27.5,36,24,37.5,18.5,39.5,15.5,43.3,12.5,45,10.5,51.2,11.8,51,10,48,4.5,44,-0.5,41,-2,39.3,-6,40,-10.5,40.5,-15,35,-20,35.5,-24,32.8,-26,32.5,-29,30,-31.3,27,-33.6,22.5,-34,18.5,-34.2,18,-31,15.2,-26.8,14.5,-22.5,11.8,-17,13.5,-12,13,-9,12,-5.5,9,-1,9.5,3.5,8.5,4.5,5.5,4.3,2,6.3,-2,4.8,-7.5,4.4,-11,6.8,-13.2,8.5,-15,10.9,-16.8,12.5,-17.5,14.7,-16.2,19.5],
+    // Madagascar
+    [49.3,-12,50.5,-15.5,49.5,-17.5,47,-25,45,-25.5,43.5,-22,44.3,-17,46.5,-15.7],
+    // Eurasia
+    [-9.5,37,-9,39.5,-8.9,43,-4,43.5,-1.5,43.4,-1.5,46.5,-4.5,48.3,-1.5,49.5,1.5,50.5,4,51.5,6,53.4,8.6,53.9,8.5,55.5,8.2,57,10.5,57.7,10.5,54.5,14,54,18.5,54.8,21,55.5,21.5,57.5,24,57.5,23.5,59.3,28,59.6,30,60,25,60.3,21.5,61,21.5,63.5,25.5,65.2,21.5,65.7,17.5,62.5,18.5,60,16.5,56.5,14,55.5,12.8,56.5,11.5,58.8,10,59,7,58,5,59,5,62,10,63.5,14,67,19,70,25,71,31,70,40,67.5,33,66.5,36,64.5,44,66,44,68.5,53,68.5,59,69,69,73,73,72,80,73,88,75.5,100,76.5,105,77.7,114,73.5,127,73.5,140,72.5,150,71.5,160,69.5,170,70,180,69,180,65,178,64.5,177,62.5,170,60,163,59.8,163,57.5,160,54,156.5,51,156,57,160,61.5,154,59.3,143,59.3,135,54.5,141,52.5,140,48,135,43.5,131,42.5,129.5,41,129.5,36,126.5,34.5,126,37.5,124.8,39.7,121.5,39,122,40.5,118,39,119,37.2,122.5,37,119,35,121.8,31.5,122,29.5,119.5,25.5,116.5,22.9,113.5,22.3,110.5,21,108,21.6,106,20,106.5,18,109,15,109,11.5,105,8.7,104.5,10.5,101,12.7,100,13.5,99,10,100.5,7,103.5,2,101,2.8,98.5,8,98,16,94.5,16,94,19,92,21.5,90,22,87,21.5,86.5,20,82,16.5,80.2,13,80,9.8,77.5,8,76.5,9.5,74.8,12.8,73,17,72.8,21,70,21,68.5,23.5,66.5,25.4,61.5,25.2,57.3,25.8,56.4,27.1,54,26.7,51.5,27.9,50,30,48,30,48.5,28,50.2,26,51.5,24,54,24.2,56,26,58.8,23,59.8,22.5,57.8,19,55,17,52,15.8,45,12.8,43,12.8,42.7,16,39,21.5,35,28,34.5,29.5,32.5,30,34,31.5,35.5,34,36,36.8,32.5,36.1,30,36.3,27.3,37,26.3,39.5,29,41,31,41.2,35,42,40,41,41.6,41.6,38,44.5,39.5,47,35,45.2,33,44.5,31.5,46.5,30,45.3,28.7,44.3,28,42,26,40.8,23,40,22.8,37.5,21,38.5,19.5,41.8,16,43.5,13.7,45.6,12.3,45.3,13.9,42.8,15.6,40,16,38,17,39,18.5,40.2,17,41,16,41.5,14,41.3,12,41.9,10.5,43,8.8,44.4,7.5,43.8,4.5,43.5,3,43,3.3,42,0.8,41,-0.3,39.5,0,38.7,-0.8,37.6,-2.1,36.7,-4.5,36.7,-5.6,36,-6.4,36.8,-7.5,37.2,-8.9,37],
+    [-180,69,-175,67.5,-170,66,-173,64.5,-180,65], // Chukotka, across the antimeridian
+    [-5.7,50,1.7,51.2,1.7,52.7,0,53.5,-1.6,55.6,-2,57.6,-3.3,58.6,-5,58.6,-6.2,56.8,-5,55,-3.2,54.8,-3.2,53.3,-4.7,52.8,-5.3,51.7,-3.5,51.4], // Great Britain
+    [-6,52.2,-6,54.8,-7.5,55.3,-10,54.2,-10.3,51.8,-8.5,51.6], // Ireland
+    [-22,64,-24,65.5,-22,66.4,-16,66.5,-13.6,65.2,-15,64.3,-18.7,63.4], // Iceland
+    [-73,78,-66,80.5,-60,82,-45,82.8,-30,83.5,-20,82,-12,81.5,-20,78,-18.5,76,-22,72,-22,70,-25,68.5,-32,68,-35,66,-40,64,-43,60,-48,61,-51,64,-53.5,66.5,-51,70,-55,72,-58,75.5,-66,76], // Greenland
+    [-80,73.5,-72,71,-66,68,-62,66.5,-65,63,-70,62.8,-75,65,-73,67.5,-78,69.5,-89,71,-85,73.5], // Baffin Island
+    [-95,76.5,-80,76.3,-75,78.5,-62,82,-75,83,-90,81.5,-95,79], // Ellesmere Island
+    [-118,71,-108,73.5,-101,72,-102,69,-114,68.5,-118,69.5], // Victoria Island
+    [11,78.5,17,80,27,80,20,78,16,76.5], // Svalbard
+    [52,71.5,56,74,69,76.8,60,75.5,55,72.5,53,70.8], // Novaya Zemlya
+    [130,31,131.5,31.5,132,33.8,135,33.5,136.8,34.3,139,34.8,140.8,35.7,141,38.3,142,39.5,141.5,41.4,140,41.4,140,40,139.8,38,136.8,37.2,136,35.6,132.5,35.4,131,34.4,129.7,33.5], // Japan
+    [140,41.5,141.6,42.5,143.3,42,145.5,43.3,144.5,44,141.8,45.4,141.3,43.5,140,42.5], // Hokkaido
+    [142,46,143.5,49,143,54,142.2,54.3,142,51], // Sakhalin
+    [120.1,23,121.9,25,121.4,22.3,120.6,22.2], // Taiwan
+    [120.5,18.5,122.3,18.5,122,16.2,124,13.8,121.5,13.9,120.6,14.5,119.8,16.2], // Luzon
+    [122,7,125.5,9.5,126.5,7,125.5,5.9,124,6.4], // Mindanao
+    [79.8,9.8,81.8,7.5,81.3,6.2,80,6,79.8,8], // Sri Lanka
+    [95.3,5.6,97.5,5.2,100.4,2.2,103.8,-1,106,-3.2,105.8,-5.8,104.5,-5.9,102.3,-4,100.3,-1,98.6,1.7], // Sumatra
+    [105.2,-6.8,106.5,-6,110.4,-6.9,112.6,-6.9,114.6,-7.8,114.4,-8.7,110.5,-8.2,106.4,-7.4], // Java
+    [109,1.5,109.6,-1,110.2,-3,114.5,-4,116.5,-3.5,116,-1,117.8,1,119,5,117,7,115.5,5.3,113,3.2,111,1.6], // Borneo
+    [131,-1.5,134,-0.8,138,-1.7,141,-2.6,145,-4.5,147.5,-6.2,147.8,-8,150,-10.5,147,-10,144,-7.7,141,-9.2,138.8,-8.3,137.8,-5.3,135,-4.4,132.5,-3], // New Guinea
+    [113.5,-22,114,-26,115,-30,115.2,-34,118,-35,121.5,-33.9,124,-33,126,-32.3,131,-31.5,134.5,-32.8,137.8,-35.5,138.5,-34.5,140,-37.8,143.5,-38.8,146.4,-39,150,-37.5,150.5,-35,152.6,-32,153.5,-28,153,-25,150.8,-22.5,149,-20.5,146,-18,145.3,-15,143.5,-14,142.5,-10.8,141.6,-12.8,141.5,-16.5,139.5,-17.5,136.8,-15.8,136,-12,132.6,-11.3,130,-13,129.5,-15,126.5,-14,124,-16.3,122.2,-18,121,-19.5,117,-20.7,114.2,-21.8], // Australia
+    [144.6,-40.7,148.3,-40.9,148,-43.2,146,-43.6,144.7,-41.8], // Tasmania
+    [172.7,-34.4,174.5,-36,178.5,-37.7,177.9,-39.2,176.9,-39.5,175.2,-41.6,174.6,-41.2,174.6,-39.9,173.8,-39.2,174.6,-38.2,174.5,-37.2], // New Zealand, North Island
+    [172.7,-40.5,174.2,-41.7,172.8,-43.4,171.2,-44.4,169.3,-46.6,166.5,-46,166.7,-45,168.5,-44,171.3,-42], // New Zealand, South Island
+    [-85,21.8,-82,23.2,-77,22.3,-74.2,20.2,-77.7,19.9,-81,21.8], // Cuba
+    [-74.5,18.4,-72.8,19.9,-68.4,18.6,-71,18.2], // Hispaniola
+    [-180,-78,-160,-78,-150,-76,-130,-74,-100,-73,-75,-73,-65,-65,-58,-63.5,-60,-66,-62,-70,-60,-75,-45,-78,-30,-76,-20,-73.5,0,-70,20,-70,40,-69,55,-66.5,70,-68,80,-67,100,-66,120,-66.5,140,-66.5,160,-70,170,-72,180,-78,180,-90,-180,-90], // Antarctica
+  ];
+
+  function drawLand(ocean, land) {
+    const cv = landCanvas, g = cv.getContext('2d');
+    const W = cv.width, H = cv.height;
+    const px = (lon) => (lon + 180) / 360 * W, py = (lat) => (90 - lat) / 180 * H; // equirectangular
+    g.fillStyle = ocean; g.fillRect(0, 0, W, H);
+    g.fillStyle = land;
+    for (const ring of LAND) {
+      g.beginPath();
+      for (let k = 0; k < ring.length; k += 2) g[k ? 'lineTo' : 'moveTo'](px(ring[k]), py(ring[k + 1]));
+      g.closePath();
+      g.fill();
+    }
+  }
+  const landCanvas = document.createElement('canvas');
+  landCanvas.width = 2048; landCanvas.height = 1024;
+  const landTexture = new THREE.CanvasTexture(landCanvas);
+  landTexture.colorSpace = THREE.SRGBColorSpace;
+  landTexture.anisotropy = 4;
+  // SphereGeometry's u = 0 sits at longitude -90 in the frame above; shift the
+  // equirectangular image a quarter turn so longitude 0 faces +z.
+  landTexture.wrapS = THREE.RepeatWrapping;
+  landTexture.offset.x = 0.25;
+
+  // ---- Renderer, labels, camera
+  const viz = document.getElementById('viz');
+  const css = (name) => getComputedStyle(document.documentElement).getPropertyValue(name).trim();
+
+  const renderer = new THREE.WebGLRenderer({ antialias: true });
+  renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+  const canvas = renderer.domElement;
+  canvas.tabIndex = 0;
+  viz.append(canvas);
+
+  const labelLayer = document.createElement('div');
+  labelLayer.className = 'labels';
+  labelLayer.setAttribute('aria-hidden', 'true');
+  viz.append(labelLayer);
+  const labels = new CSS2DRenderer({ element: labelLayer });
+
+  const scene = new THREE.Scene();
+  const camera = new THREE.PerspectiveCamera(30, 1, 0.01, 50);
+  scene.add(camera); // the key light rides on the camera, so the side facing the reader is always lit
+
+  const motion = matchMedia('(prefers-reduced-motion: reduce)');
+  const controls = new OrbitControls(camera, canvas);
+  controls.enableDamping = !motion.matches;
+  controls.enablePan = false; // the globe stays centred
+  controls.rotateSpeed = 0.5;
+  controls.autoRotateSpeed = 0.8; // about 75 seconds per turn, west to east like the Earth
+  controls.minDistance = 1.4; // just above the surface
+  controls.maxDistance = 8;
+
+  // Home view: over North Africa, so all four hubs and most routes are in view.
+  const HOME = { lat: 24, lon: 6, fill: 1.32 };
+  function homeDistance() {
+    const v = THREE.MathUtils.degToRad(camera.fov) / 2;
+    const h = Math.atan(Math.tan(v) * camera.aspect);
+    return HOME.fill / Math.sin(Math.min(v, h)); // the sphere plus arcs fits the narrower field of view
+  }
+
+  let dirty = true;
+  const invalidate = () => { dirty = true; };
+
+  function resize() {
+    const w = viz.clientWidth, h = viz.clientHeight;
+    if (!w || !h) return;
+    renderer.setSize(w, h, false);
+    labels.setSize(w, h);
+    camera.aspect = w / h;
+    camera.updateProjectionMatrix();
+    invalidate();
+  }
+  resize();
+  latLonToVector3(HOME.lat, HOME.lon, homeDistance(), camera.position);
+  controls.update();
+  controls.saveState();
+  new ResizeObserver(resize).observe(viz);
+  controls.addEventListener('change', invalidate);
+
+  // ---- Globe: a lit sphere with the land texture, and a graticule every 15 degrees.
+  scene.add(new THREE.AmbientLight(0xffffff, 0.95));
+  const key = new THREE.DirectionalLight(0xffffff, 0.3);
+  key.position.set(-0.5, 0.6, 1); // upper left of the camera
+  camera.add(key);
+  const globeMaterial = new THREE.MeshLambertMaterial({ map: landTexture });
+  const globe = new THREE.Mesh(new THREE.SphereGeometry(1, 96, 64), globeMaterial);
+  globe.name = 'globe';
+  scene.add(globe);
+
+  const graticulePts = [];
+  const STEP = 15, SEG = 2; // degrees between lines, degrees per segment
+  for (let lat = -75; lat <= 75; lat += STEP) for (let lon = -180; lon < 180; lon += SEG)
+    graticulePts.push(...latLonToVector3(lat, lon, 1.001).toArray(), ...latLonToVector3(lat, lon + SEG, 1.001).toArray());
+  for (let lon = -180; lon < 180; lon += STEP) for (let lat = -90; lat < 90; lat += SEG)
+    graticulePts.push(...latLonToVector3(lat, lon, 1.001).toArray(), ...latLonToVector3(lat + SEG, lon, 1.001).toArray());
+  const graticuleMaterial = new THREE.LineBasicMaterial({ transparent: true, opacity: 0.7 });
+  const graticule = new THREE.LineSegments(new THREE.BufferGeometry().setAttribute('position', new THREE.Float32BufferAttribute(graticulePts, 3)), graticuleMaterial);
+  graticule.name = 'graticule';
+  scene.add(graticule);
+
+  // ---- Routes: one tube per great-circle arc, unlit so the colour matches the legend.
+  const arcGroup = new THREE.Group();
+  arcGroup.name = 'routes';
+  const arcMaterials = new Map(HUBS.map((h) => [h.name, new THREE.MeshBasicMaterial({ color: h.color })]));
+  // A 1 px tube is hard to hit with a ray, so picking uses an unrendered Line
+  // along the same points with a forgiving threshold (raycaster.params.Line).
+  const pickLines = [];
+  for (const r of routes) {
+    const pts = greatCirclePoints(r.from, r.to);
+    const curve = new THREE.CatmullRomCurve3(pts);
+    const line = new THREE.Line(new THREE.BufferGeometry().setFromPoints(pts));
+    line.userData.route = r;
+    pickLines.push(line);
+    const tube = new THREE.Mesh(new THREE.TubeGeometry(curve, 64, 0.0045, 6, false), arcMaterials.get(r.hub.name));
+    tube.name = `${r.from.name} to ${r.to.name}`;
+    tube.userData.route = r;
+    r.mid = curve.getPoint(0.5);
+    arcGroup.add(tube);
+  }
+  scene.add(arcGroup);
+
+  // ---- Cities: round points, hubs in their colour and larger.
+  function dotTexture() {
+    const cv = document.createElement('canvas');
+    cv.width = cv.height = 64;
+    const g = cv.getContext('2d');
+    g.beginPath(); g.arc(32, 32, 26, 0, Math.PI * 2);
+    g.fillStyle = '#fff'; g.fill(); g.lineWidth = 6; g.strokeStyle = '#333'; g.stroke();
+    const t = new THREE.CanvasTexture(cv);
+    t.colorSpace = THREE.SRGBColorSpace;
+    return t;
+  }
+  const dot = dotTexture();
+  const hubOf = new Map(HUBS.map((h) => [h.name, h]));
+  for (const c of CITIES) c.normal = latLonToVector3(c.lat, c.lon);
+  const others = CITIES.filter((c) => !hubOf.has(c.name));
+  const cityMaterial = new THREE.PointsMaterial({ map: dot, size: 0.03, alphaTest: 0.5 });
+  const cityPoints = new THREE.Points(new THREE.BufferGeometry().setAttribute('position',
+    new THREE.Float32BufferAttribute(others.flatMap((c) => c.normal.clone().multiplyScalar(1.004).toArray()), 3)), cityMaterial);
+  cityPoints.name = 'cities';
+  cityPoints.userData.cities = others;
+  scene.add(cityPoints);
+  const hubPoints = HUBS.map((h) => {
+    const c = byName.get(h.name);
+    const pts = new THREE.Points(new THREE.BufferGeometry().setAttribute('position', new THREE.Float32BufferAttribute(c.normal.clone().multiplyScalar(1.004).toArray(), 3)),
+      new THREE.PointsMaterial({ map: dot, size: 0.05, alphaTest: 0.5, color: h.color }));
+    pts.name = `hub ${h.name}`;
+    pts.userData.cities = [c];
+    scene.add(pts);
+    return pts;
+  });
+  const pickables = [cityPoints, ...hubPoints];
+
+  // ---- Labels with occlusion: a point on the unit sphere faces the camera when
+  // dot(normal, cameraPosition) > 1. Labels fade out toward the horizon.
+  const cityLabels = CITIES.filter((c) => c.label).map((c) => {
+    const el = document.createElement('div');
+    el.className = hubOf.has(c.name) ? 'city-label hub' : 'city-label';
+    const inner = document.createElement('span');
+    inner.textContent = c.name;
+    el.append(inner);
+    const o = new CSS2DObject(el);
+    o.position.copy(c.normal).multiplyScalar(1.004);
+    o.center.set(0, 0.5); // the label grows to the right of the dot
+    o.userData.city = c;
+    scene.add(o);
+    return o;
+  });
+  const facing = (normal, cam) => normal.dot(cam) - 1; // above 0: on the near side
+  // Labels also give way to each other: in CITIES order (hubs first), a label
+  // whose box would overlap one already placed is hidden for this frame.
+  const _p = new THREE.Vector3();
+  function layoutLabels() {
+    const placed = [];
+    const w = viz.clientWidth, h = viz.clientHeight;
+    for (const o of cityLabels) {
+      const f = facing(o.userData.city.normal, camera.position);
+      const opacity = THREE.MathUtils.clamp(f / (0.12 * camera.position.length()), 0, 1);
+      let show = opacity > 0.05;
+      if (show) {
+        _p.copy(o.position).project(camera);
+        const x = (_p.x + 1) / 2 * w, y = (1 - _p.y) / 2 * h;
+        const el = o.element;
+        if (el.offsetWidth) o.userData.size = [el.offsetWidth, el.offsetHeight]; // measured once it is in the DOM
+        const [bw, bh] = o.userData.size || [o.userData.city.name.length * 7 + 16, 18];
+        const box = [x - 4, y - bh / 2, x + bw, y + bh / 2];
+        show = !placed.some((b) => box[0] < b[2] && box[2] > b[0] && box[1] < b[3] && box[3] > b[1]);
+        if (show) placed.push(box);
+      }
+      o.visible = show;
+      o.element.style.opacity = opacity.toFixed(2);
+    }
+  }
+
+  function applyTheme() {
+    scene.background = new THREE.Color(css('--plot-bg'));
+    drawLand(css('--ocean'), css('--land'));
+    landTexture.needsUpdate = true;
+    graticuleMaterial.color.set(css('--graticule'));
+    cityMaterial.color.set(css('--city'));
+    invalidate();
+  }
+  applyTheme();
+  matchMedia('(prefers-color-scheme: dark)').addEventListener('change', applyTheme);
+
+  // ---- Legend and table, from the same arrays as the globe
+  document.getElementById('legend').innerHTML = HUBS.map((h) =>
+    `<li><svg viewBox="0 0 22 10" aria-hidden="true"><path d="M1 8Q11 0 21 8" fill="none" stroke="${h.color}" stroke-width="2.5"/></svg>${h.name}</li>`).join('');
+
+  const km = new Intl.NumberFormat('en');
+  const cell = (tr, text, tag = 'td') => { const el = document.createElement(tag); el.textContent = text; tr.append(el); return el; };
+  const body = document.querySelector('#routes tbody');
+  for (const r of routes) {
+    const tr = document.createElement('tr');
+    cell(tr, r.hub.name);
+    cell(tr, r.to.name);
+    cell(tr, km.format(r.km));
+    cell(tr, r.weekly);
+    body.append(tr);
+  }
+  const longest = routes.reduce((a, b) => (b.km > a.km ? b : a));
+  document.getElementById('longest').textContent = `The longest route, ${longest.from.name} to ${longest.to.name}, is ${km.format(longest.km)} km.`;
+
+  // ---- Selection: hover, tap or keyboard picks a city or a route.
+  const tip = document.getElementById('tip');
+  const status = document.getElementById('status');
+  const anchor = new THREE.Vector3();
+  let selected = null; // { city } or { route }, plus by
+
+  const fmtLat = (v) => `${Math.abs(v).toFixed(2)}° ${v >= 0 ? 'N' : 'S'}`;
+  const fmtLon = (v) => `${Math.abs(v).toFixed(2)}° ${v >= 0 ? 'E' : 'W'}`;
+  function describe(sel) {
+    if (sel.city) {
+      const c = sel.city, n = routes.filter((r) => r.from === c || r.to === c).length;
+      return { html: `<b>${c.name}</b><br>${fmtLat(c.lat)}, ${fmtLon(c.lon)}<br>${n} route${n === 1 ? '' : 's'}`,
+        text: `${c.name}, ${fmtLat(c.lat)}, ${fmtLon(c.lon)}, ${n} route${n === 1 ? '' : 's'}` };
+    }
+    const r = sel.route;
+    return { html: `<b>${r.from.name} to ${r.to.name}</b><br>${km.format(r.km)} km<br>${r.weekly} flights a week`, text: '' };
+  }
+  function select(sel) {
+    selected = sel;
+    tip.hidden = !sel;
+    invalidate();
+    if (!sel) return;
+    const d = describe(sel);
+    tip.innerHTML = d.html;
+    if (sel.by === 'key') status.textContent = d.text;
+  }
+  function placeTip() {
+    if (!selected) return;
+    if (selected.city) anchor.copy(selected.city.normal);
+    else anchor.copy(selected.at || selected.route.mid);
+    const hidden = selected.city && facing(selected.city.normal, camera.position) < 0;
+    tip.style.visibility = hidden ? 'hidden' : 'visible';
+    anchor.project(camera);
+    const w = viz.clientWidth, h = viz.clientHeight;
+    const x = (anchor.x + 1) / 2 * w, y = (1 - anchor.y) / 2 * h;
+    const tw = tip.offsetWidth, th = tip.offsetHeight;
+    const left = x + 14 + tw > w ? x - 14 - tw : x + 14;
+    const top = Math.min(Math.max(y - th / 2, 4), h - th - 4);
+    tip.style.transform = `translate(${Math.round(left)}px, ${Math.round(top)}px)`;
+  }
+
+  // Raycasting ignores depth, so a hit counts only if the globe is not in front of it.
+  const raycaster = new THREE.Raycaster();
+  raycaster.params.Points.threshold = 0.025;
+  raycaster.params.Line.threshold = 0.015;
+  const pointer = new THREE.Vector2();
+  function pick(event) {
+    const rect = canvas.getBoundingClientRect();
+    pointer.set(((event.clientX - rect.left) / rect.width) * 2 - 1, -((event.clientY - rect.top) / rect.height) * 2 + 1);
+    raycaster.setFromCamera(pointer, camera);
+    const ground = raycaster.intersectObject(globe, false)[0];
+    const limit = ground ? ground.distance + 0.02 : Infinity;
+    const cities = raycaster.intersectObjects(pickables, false)
+      .filter((h) => h.distance < limit)
+      .sort((a, b) => a.distanceToRay - b.distanceToRay);
+    if (cities.length) return { city: cities[0].object.userData.cities[cities[0].index] };
+    const arc = raycaster.intersectObjects(pickLines, false).filter((h) => h.distance < limit)
+      .sort((a, b) => raycaster.ray.distanceSqToPoint(a.point) - raycaster.ray.distanceSqToPoint(b.point))[0]; // Line hits carry no distanceToRay
+    return arc ? { route: arc.object.userData.route, at: arc.point } : null;
+  }
+  canvas.addEventListener('pointermove', (e) => {
+    if (e.pointerType !== 'mouse' || e.buttons) return;
+    const sel = pick(e);
+    if (sel) select({ ...sel, by: 'pointer' });
+    else if (selected && selected.by === 'pointer') select(null);
+  });
+  canvas.addEventListener('pointerleave', () => { if (selected && selected.by === 'pointer') select(null); });
+  let down = null;
+  canvas.addEventListener('pointerdown', (e) => { down = { x: e.clientX, y: e.clientY }; });
+  canvas.addEventListener('pointerup', (e) => {
+    if (e.pointerType === 'mouse' || !down || Math.hypot(e.clientX - down.x, e.clientY - down.y) > 6) return;
+    const sel = pick(e);
+    select(sel && { ...sel, by: 'pointer' });
+  });
+
+  // ---- Auto-rotation with a visible pause (WCAG 2.2.2), off under reduced motion.
+  const spin = document.getElementById('spin');
+  function setRotating(on) {
+    controls.autoRotate = on;
+    spin.textContent = on ? 'Pause rotation' : 'Start rotation';
+  }
+  setRotating(!motion.matches);
+  spin.addEventListener('click', () => setRotating(!controls.autoRotate));
+  controls.addEventListener('start', () => setRotating(false));
+  motion.addEventListener('change', () => { controls.enableDamping = !motion.matches; if (motion.matches) setRotating(false); });
+
+  function jump(position) {
+    const damping = controls.enableDamping;
+    controls.enableDamping = false; // land exactly, with no leftover momentum
+    controls.update();
+    camera.position.copy(position);
+    controls.update();
+    controls.enableDamping = damping;
+  }
+  const goHome = () => jump(latLonToVector3(HOME.lat, HOME.lon, homeDistance()));
+  // Turn to face a city, keeping the current distance.
+  const face = (c) => jump(latLonToVector3(c.lat, c.lon, camera.position.length()));
+  document.getElementById('home').addEventListener('click', goHome);
+
+  const KEY_STEP = THREE.MathUtils.degToRad(6), ZOOM = 0.9;
+  canvas.addEventListener('keydown', (e) => {
+    if (e.altKey || e.ctrlKey || e.metaKey) return;
+    const order = selected && selected.city ? CITIES.indexOf(selected.city) : -1;
+    const step = (n) => { const c = CITIES[(n + CITIES.length) % CITIES.length]; setRotating(false); face(c); select({ city: c, by: 'key' }); };
+    switch (e.key) {
+      case 'ArrowLeft': controls.rotateLeft(KEY_STEP); break;
+      case 'ArrowRight': controls.rotateLeft(-KEY_STEP); break;
+      case 'ArrowUp': controls.rotateUp(KEY_STEP); break;
+      case 'ArrowDown': controls.rotateUp(-KEY_STEP); break;
+      case '+': case '=': controls.dollyIn(ZOOM); break;
+      case '-': case '_': controls.dollyOut(ZOOM); break;
+      case 'Home': goHome(); break;
+      case 'n': case 'N': case ']': step(order + 1); break;
+      case 'p': case 'P': case '[': step(order < 0 ? -1 : order - 1); break;
+      case 'Escape': select(null); status.textContent = ''; break;
+      default: return;
+    }
+    e.preventDefault();
+    if (e.key.startsWith('Arrow') || '+=-_'.includes(e.key)) setRotating(false);
+  });
+
+  // ---- Loop: render on demand, as in the surface template. Auto-rotation
+  // changes the camera every frame, so a spinning globe draws every frame.
+  const timer = new THREE.Timer();
+  timer.connect(document);
+  function frame(time) {
+    timer.update(time);
+    const moved = controls.update(Math.min(timer.getDelta(), 0.1));
+    if (!moved && !dirty) return;
+    dirty = false;
+    renderer.render(scene, camera);
+    layoutLabels();
+    labels.render(scene, camera);
+    placeTip();
+  }
+  renderer.setAnimationLoop(frame);
+  new IntersectionObserver(([entry]) => { invalidate(); renderer.setAnimationLoop(entry.isIntersecting ? frame : null); }).observe(viz);
+
+  // Ready signal for tw check, sheet and video.
+  (window.__tw ??= {}).ready = Promise.resolve();
+</script>
+</body>
+</html>

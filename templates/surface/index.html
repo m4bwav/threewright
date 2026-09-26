@@ -1,0 +1,657 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>3D surface: z = f(x, y)</title>
+  <style>
+    /* Every colour lives here. The 3D scene reads the same variables, so a
+       document can restyle the chart, light or dark, with CSS alone. The data
+       colour map (viridis) is in the script, because it encodes values. */
+    :root {
+      color-scheme: light dark;
+      --page: #ffffff; --ink: #1f2328; --muted: #59636e; --rule: #d1d9e0;
+      --plot-bg: #fbfbfc; --panel: #eef1f4; --grid: #cdd3da; --axis: #6e7781;
+      --contour: #1f2328; --focus: #0969da; --tip-bg: #1f2328; --tip-ink: #ffffff;
+    }
+    @media (prefers-color-scheme: dark) {
+      :root {
+        --page: #0f1115; --ink: #e6e8eb; --muted: #9aa4b1; --rule: #2b3139;
+        --plot-bg: #14171c; --panel: #1b1f26; --grid: #333a45; --axis: #8b949e;
+        --contour: #0b0d10; --focus: #58a6ff; --tip-bg: #f0f2f5; --tip-ink: #111317;
+      }
+    }
+    * { box-sizing: border-box; }
+    html, body { margin: 0; background: var(--page); color: var(--ink); }
+    body { font: 15px/1.5 system-ui, -apple-system, "Segoe UI", Roboto, sans-serif; }
+    main { max-width: 1040px; margin: 0 auto; padding: 12px 16px 40px; }
+    h1 { font-size: 1.15rem; line-height: 1.3; margin: 0; }
+    h2 { font-size: 1rem; margin: 28px 0 8px; }
+    .sub { margin: 0 0 8px; color: var(--muted); font-size: .9rem; }
+    figure { margin: 0; }
+    .bar { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 6px 16px; margin-bottom: 6px; }
+    .colorbar { display: flex; align-items: center; gap: 10px; font-size: .85rem; margin: 0; }
+    .colorbar .ramp { position: relative; width: 220px; height: 30px; }
+    .colorbar .swatch { height: 12px; border-radius: 2px; border: 1px solid var(--rule); }
+    .colorbar .t { position: absolute; top: 13px; transform: translateX(-50%); font-size: 11px; color: var(--muted); font-variant-numeric: tabular-nums; }
+    .colorbar .t::before { content: ""; position: absolute; left: 50%; top: -3px; height: 3px; border-left: 1px solid var(--axis); }
+    .buttons { display: flex; gap: 6px; }
+    button {
+      font: inherit; font-size: .8rem; color: var(--ink); background: var(--page);
+      border: 1px solid var(--rule); border-radius: 6px; padding: 3px 10px; cursor: pointer;
+    }
+    button:hover { border-color: var(--axis); }
+    button:focus-visible { outline: 2px solid var(--focus); outline-offset: 2px; }
+    button[aria-pressed="true"] { background: var(--panel); }
+    .stage {
+      position: relative; overflow: hidden; border: 1px solid var(--rule); border-radius: 8px;
+      background: var(--plot-bg);
+      /* Fit the first screen with the title and legend, whatever the embed height. */
+      height: clamp(280px, min(calc(100vh - 150px), 75vw), 640px);
+    }
+    .viz { position: absolute; inset: 0; }
+    .viz canvas { display: block; width: 100%; height: 100%; }
+    .viz canvas:focus-visible { outline: 3px solid var(--focus); outline-offset: -3px; }
+    .labels { position: absolute; inset: 0; pointer-events: none; }
+    .tick { font-size: 11px; color: var(--muted); font-variant-numeric: tabular-nums; white-space: nowrap; }
+    .axis-title { font-size: 12px; font-weight: 600; color: var(--ink); white-space: nowrap; }
+    .tick > span, .axis-title > span { padding: 1px 3px; }
+    .tip {
+      position: absolute; left: 0; top: 0; pointer-events: none; z-index: 2;
+      background: var(--tip-bg); color: var(--tip-ink); border-radius: 6px; padding: 6px 9px;
+      font-size: 12px; line-height: 1.4; white-space: nowrap; font-variant-numeric: tabular-nums;
+      box-shadow: 0 2px 8px rgb(0 0 0 / .25);
+    }
+    .tip b { font-weight: 600; }
+    .tip i { display: inline-block; width: 10px; height: 10px; border-radius: 2px; margin-right: 5px; vertical-align: -1px; border: 1px solid rgb(127 127 127 / .6); }
+    figcaption { margin-top: 10px; }
+    figcaption p { margin: 0 0 6px; max-width: 75ch; }
+    .hint { color: var(--muted); font-size: .85rem; }
+    kbd { font: inherit; font-size: .8em; border: 1px solid var(--rule); border-bottom-width: 2px; border-radius: 4px; padding: 0 4px; }
+    table { border-collapse: collapse; font-size: .85rem; font-variant-numeric: tabular-nums; }
+    caption { text-align: left; color: var(--muted); font-size: .85rem; padding-bottom: 6px; }
+    th, td { padding: 4px 12px; text-align: right; border-bottom: 1px solid var(--rule); }
+    th { font-weight: 600; }
+    #extremes th:first-child, #extremes td:first-child { text-align: left; }
+    .scroll { max-height: 22rem; overflow: auto; border: 1px solid var(--rule); border-radius: 6px; display: inline-block; max-width: 100%; }
+    .scroll:focus-visible { outline: 2px solid var(--focus); outline-offset: 2px; }
+    .scroll caption { padding: 8px 12px 6px; }
+    .scroll thead th { position: sticky; top: 0; background: var(--page); box-shadow: inset 0 -1px var(--rule); }
+    .sr-only { position: absolute; width: 1px; height: 1px; overflow: hidden; clip-path: inset(50%); white-space: nowrap; }
+  </style>
+  <!-- Pin the exact version: an unpinned CDN URL changes under you. -->
+  <script type="importmap">
+  {
+    "imports": {
+      "three": "https://cdn.jsdelivr.net/npm/three@0.186.1/build/three.module.js",
+      "three/addons/": "https://cdn.jsdelivr.net/npm/three@0.186.1/examples/jsm/"
+    }
+  }
+  </script>
+</head>
+<body>
+<main>
+  <h1>The peaks function, z = f(x, y)</h1>
+  <p class="sub">Three hills and two pits on a 61 by 61 grid. Colour and height both show z; contour lines sit at the z ticks.</p>
+  <figure>
+    <div class="bar">
+      <div class="colorbar" id="colorbar" aria-hidden="true"></div>
+      <div class="buttons">
+        <button type="button" id="contours" aria-pressed="true">Contour lines</button>
+        <button type="button" id="spin">Pause rotation</button>
+        <button type="button" id="home">Reset view</button>
+      </div>
+    </div>
+    <div class="stage">
+      <div class="viz" id="viz" role="img"
+           aria-label="Rotatable 3D surface plot of z against x and y"
+           aria-describedby="finding"></div>
+      <div class="tip" id="tip" hidden aria-hidden="true"></div>
+    </div>
+    <figcaption>
+      <p id="finding">The surface is flat near the edges and folds into three hills and two pits in the middle.
+        <span id="extreme-summary"></span> The tables below give the exact values.</p>
+      <p class="hint">Drag to rotate, scroll or pinch to zoom, hover or tap the surface for x, y and z.
+        With the plot focused: arrow keys rotate, <kbd>+</kbd> and <kbd>-</kbd> zoom, <kbd>Home</kbd> resets,
+        <kbd>N</kbd> and <kbd>P</kbd> step through the hills and pits, <kbd>Esc</kbd> clears.</p>
+    </figcaption>
+  </figure>
+  <p class="sr-only" id="status" aria-live="polite"></p>
+
+  <h2 id="extremes-title">Hills and pits</h2>
+  <table id="extremes" aria-labelledby="extremes-title">
+    <thead><tr><th scope="col">Feature</th><th scope="col">x</th><th scope="col">y</th><th scope="col">z</th></tr></thead>
+    <tbody></tbody>
+  </table>
+
+  <h2 id="grid-title">Values on a coarse grid</h2>
+  <div class="scroll" role="region" aria-labelledby="grid-title" tabindex="0">
+    <table id="coarse">
+      <caption>z at every tenth grid sample: one row per y, one column per x.</caption>
+      <thead></thead>
+      <tbody></tbody>
+    </table>
+  </div>
+</main>
+
+<script type="module">
+  import * as THREE from 'three';
+  import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
+  import { CSS2DRenderer, CSS2DObject } from 'three/addons/renderers/CSS2DRenderer.js';
+
+  // A surface earns 3D when the reader needs the shape of z over (x, y): where
+  // the hills, pits, ridges and saddles are. For exact values give a table, and
+  // for a static document a 2D heatmap or contour plot often says it better
+  // (chartwright makes those). Height and colour both encode z here, so the
+  // colour legend works from any angle.
+
+  // ---- Data: replace AXES and f, or fill `grid` with your own samples.
+  // AXES are in data order: x (scene x, across), y (scene -z, into the screen),
+  // z (scene y, up). Set unit to '' for a pure number.
+  const AXES = {
+    x: { label: 'x', unit: '', digits: 2, min: -3, max: 3 },
+    y: { label: 'y', unit: '', digits: 2, min: -3, max: 3 },
+    z: { label: 'z', unit: '', digits: 2 },
+  };
+  const N = 61; // samples per side; grid[j * N + i] is z at x index i, y index j
+  // MATLAB's peaks function: a standard test surface with hills and pits.
+  const f = (x, y) =>
+    3 * (1 - x) ** 2 * Math.exp(-(x ** 2) - (y + 1) ** 2)
+    - 10 * (x / 5 - x ** 3 - y ** 5) * Math.exp(-(x ** 2) - y ** 2)
+    - (1 / 3) * Math.exp(-((x + 1) ** 2) - y ** 2);
+
+  const xAt = (i) => AXES.x.min + (i / (N - 1)) * (AXES.x.max - AXES.x.min);
+  const yAt = (j) => AXES.y.min + (j / (N - 1)) * (AXES.y.max - AXES.y.min);
+  // Measured data instead of a function: fill this array row by row (y outer,
+  // x inner) from a CSV or JSON, keep N and the x and y ranges in step with it.
+  const grid = new Float32Array(N * N);
+  for (let j = 0; j < N; j++) for (let i = 0; i < N; i++) grid[j * N + i] = f(xAt(i), yAt(j));
+  let zMin = Infinity, zMax = -Infinity;
+  for (const v of grid) { zMin = Math.min(zMin, v); zMax = Math.max(zMax, v); }
+
+  // Hills and pits: grid samples higher (or lower) than all eight neighbours,
+  // ignoring the flat border. They feed the table and the N and P keys.
+  const extremes = [];
+  for (let j = 1; j < N - 1; j++) for (let i = 1; i < N - 1; i++) {
+    const v = grid[j * N + i];
+    let hi = true, lo = true;
+    for (let dj = -1; dj <= 1; dj++) for (let di = -1; di <= 1; di++) {
+      if (!di && !dj) continue;
+      const w = grid[(j + dj) * N + i + di];
+      if (w >= v) hi = false;
+      if (w <= v) lo = false;
+    }
+    if ((hi || lo) && Math.abs(v) > 0.05 * (zMax - zMin)) extremes.push({ kind: hi ? 'Hill' : 'Pit', i, j, x: xAt(i), y: yAt(j), z: v });
+  }
+  extremes.sort((a, b) => b.z - a.z);
+
+  // ---- Scales: each axis maps its "nice" tick range onto -1..1 in the scene.
+  function niceScale(min, max, count = 5) {
+    const raw = (max - min) / count, power = 10 ** Math.floor(Math.log10(raw)), err = raw / power;
+    const step = power * (err >= 7.07 ? 10 : err >= 3.16 ? 5 : err >= 1.41 ? 2 : 1);
+    const lo = Math.floor(min / step) * step, hi = Math.ceil(max / step) * step;
+    const digits = Math.max(0, -Math.floor(Math.log10(step)));
+    const ticks = [];
+    for (let v = lo; v <= hi + step / 2; v += step) ticks.push(Number(v.toFixed(digits)));
+    return {
+      lo, hi, ticks, digits, step,
+      toScene: (v) => ((v - lo) / (hi - lo)) * 2 - 1,
+      fromScene: (s) => lo + ((s + 1) / 2) * (hi - lo),
+    };
+  }
+  const sx = niceScale(AXES.x.min, AXES.x.max);
+  const sy = niceScale(AXES.y.min, AXES.y.max);
+  const sz = niceScale(zMin, zMax);
+  // Data (x, y, z) to scene (x, y up, z toward the viewer): data y runs into the screen.
+  const toScene = (x, y, z, target = new THREE.Vector3()) => target.set(sx.toScene(x), sz.toScene(z), -sy.toScene(y));
+  const fmt = (v, axis) => {
+    const s = v.toFixed(AXES[axis].digits);
+    return Number(s) === 0 ? (0).toFixed(AXES[axis].digits) : s.replace('-', '−'); // no "-0.00"; a real minus sign
+  };
+  const title = (a) => `${a.label}${a.unit ? ` (${a.unit})` : ''}`;
+
+  // ---- Colour map: viridis, sampled from matplotlib at nine stops (sRGB).
+  // Perceptually uniform and readable with common colour-vision deficiencies.
+  // The surface is unlit, so the colour on screen is the legend colour.
+  const VIRIDIS = ['#440154', '#472d7b', '#3b528b', '#2c728e', '#21918c', '#28ae80', '#5ec962', '#addc30', '#fde725'];
+  const stops = VIRIDIS.map((h) => new THREE.Color(h)); // hex strings are sRGB; Color converts to linear
+  function colourAt(t, target = new THREE.Color()) {
+    const u = THREE.MathUtils.clamp(t, 0, 1) * (stops.length - 1);
+    const k = Math.min(Math.floor(u), stops.length - 2);
+    return target.lerpColors(stops[k], stops[k + 1], u - k);
+  }
+  const zToT = (z) => (z - zMin) / (zMax - zMin);
+
+  // ---- Renderer, labels, camera
+  const viz = document.getElementById('viz');
+  const css = (name) => getComputedStyle(document.documentElement).getPropertyValue(name).trim();
+
+  const renderer = new THREE.WebGLRenderer({ antialias: true });
+  renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+  const canvas = renderer.domElement;
+  canvas.tabIndex = 0; // focusable, so the keyboard handler below can orbit
+  viz.append(canvas);
+
+  // CSS2D labels are real DOM text: crisp at any zoom and cheap for tens of labels.
+  const labelLayer = document.createElement('div');
+  labelLayer.className = 'labels';
+  labelLayer.setAttribute('aria-hidden', 'true');
+  viz.append(labelLayer);
+  const labels = new CSS2DRenderer({ element: labelLayer });
+
+  const scene = new THREE.Scene();
+  const camera = new THREE.PerspectiveCamera(32, 1, 0.1, 100);
+
+  const motion = matchMedia('(prefers-reduced-motion: reduce)');
+  const controls = new OrbitControls(camera, canvas);
+  controls.enableDamping = !motion.matches;
+  controls.autoRotateSpeed = 1.2; // about 50 seconds per turn
+  controls.minDistance = 2.5;
+  controls.maxDistance = 16;
+
+  // Home view: oblique and a little higher than a scatter, so the pits show.
+  const HOME = { azimuth: 35, elevation: 28, radius: 1.85, target: new THREE.Vector3(0, -0.15, 0) };
+  function homePosition() {
+    const v = THREE.MathUtils.degToRad(camera.fov) / 2;
+    const h = Math.atan(Math.tan(v) * camera.aspect);
+    const s = new THREE.Spherical(HOME.radius / Math.tan(Math.min(v, h)),
+      THREE.MathUtils.degToRad(90 - HOME.elevation), THREE.MathUtils.degToRad(HOME.azimuth));
+    return new THREE.Vector3().setFromSpherical(s).add(HOME.target);
+  }
+
+  // Render on demand: draw only when something changed, so a still chart
+  // costs nothing. The loop keeps running for damping and auto-rotation.
+  let dirty = true;
+  const invalidate = () => { dirty = true; };
+
+  function resize() {
+    const w = viz.clientWidth, h = viz.clientHeight;
+    if (!w || !h) return;
+    renderer.setSize(w, h, false); // the stylesheet sizes the canvas
+    labels.setSize(w, h);
+    camera.aspect = w / h;
+    camera.updateProjectionMatrix();
+    invalidate();
+  }
+  resize();
+  controls.target.copy(HOME.target);
+  camera.position.copy(homePosition());
+  controls.update();
+  controls.saveState();
+  new ResizeObserver(resize).observe(viz);
+  // Pointer drags call controls.update() themselves, so listen for the change.
+  controls.addEventListener('change', invalidate);
+
+  // ---- Axis box: grid panels on the three faces away from the camera, ticks
+  // and labels on the edges nearest to it (the chart-3d-scatter layout).
+  const panelMaterial = new THREE.MeshBasicMaterial({ side: THREE.DoubleSide, depthWrite: false });
+  const gridMaterial = new THREE.LineBasicMaterial();
+  const axisMaterial = new THREE.LineBasicMaterial();
+  const tickPos = (s) => s.ticks.map((t) => s.toScene(t));
+
+  function panel(uTicks, vTicks) {
+    const g = new THREE.Group();
+    const fill = new THREE.Mesh(new THREE.PlaneGeometry(2, 2), panelMaterial);
+    fill.renderOrder = -1; // drawn first and without depth, so it can never cover the surface
+    const pts = [];
+    for (const u of uTicks) pts.push(u, -1, 0, u, 1, 0);
+    for (const v of vTicks) pts.push(-1, v, 0, 1, v, 0);
+    const lines = new THREE.BufferGeometry().setAttribute('position', new THREE.Float32BufferAttribute(pts, 3));
+    g.add(fill, new THREE.LineSegments(lines, gridMaterial));
+    return g;
+  }
+  const floor = panel(tickPos(sx), tickPos(sy));
+  floor.rotation.x = Math.PI / 2;
+  const wallX = panel(tickPos(sy), tickPos(sz));
+  wallX.rotation.y = -Math.PI / 2;
+  const wallZ = panel(tickPos(sx), tickPos(sz));
+  floor.name = 'floor'; wallX.name = 'wall-x'; wallZ.name = 'wall-z';
+
+  function label(text, className, position) {
+    const el = document.createElement('div');
+    el.className = className;
+    const inner = document.createElement('span'); // free to offset: CSS2DRenderer owns the outer transform
+    inner.style.display = 'inline-block';
+    inner.textContent = text;
+    el.append(inner);
+    const o = new CSS2DObject(el);
+    o.position.copy(position);
+    return o;
+  }
+
+  // along: unit vector of the axis in the scene; edge: a point on the edge; out: outward normal.
+  function axis(key, s, along, edge, out, titleAt) {
+    const group = new THREE.Group();
+    const pts = [], ticks = [];
+    for (const t of s.ticks) {
+      const p = edge.clone().addScaledVector(along, s.toScene(t));
+      pts.push(...p.toArray(), ...p.clone().addScaledVector(out, 0.06).toArray());
+      const o = label(fmtTick(t, s), 'tick', p.clone().addScaledVector(out, 0.08));
+      ticks.push(o);
+      group.add(o);
+    }
+    group.add(new THREE.LineSegments(new THREE.BufferGeometry().setAttribute('position', new THREE.Float32BufferAttribute(pts, 3)), axisMaterial));
+    const t = label(title(AXES[key]), 'axis-title', titleAt || edge.clone().addScaledVector(out, 0.08));
+    group.add(t);
+    return { group, ticks, title: t, along, edge, out, stacked: !!titleAt, tickW: 0, tickH: 0 };
+  }
+  const fmtTick = (t, s) => t.toFixed(s.digits).replace('-', '−');
+  const X = new THREE.Vector3(1, 0, 0), Y = new THREE.Vector3(0, 1, 0), NZ = new THREE.Vector3(0, 0, -1);
+  const xAxis = axis('x', sx, X, new THREE.Vector3(0, 0, 1), new THREE.Vector3(0, 0, 1)); // floor edge at scene z = +1
+  const yAxis = axis('y', sy, NZ, new THREE.Vector3(1, 0, 0), X); // floor edge at scene x = +1, data y runs to -z
+  const zAxis = axis('z', sz, Y, new THREE.Vector3(1, 0, -1), new THREE.Vector3(1, 0, -1).normalize(), new THREE.Vector3(1, 1.12, -1));
+  const axisList = [xAxis, yAxis, zAxis];
+
+  const axes = new THREE.Group();
+  axes.name = 'axes';
+  axes.add(floor, wallX, wallZ, xAxis.group, yAxis.group, zAxis.group);
+  scene.add(axes);
+
+  const _a = new THREE.Vector3(), _b = new THREE.Vector3();
+  function screenVector(m, from, dir, len) {
+    _a.copy(from).applyMatrix4(m).project(camera);
+    _b.copy(from).addScaledVector(dir, len).applyMatrix4(m).project(camera);
+    return [(_b.x - _a.x) * viz.clientWidth / 2, (_a.y - _b.y) * viz.clientHeight / 2]; // pixels, y down
+  }
+  function layoutLabels() {
+    for (const ax of axisList) {
+      const m = ax.group.matrixWorld;
+      const [lx, ly] = screenVector(m, _b.copy(ax.edge).addScaledVector(ax.along, -1), ax.along, 2);
+      const show = Math.hypot(lx, ly) > 60;
+      let [dx, dy] = screenVector(m, ax.edge, ax.out, 0.2);
+      const len = Math.hypot(dx, dy) || 1;
+      dx /= len; dy /= len;
+      for (const o of ax.ticks) { o.visible = show; o.center.set(0.5 - 0.5 * dx, 0.5 - 0.5 * dy); }
+      if (!ax.tickW) for (const o of ax.ticks) { ax.tickW = Math.max(ax.tickW, o.element.offsetWidth); ax.tickH = Math.max(ax.tickH, o.element.offsetHeight); }
+      ax.title.visible = show;
+      if (ax.stacked) { ax.title.center.set(0.5, 1); continue; }
+      ax.title.center.set(0.5 - 0.5 * dx, 0.5 - 0.5 * dy);
+      const push = Math.abs(dx) * ax.tickW + Math.abs(dy) * ax.tickH + 4;
+      ax.title.element.firstChild.style.transform = `translate(${Math.round(dx * push)}px, ${Math.round(dy * push)}px)`;
+    }
+  }
+
+  // Runs inside every renderer.render call, including tw sheet's extra views.
+  const right = new THREE.Vector3();
+  scene.onBeforeRender = (r, s, cam) => {
+    const cx = Math.sign(cam.position.x) || 1, cy = Math.sign(cam.position.y) || 1, cz = Math.sign(cam.position.z) || 1;
+    floor.position.y = -cy;
+    wallX.position.x = -cx;
+    wallZ.position.z = -cz;
+    xAxis.group.position.y = -cy; xAxis.group.scale.z = cz;
+    yAxis.group.position.y = -cy; yAxis.group.scale.x = cx;
+    right.setFromMatrixColumn(cam.matrixWorld, 0);
+    const left = cx * right.x - cz * right.z < 0;
+    zAxis.group.scale.set(left ? cx : -cx, 1, left ? cz : -cz);
+    axes.updateMatrixWorld(true);
+  };
+
+  // ---- The surface: one indexed BufferGeometry, vertex colours, unlit.
+  const positions = new Float32Array(N * N * 3);
+  const colours = new Float32Array(N * N * 3);
+  const c = new THREE.Color(), p = new THREE.Vector3();
+  for (let j = 0; j < N; j++) for (let i = 0; i < N; i++) {
+    const k = j * N + i;
+    toScene(xAt(i), yAt(j), grid[k], p).toArray(positions, k * 3);
+    colourAt(zToT(grid[k]), c).toArray(colours, k * 3);
+  }
+  const index = [];
+  for (let j = 0; j < N - 1; j++) for (let i = 0; i < N - 1; i++) {
+    const a = j * N + i, b = a + 1, d = a + N, e = d + 1;
+    index.push(a, d, b, b, d, e);
+  }
+  const surfaceGeometry = new THREE.BufferGeometry();
+  surfaceGeometry.setIndex(index);
+  surfaceGeometry.setAttribute('position', new THREE.BufferAttribute(positions, 3));
+  surfaceGeometry.setAttribute('color', new THREE.BufferAttribute(colours, 3));
+  surfaceGeometry.computeBoundingSphere();
+  // polygonOffset pushes the surface back a little so the contour lines on it never z-fight.
+  const surfaceMaterial = new THREE.MeshBasicMaterial({ vertexColors: true, side: THREE.DoubleSide, polygonOffset: true, polygonOffsetFactor: 1, polygonOffsetUnits: 1 });
+  const surface = new THREE.Mesh(surfaceGeometry, surfaceMaterial);
+  surface.name = 'surface';
+  scene.add(surface);
+
+  // ---- Contour lines at the z ticks (marching squares over the grid), plus a
+  // light mesh every sixth sample. Unlit colour loses the shading cue, so these
+  // lines carry the shape.
+  function contourSegments(levels) {
+    const out = [];
+    const corner = [[0, 0], [1, 0], [1, 1], [0, 1]];
+    for (const L of levels) for (let j = 0; j < N - 1; j++) for (let i = 0; i < N - 1; i++) {
+      const v = corner.map(([di, dj]) => grid[(j + dj) * N + i + di]);
+      const hits = [];
+      for (let e = 0; e < 4; e++) {
+        const a = v[e], b = v[(e + 1) % 4];
+        if ((a < L) === (b < L)) continue;
+        const t = (L - a) / (b - a);
+        const [ai, aj] = corner[e], [bi, bj] = corner[(e + 1) % 4];
+        const gi = i + ai + (bi - ai) * t, gj = j + aj + (bj - aj) * t;
+        hits.push(toScene(AXES.x.min + gi / (N - 1) * (AXES.x.max - AXES.x.min), AXES.y.min + gj / (N - 1) * (AXES.y.max - AXES.y.min), L, new THREE.Vector3()));
+      }
+      // Two crossings: one segment. Four (a saddle cell): pair them in order.
+      for (let h = 0; h + 1 < hits.length; h += 2) out.push(...hits[h].toArray(), ...hits[h + 1].toArray());
+    }
+    return out;
+  }
+  const levels = sz.ticks.filter((t) => t > zMin && t < zMax);
+  const contourMaterial = new THREE.LineBasicMaterial({ transparent: true, opacity: 0.55 });
+  const contours = new THREE.LineSegments(
+    new THREE.BufferGeometry().setAttribute('position', new THREE.Float32BufferAttribute(contourSegments(levels), 3)), contourMaterial);
+  contours.name = 'contours';
+  const meshPts = [];
+  const EVERY = 6;
+  for (let j = 0; j < N; j += EVERY) for (let i = 0; i < N - 1; i++) meshPts.push(...toScene(xAt(i), yAt(j), grid[j * N + i]).toArray(), ...toScene(xAt(i + 1), yAt(j), grid[j * N + i + 1]).toArray());
+  for (let i = 0; i < N; i += EVERY) for (let j = 0; j < N - 1; j++) meshPts.push(...toScene(xAt(i), yAt(j), grid[j * N + i]).toArray(), ...toScene(xAt(i), yAt(j + 1), grid[(j + 1) * N + i]).toArray());
+  const wireMaterial = new THREE.LineBasicMaterial({ color: 0xffffff, transparent: true, opacity: 0.22 });
+  const wire = new THREE.LineSegments(new THREE.BufferGeometry().setAttribute('position', new THREE.Float32BufferAttribute(meshPts, 3)), wireMaterial);
+  wire.name = 'mesh-lines';
+  scene.add(contours, wire);
+
+  const contourButton = document.getElementById('contours');
+  contourButton.addEventListener('click', () => {
+    const on = !contours.visible;
+    contours.visible = wire.visible = on;
+    contourButton.setAttribute('aria-pressed', String(on));
+    invalidate();
+  });
+
+  // ---- Hover marker: a ring on the surface and a drop line to the floor.
+  function ringTexture() {
+    const cv = document.createElement('canvas');
+    cv.width = cv.height = 64;
+    const g = cv.getContext('2d');
+    g.beginPath(); g.arc(32, 32, 24, 0, Math.PI * 2);
+    g.lineWidth = 8; g.strokeStyle = '#fff'; g.stroke();
+    const t = new THREE.CanvasTexture(cv);
+    t.colorSpace = THREE.SRGBColorSpace;
+    return t;
+  }
+  const haloMaterial = new THREE.PointsMaterial({ map: ringTexture(), size: 0.12, transparent: true, depthTest: false });
+  const halo = new THREE.Points(new THREE.BufferGeometry().setAttribute('position', new THREE.Float32BufferAttribute([0, 0, 0], 3)), haloMaterial);
+  halo.name = 'halo';
+  halo.renderOrder = 2;
+  const dropMaterial = new THREE.LineDashedMaterial({ dashSize: 0.03, gapSize: 0.02 });
+  const drop = new THREE.Line(new THREE.BufferGeometry().setAttribute('position', new THREE.Float32BufferAttribute([0, 0, 0, 0, 0, 0], 3)), dropMaterial);
+  drop.name = 'drop-line';
+  const marker = new THREE.Group();
+  marker.add(halo, drop);
+  marker.visible = false;
+  scene.add(marker);
+
+  function applyTheme() {
+    scene.background = new THREE.Color(css('--plot-bg'));
+    panelMaterial.color.set(css('--panel'));
+    gridMaterial.color.set(css('--grid'));
+    axisMaterial.color.set(css('--axis'));
+    contourMaterial.color.set(css('--contour'));
+    haloMaterial.color.set(css('--ink'));
+    dropMaterial.color.set(css('--ink'));
+    invalidate();
+  }
+  applyTheme();
+  matchMedia('(prefers-color-scheme: dark)').addEventListener('change', applyTheme);
+
+  // ---- Legend: a colour bar from the same stops, ticked at the z ticks.
+  const bar = document.getElementById('colorbar');
+  const gradient = VIRIDIS.map((h, k) => `${h} ${(k / (VIRIDIS.length - 1) * 100).toFixed(1)}%`).join(', ');
+  bar.innerHTML = `<span>${title(AXES.z)}</span><div class="ramp"><div class="swatch" style="background: linear-gradient(to right, ${gradient})"></div>` +
+    levels.map((t) => `<span class="t" style="left: ${(zToT(t) * 100).toFixed(1)}%">${fmtTick(t, sz)}</span>`).join('') + '</div>';
+
+  // ---- Tables, from the same grid as the plot
+  const cell = (tr, text, tag = 'td') => { const el = document.createElement(tag); el.textContent = text; tr.append(el); return el; };
+  const exBody = document.querySelector('#extremes tbody');
+  extremes.forEach((e, n) => {
+    e.name = `${e.kind} ${extremes.filter((o, m) => o.kind === e.kind && m <= n).length}`;
+    const tr = document.createElement('tr');
+    cell(tr, e.name, 'th').scope = 'row';
+    cell(tr, fmt(e.x, 'x')); cell(tr, fmt(e.y, 'y')); cell(tr, fmt(e.z, 'z'));
+    exBody.append(tr);
+  });
+  const top = extremes[0], bottom = extremes[extremes.length - 1];
+  document.getElementById('extreme-summary').textContent =
+    `The highest point on the grid is z = ${fmt(top.z, 'z')} at x = ${fmt(top.x, 'x')}, y = ${fmt(top.y, 'y')}; the lowest is z = ${fmt(bottom.z, 'z')} at x = ${fmt(bottom.x, 'x')}, y = ${fmt(bottom.y, 'y')}.`;
+
+  const STEP = 10;
+  const coarse = [];
+  for (let k = 0; k < N; k += STEP) coarse.push(k);
+  const head = document.createElement('tr');
+  cell(head, 'y \\ x', 'th').scope = 'col';
+  for (const i of coarse) cell(head, fmt(xAt(i), 'x'), 'th').scope = 'col';
+  document.querySelector('#coarse thead').append(head);
+  const coarseBody = document.querySelector('#coarse tbody');
+  for (const j of [...coarse].reverse()) {
+    const tr = document.createElement('tr');
+    cell(tr, fmt(yAt(j), 'y'), 'th').scope = 'row';
+    for (const i of coarse) cell(tr, fmt(grid[j * N + i], 'z'));
+    coarseBody.append(tr);
+  }
+
+  // ---- Selection: hover, tap or keyboard picks a point on the surface.
+  const tip = document.getElementById('tip');
+  const status = document.getElementById('status');
+  let selected = null; // { x, y, z, by: 'pointer' | 'key', name? }
+
+  function select(sel) {
+    selected = sel;
+    marker.visible = !!sel;
+    tip.hidden = !sel;
+    invalidate();
+    if (!sel) return;
+    toScene(sel.x, sel.y, sel.z, halo.position);
+    const dp = drop.geometry.attributes.position;
+    dp.setXYZ(0, halo.position.x, halo.position.y, halo.position.z);
+    dp.setXYZ(1, halo.position.x, floor.position.y, halo.position.z);
+    dp.needsUpdate = true;
+    drop.computeLineDistances();
+    const swatch = '#' + colourAt(zToT(sel.z)).getHexString(); // getHexString returns sRGB
+    const values = `x ${fmt(sel.x, 'x')}<br>y ${fmt(sel.y, 'y')}<br><i style="background:${swatch}"></i>z ${fmt(sel.z, 'z')}`;
+    tip.innerHTML = (sel.name ? `<b>${sel.name}</b><br>` : '') + values;
+    if (sel.by === 'key') status.textContent = `${sel.name}: x ${fmt(sel.x, 'x')}, y ${fmt(sel.y, 'y')}, z ${fmt(sel.z, 'z')}`;
+  }
+
+  const projected = new THREE.Vector3();
+  function placeTip() {
+    if (!selected) return;
+    projected.copy(halo.position).project(camera);
+    const w = viz.clientWidth, h = viz.clientHeight;
+    const x = (projected.x + 1) / 2 * w, y = (1 - projected.y) / 2 * h;
+    const tw = tip.offsetWidth, th = tip.offsetHeight;
+    const left = x + 14 + tw > w ? x - 14 - tw : x + 14; // flip at the right edge
+    const top = Math.min(Math.max(y - th / 2, 4), h - th - 4);
+    tip.style.transform = `translate(${Math.round(left)}px, ${Math.round(top)}px)`;
+  }
+
+  // The hit point lies on the triangle mesh, so its height is the linear
+  // interpolation of the grid: invert the scales to read x, y and z back.
+  const raycaster = new THREE.Raycaster();
+  const pointer = new THREE.Vector2();
+  function pick(event) {
+    const rect = canvas.getBoundingClientRect();
+    pointer.set(((event.clientX - rect.left) / rect.width) * 2 - 1, -((event.clientY - rect.top) / rect.height) * 2 + 1);
+    raycaster.setFromCamera(pointer, camera);
+    const hit = raycaster.intersectObject(surface, false)[0];
+    if (!hit) return null;
+    return { x: sx.fromScene(hit.point.x), y: sy.fromScene(-hit.point.z), z: sz.fromScene(hit.point.y), by: 'pointer' };
+  }
+  canvas.addEventListener('pointermove', (e) => {
+    if (e.pointerType !== 'mouse' || e.buttons) return;
+    const sel = pick(e);
+    if (sel) select(sel);
+    else if (selected && selected.by === 'pointer') select(null);
+  });
+  canvas.addEventListener('pointerleave', () => { if (selected && selected.by === 'pointer') select(null); });
+  let down = null;
+  canvas.addEventListener('pointerdown', (e) => { down = { x: e.clientX, y: e.clientY }; });
+  canvas.addEventListener('pointerup', (e) => {
+    if (e.pointerType === 'mouse' || !down || Math.hypot(e.clientX - down.x, e.clientY - down.y) > 6) return;
+    select(pick(e));
+  });
+
+  // ---- Auto-rotation with a visible pause (WCAG 2.2.2), off under reduced motion.
+  const spin = document.getElementById('spin');
+  function setRotating(on) {
+    controls.autoRotate = on;
+    spin.textContent = on ? 'Pause rotation' : 'Start rotation';
+  }
+  setRotating(!motion.matches);
+  spin.addEventListener('click', () => setRotating(!controls.autoRotate));
+  controls.addEventListener('start', () => setRotating(false)); // the reader has taken over
+  motion.addEventListener('change', () => { controls.enableDamping = !motion.matches; if (motion.matches) setRotating(false); });
+
+  function goHome() {
+    controls.position0.copy(homePosition());
+    const damping = controls.enableDamping;
+    controls.enableDamping = false;
+    controls.update();
+    controls.reset();
+    controls.enableDamping = damping;
+  }
+  document.getElementById('home').addEventListener('click', goHome);
+
+  // OrbitControls' arrow keys pan, so orbit and zoom get their own keys.
+  const KEY_STEP = THREE.MathUtils.degToRad(6), ZOOM = 0.9;
+  canvas.addEventListener('keydown', (e) => {
+    if (e.altKey || e.ctrlKey || e.metaKey) return;
+    const order = extremes.findIndex((x) => selected && selected.name === x.name);
+    const pickExtreme = (n) => { const x = extremes[(n + extremes.length) % extremes.length]; select({ ...x, by: 'key' }); };
+    switch (e.key) {
+      case 'ArrowLeft': controls.rotateLeft(KEY_STEP); break;
+      case 'ArrowRight': controls.rotateLeft(-KEY_STEP); break;
+      case 'ArrowUp': controls.rotateUp(KEY_STEP); break;
+      case 'ArrowDown': controls.rotateUp(-KEY_STEP); break;
+      case '+': case '=': controls.dollyIn(ZOOM); break;
+      case '-': case '_': controls.dollyOut(ZOOM); break;
+      case 'Home': goHome(); break;
+      case 'n': case 'N': case ']': pickExtreme(order + 1); break;
+      case 'p': case 'P': case '[': pickExtreme(order < 0 ? -1 : order - 1); break;
+      case 'Escape': select(null); status.textContent = ''; break;
+      default: return;
+    }
+    e.preventDefault();
+    if (e.key.startsWith('Arrow') || '+=-_'.includes(e.key)) setRotating(false);
+  });
+
+  // ---- Loop. Timer gives each frame's delta; OrbitControls turns
+  // autoRotateSpeed into radians per second when update() gets it. A frame
+  // with no camera change and nothing invalidated draws nothing.
+  const timer = new THREE.Timer();
+  timer.connect(document);
+  function frame(time) {
+    timer.update(time);
+    const moved = controls.update(Math.min(timer.getDelta(), 0.1));
+    if (!moved && !dirty) return;
+    dirty = false;
+    renderer.render(scene, camera);
+    layoutLabels();
+    labels.render(scene, camera);
+    placeTip();
+  }
+  renderer.setAnimationLoop(frame);
+  // Only run the loop while the figure is on screen; draw once on the way back in.
+  new IntersectionObserver(([entry]) => { invalidate(); renderer.setAnimationLoop(entry.isIntersecting ? frame : null); }).observe(viz);
+
+  // Ready signal for tw check, sheet and video.
+  (window.__tw ??= {}).ready = Promise.resolve();
+</script>
+</body>
+</html>

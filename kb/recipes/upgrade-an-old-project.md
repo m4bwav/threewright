@@ -31,6 +31,8 @@ grep -on 'three@[0-9.]*' index.html
 ```
 ```js
 console.log(THREE.REVISION); // e.g. "160"; the release number, not the full semver
+// THREE is a global only on UMD pages; in a module page log it from the module
+// that imports three. `tw check <page>` prints it either way on its `three: rNNN` line.
 ```
 
 Lint against the current release (find what is already wrong) and against the target (find what an upgrade would break):
@@ -50,10 +52,13 @@ Fix in this order, since each layer hides the next one's symptoms otherwise:
 
 ## Verify
 
-- `node scripts/tw.mjs lint <dir> --target r186` reporting zero errors is the release-facing definition of "done" for this recipe; warnings for genuinely `legacy`-tagged code that intentionally stays on an older pattern are acceptable if documented.
-- `tw check <page>` on the upgraded page: `result: OK`, and its `pixels:` mean-brightness reading should be in the same rough range as before the upgrade once light intensities are retuned; a much darker reading than before, with a clean lint pass, is the signature of an un-retuned legacy-light scene (step 3 above).
-- `tw diff before.png after.png --threshold 0.1` on a matched camera angle, taken before touching any code and again after the full upgrade, quantifies exactly how much the image changed; expect some difference from the PBR shading changes at r181 even in a "correctly" upgraded scene, so treat a diff as informative, not automatically a bug.
+- `node scripts/tw.mjs lint <dir> --target r186` reporting zero errors is the release-facing definition of done for this recipe. Warnings for code deliberately kept on an older, documented pattern are acceptable.
+- `tw check <page>` on the upgraded page: `result: OK`, and the `pixels:` mean luma in the same rough range as before once light intensities are retuned. A much darker reading with a clean lint pass is the signature of an un-retuned legacy-light scene (step 3).
+- `tw diff before.png after.png --threshold 0.1` on a matched camera angle, before and after, measures how much the image changed. Treat a difference as information, not automatically a bug.
+- Verified 2026-09-26 on Windows 11 (Git Bash, Node 24) with Chrome 153 headless and an RTX 5060 Ti, against a copy of `tests/fixtures/lint/stale.html` plus a stub `node_modules/three/package.json` at 0.150.0. The `node -p` line printed `0.150.0`; the grep printed `3:three@0.150.0` and `4:three@0.150.0`; `tw check --eval "THREE.REVISION"` on the UMD page printed `"150"`. `tw lint <dir>` detected `three r150 (pinned URL)` and gave 2 errors and 3 warnings (examples-js, global-three-addon; umd-build, physically-correct-lights, buffer-geometry-aliases). `tw lint <dir> --target r186` gave 7 errors and 1 warning (adds encoding-api twice and clock; umd-build, physically-correct-lights and the aliases become errors). The sample rewritten by steps 1, 2, 3 and 5 (import map, `BoxGeometry`, `Timer`, intensities times `Math.PI`) gave `0 error(s), 0 warning(s)` with `--target r186` and `result: OK` in `tw check`; the `tw shot` showed a lit box. The before and after brightness comparison was not run, since the r150 sample never rendered.
+- Release numbers in step 3 checked in npm tarballs on 2026-09-26: `PointLight` `decay` defaults to 1 in 0.146.0 and 2 in 0.147.0; `WebGLRenderer.useLegacyLights` is `true` in 0.154.0 and `false` in 0.155.0.
 
 ## Notes
 
 - 2026-09-26: written from the core r160-r186 research (sections 3, 4) and the direction research (section 6, the current-versus-legacy table), matching the order and fixes already recorded in `kb/rules/current-vs-legacy.md`.
+- 2026-09-26: ran the commands against a copy of the stale lint fixture (see Verify). They do what the recipe says. Added that `THREE.REVISION` only works as a global on UMD pages: in a module page `tw check --eval "THREE.REVISION"` fails with `THREE is not defined`.

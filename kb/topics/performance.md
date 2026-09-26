@@ -44,7 +44,9 @@ Cap `renderer.setPixelRatio` at 2 (1.5 or lower on low-end phones), and drop it 
 ## Verify
 
 - `tw check <page>` prints draw calls and triangle counts in its scene summary and flags "slow or janky" territory (draw calls over about 100 on phones or 1000 anywhere; triangles in the millions) with a fix hint pointing at instancing.
-- `tw check <page> --eval "renderer.info.render.calls"` (or `renderer.info.render.drawCalls` on WebGPU) gives the exact number to compare against the budget table.
+- `tw check <page> --eval "renderer.info.render.calls"` (or `renderer.info.render.drawCalls` on WebGPU, where `render.calls` counts `render()` calls since start) gives the exact number to compare against the budget table.
+- `tw perf <page> --seconds 5` prints frame time p50, p95, p99 and max, frames over 33 ms, draw calls and triangles per frame, and geometry, texture and heap growth. Add `--cpu-throttle 4` for a slow-device estimate. Headless numbers are uncalibrated: compare runs on one machine, do not quote them as device fps. Headless Chrome with a GPU ran at a 60 fps vsync cap on 2026-09-26, so look at p95, p99 and max rather than fps.
+- `tw check <page> --save before.json`, change the code, then `tw check <page> --against before.json` lists what moved: draw calls, triangles, geometries, textures, object types, new or gone problems, and the share and region of the frame that changed.
 - `tw scene <page>` collapses repeated siblings (`Mesh x240 'bolt'`), which is the fastest way to spot "this should be an InstancedMesh" in text before touching a screenshot.
 
 ## Notes
