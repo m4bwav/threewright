@@ -1,0 +1,12 @@
+{
+  "name": "game-starter",
+  "summary": "Game starter on Vite + TypeScript + Rapier: deterministic fixed-step simulation with no DOM (runs in Node tests), kinematic character controller, pickups, lives, HUD, pause and restart, keyboard and gamepad, window.__game hooks to step, inject input, replay and hash",
+  "renderer": "webgl",
+  "three": "0.186.1",
+  "entry": "index.html",
+  "use_for": ["browser games", "physics toys", "anything an agent must test by driving it (window.__game)"],
+  "next": ["npm ci", "npm run dev", "npm test (simulation tests in Node)", "npm run build, then node <threewright>/scripts/tw.mjs check dist --eval \"window.__game.state()\""],
+  "verified": [
+    { "date": "2026-09-26", "platform": "Linux container, Chromium 141, SwiftShader, Node 22.22", "checks": "npm ci, typecheck and build, 4 Node simulation tests (determinism, movement, fixed step), tw check dist OK, --eval drove 90 ticks through window.__game (player moved 5.9 m, stable hash), tw shot looked at" }
+  ]
+}
