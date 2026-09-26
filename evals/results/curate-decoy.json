@@ -1,0 +1,368 @@
+{
+  "schemaVersion": 1,
+  "claudeVersion": "2.1.281",
+  "startedAt": "2026-09-26T21:22:41.779Z",
+  "durationSeconds": 20,
+  "costUsd": 0.6952792000000001,
+  "partial": false,
+  "suite": {
+    "root": "D:\\m4bwa\\Claude\\Projects\\Ai\\threewright",
+    "ablation": "with-without",
+    "judgeModel": "sonnet",
+    "caseFilter": "decoy-*",
+    "threshold": 1,
+    "concurrency": 4,
+    "plugins": [
+      {
+        "name": "threewright",
+        "version": "0.4.0",
+        "path": "D:\\m4bwa\\Claude\\Projects\\Ai\\threewright"
+      }
+    ]
+  },
+  "cases": [
+    {
+      "name": "decoy-1",
+      "dir": "evals\\threewright-curate\\decoy-1",
+      "source": "prose",
+      "promptMarkdown": "load an HDR environment map in my scene\n\n(For this run: say in two or three lines how you would approach it and which tools or skills you would use; do not carry it out.)",
+      "runsPerCase": 3,
+      "timeoutSeconds": 240,
+      "maxTurns": 8,
+      "graders": [
+        {
+          "name": "threewright-curate stays quiet",
+          "type": "tool_used",
+          "weight": 1,
+          "config": {
+            "tool": "Skill",
+            "input_match": "\"skill\"\\s*:\\s*\"(?:[\\w-]+:)?threewright-curate",
+            "min": 0,
+            "max": 0,
+            "arm": "both"
+          }
+        }
+      ],
+      "arms": {
+        "with": [
+          {
+            "score": 1,
+            "passed": true,
+            "turns": 1,
+            "costUsd": 0.0707286,
+            "judgeCostUsd": 0,
+            "durationSeconds": 7,
+            "startedAt": "2026-09-26T21:22:41.810Z",
+            "error": null,
+            "tracePath": "C:\\Users\\m4bwa\\AppData\\Local\\Temp\\claude-eval-c1WEV5\\out\\trace.jsonl",
+            "skippedPaidGraders": false,
+            "graders": [
+              {
+                "name": "threewright-curate stays quiet",
+                "passed": true,
+                "weight": 1,
+                "explanation": "Skill called 0x (expected 0..0)",
+                "withOnly": false,
+                "scored": true
+              }
+            ]
+          },
+          {
+            "score": 1,
+            "passed": true,
+            "turns": 1,
+            "costUsd": 0.0682846,
+            "judgeCostUsd": 0,
+            "durationSeconds": 7,
+            "startedAt": "2026-09-26T21:22:41.810Z",
+            "error": null,
+            "tracePath": "C:\\Users\\m4bwa\\AppData\\Local\\Temp\\claude-eval-l4kotL\\out\\trace.jsonl",
+            "skippedPaidGraders": false,
+            "graders": [
+              {
+                "name": "threewright-curate stays quiet",
+                "passed": true,
+                "weight": 1,
+                "explanation": "Skill called 0x (expected 0..0)",
+                "withOnly": false,
+                "scored": true
+              }
+            ]
+          },
+          {
+            "score": 1,
+            "passed": true,
+            "turns": 1,
+            "costUsd": 0.06830460000000001,
+            "judgeCostUsd": 0,
+            "durationSeconds": 5,
+            "startedAt": "2026-09-26T21:22:41.810Z",
+            "error": null,
+            "tracePath": "C:\\Users\\m4bwa\\AppData\\Local\\Temp\\claude-eval-Fhv4L9\\out\\trace.jsonl",
+            "skippedPaidGraders": false,
+            "graders": [
+              {
+                "name": "threewright-curate stays quiet",
+                "passed": true,
+                "weight": 1,
+                "explanation": "Skill called 0x (expected 0..0)",
+                "withOnly": false,
+                "scored": true
+              }
+            ]
+          }
+        ],
+        "without": [
+          {
+            "score": 1,
+            "passed": true,
+            "turns": 1,
+            "costUsd": 0.0458526,
+            "judgeCostUsd": 0,
+            "durationSeconds": 5,
+            "startedAt": "2026-09-26T21:22:41.810Z",
+            "error": null,
+            "tracePath": "C:\\Users\\m4bwa\\AppData\\Local\\Temp\\claude-eval-t6tNvG\\out\\trace.jsonl",
+            "skippedPaidGraders": false,
+            "graders": [
+              {
+                "name": "threewright-curate stays quiet",
+                "passed": true,
+                "weight": 1,
+                "explanation": "Skill called 0x (expected 0..0)",
+                "withOnly": false,
+                "scored": true
+              }
+            ]
+          },
+          {
+            "score": 1,
+            "passed": true,
+            "turns": 1,
+            "costUsd": 0.046724600000000005,
+            "judgeCostUsd": 0,
+            "durationSeconds": 6,
+            "startedAt": "2026-09-26T21:22:46.991Z",
+            "error": null,
+            "tracePath": "C:\\Users\\m4bwa\\AppData\\Local\\Temp\\claude-eval-80lN76\\out\\trace.jsonl",
+            "skippedPaidGraders": false,
+            "graders": [
+              {
+                "name": "threewright-curate stays quiet",
+                "passed": true,
+                "weight": 1,
+                "explanation": "Skill called 0x (expected 0..0)",
+                "withOnly": false,
+                "scored": true
+              }
+            ]
+          },
+          {
+            "score": 1,
+            "passed": true,
+            "turns": 1,
+            "costUsd": 0.0440646,
+            "judgeCostUsd": 0,
+            "durationSeconds": 5,
+            "startedAt": "2026-09-26T21:22:47.138Z",
+            "error": null,
+            "tracePath": "C:\\Users\\m4bwa\\AppData\\Local\\Temp\\claude-eval-izaIue\\out\\trace.jsonl",
+            "skippedPaidGraders": false,
+            "graders": [
+              {
+                "name": "threewright-curate stays quiet",
+                "passed": true,
+                "weight": 1,
+                "explanation": "Skill called 0x (expected 0..0)",
+                "withOnly": false,
+                "scored": true
+              }
+            ]
+          }
+        ]
+      },
+      "aggregates": {
+        "score": 1,
+        "passRate": 1,
+        "scoreWithout": 1,
+        "passRateWithout": 1,
+        "delta": 0
+      }
+    },
+    {
+      "name": "decoy-2",
+      "dir": "evals\\threewright-curate\\decoy-2",
+      "source": "prose",
+      "promptMarkdown": "add the horizon chart to the chart knowledge base\n\n(For this run: say in two or three lines how you would approach it and which tools or skills you would use; do not carry it out.)",
+      "runsPerCase": 3,
+      "timeoutSeconds": 240,
+      "maxTurns": 8,
+      "graders": [
+        {
+          "name": "threewright-curate stays quiet",
+          "type": "tool_used",
+          "weight": 1,
+          "config": {
+            "tool": "Skill",
+            "input_match": "\"skill\"\\s*:\\s*\"(?:[\\w-]+:)?threewright-curate",
+            "min": 0,
+            "max": 0,
+            "arm": "both"
+          }
+        }
+      ],
+      "arms": {
+        "with": [
+          {
+            "score": 1,
+            "passed": true,
+            "turns": 1,
+            "costUsd": 0.0704286,
+            "judgeCostUsd": 0,
+            "durationSeconds": 7,
+            "startedAt": "2026-09-26T21:22:49.073Z",
+            "error": null,
+            "tracePath": "C:\\Users\\m4bwa\\AppData\\Local\\Temp\\claude-eval-3376Ld\\out\\trace.jsonl",
+            "skippedPaidGraders": false,
+            "graders": [
+              {
+                "name": "threewright-curate stays quiet",
+                "passed": true,
+                "weight": 1,
+                "explanation": "Skill called 0x (expected 0..0)",
+                "withOnly": false,
+                "scored": true
+              }
+            ]
+          },
+          {
+            "score": 1,
+            "passed": true,
+            "turns": 1,
+            "costUsd": 0.0703966,
+            "judgeCostUsd": 0,
+            "durationSeconds": 7,
+            "startedAt": "2026-09-26T21:22:49.181Z",
+            "error": null,
+            "tracePath": "C:\\Users\\m4bwa\\AppData\\Local\\Temp\\claude-eval-1M7Xgu\\out\\trace.jsonl",
+            "skippedPaidGraders": false,
+            "graders": [
+              {
+                "name": "threewright-curate stays quiet",
+                "passed": true,
+                "weight": 1,
+                "explanation": "Skill called 0x (expected 0..0)",
+                "withOnly": false,
+                "scored": true
+              }
+            ]
+          },
+          {
+            "score": 1,
+            "passed": true,
+            "turns": 1,
+            "costUsd": 0.0712766,
+            "judgeCostUsd": 0,
+            "durationSeconds": 7,
+            "startedAt": "2026-09-26T21:22:51.842Z",
+            "error": null,
+            "tracePath": "C:\\Users\\m4bwa\\AppData\\Local\\Temp\\claude-eval-ehRoJ5\\out\\trace.jsonl",
+            "skippedPaidGraders": false,
+            "graders": [
+              {
+                "name": "threewright-curate stays quiet",
+                "passed": true,
+                "weight": 1,
+                "explanation": "Skill called 0x (expected 0..0)",
+                "withOnly": false,
+                "scored": true
+              }
+            ]
+          }
+        ],
+        "without": [
+          {
+            "score": 1,
+            "passed": true,
+            "turns": 1,
+            "costUsd": 0.047144599999999995,
+            "judgeCostUsd": 0,
+            "durationSeconds": 6,
+            "startedAt": "2026-09-26T21:22:52.531Z",
+            "error": null,
+            "tracePath": "C:\\Users\\m4bwa\\AppData\\Local\\Temp\\claude-eval-qxPyjs\\out\\trace.jsonl",
+            "skippedPaidGraders": false,
+            "graders": [
+              {
+                "name": "threewright-curate stays quiet",
+                "passed": true,
+                "weight": 1,
+                "explanation": "Skill called 0x (expected 0..0)",
+                "withOnly": false,
+                "scored": true
+              }
+            ]
+          },
+          {
+            "score": 1,
+            "passed": true,
+            "turns": 1,
+            "costUsd": 0.046488600000000005,
+            "judgeCostUsd": 0,
+            "durationSeconds": 6,
+            "startedAt": "2026-09-26T21:22:55.769Z",
+            "error": null,
+            "tracePath": "C:\\Users\\m4bwa\\AppData\\Local\\Temp\\claude-eval-ZgFT2M\\out\\trace.jsonl",
+            "skippedPaidGraders": false,
+            "graders": [
+              {
+                "name": "threewright-curate stays quiet",
+                "passed": true,
+                "weight": 1,
+                "explanation": "Skill called 0x (expected 0..0)",
+                "withOnly": false,
+                "scored": true
+              }
+            ]
+          },
+          {
+            "score": 1,
+            "passed": true,
+            "turns": 1,
+            "costUsd": 0.045584599999999996,
+            "judgeCostUsd": 0,
+            "durationSeconds": 5,
+            "startedAt": "2026-09-26T21:22:55.802Z",
+            "error": null,
+            "tracePath": "C:\\Users\\m4bwa\\AppData\\Local\\Temp\\claude-eval-UDcMSV\\out\\trace.jsonl",
+            "skippedPaidGraders": false,
+            "graders": [
+              {
+                "name": "threewright-curate stays quiet",
+                "passed": true,
+                "weight": 1,
+                "explanation": "Skill called 0x (expected 0..0)",
+                "withOnly": false,
+                "scored": true
+              }
+            ]
+          }
+        ]
+      },
+      "aggregates": {
+        "score": 1,
+        "passRate": 1,
+        "scoreWithout": 1,
+        "passRateWithout": 1,
+        "delta": 0
+      }
+    }
+  ],
+  "aggregates": {
+    "casesTotal": 2,
+    "casesPassed": 2,
+    "overallScore": 1,
+    "overallPassRate": 1,
+    "meanDelta": 0
+  }
+}

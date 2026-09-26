@@ -2,6 +2,15 @@
 
 Plugin versions. Skill-level changes are in each `skills/*/CHANGELOG.md`; the session record is `ai-docs/log.md`.
 
+## 0.4.1 · 2026-09-26
+
+First full run of every skill's eval suite (61 cases, all passed; `evals/` at the plugin root), and the fixes it turned up.
+- Evals: trigger and decoy cases through `claude plugin eval` 2.1.281 (3 runs per arm, no-plugin baseline), action and outcome cases through the evergreen tester with a no-skill baseline for each action case. Results in `evals/results/`; each skill's TESTS.md has the entry.
+- Fixed: `tw video` MP4s lost the BT.709 primaries and transfer tags with ffmpeg 9.0.1; they are now written into the H.264 stream (`h264_metadata`). WebM output is now tagged BT.709 too (VP9 carries the matrix only).
+- Fixed: a Git Bash path with a query string (`tw check "/c/.../page/?model=x.glb"`) was not found, because Git Bash skips its path conversion for arguments holding a `?`; tw maps `/c/...` itself on Windows.
+- product-viewer wires `KTX2Loader`, so models from `gltf-transform etc1s` or `uastc` load (checked with a KTX2 model: texture shows, `tw scene` reads `map:CompressedTexture/srgb`).
+- color-management: Verify named a lint rule that never existed; it now points at `tw scene`'s map colour-space label.
+
 ## 0.4.0 · 2026-09-26
 
 The last items of the tools research list, and the KTX2 texture steps checked with KTX-Software installed.

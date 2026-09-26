@@ -70,6 +70,7 @@
     import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
     import { DRACOLoader } from 'three/addons/loaders/DRACOLoader.js';
     import { MeshoptDecoder } from 'three/addons/libs/meshopt_decoder.module.js';
+    import { KTX2Loader } from 'three/addons/loaders/KTX2Loader.js';
 
     const VARIANTS = [
       { name: 'Sage', fabric: 0x5b7a6e, trim: 0xc9ccd0, swatch: '#5b7a6e' },
@@ -149,7 +150,9 @@
     const progressEl = document.getElementById('progress');
 
     const draco = new DRACOLoader(); // fetches its decoder only if the file uses Draco
-    const loader = new GLTFLoader().setDRACOLoader(draco).setMeshoptDecoder(MeshoptDecoder);
+    // KTX2 (Basis) textures, as gltf-transform etc1s and uastc write them; the transcoder loads on first use.
+    const ktx2 = new KTX2Loader().setTranscoderPath('https://cdn.jsdelivr.net/npm/three@0.186.1/examples/jsm/libs/basis/').detectSupport(renderer);
+    const loader = new GLTFLoader().setDRACOLoader(draco).setKTX2Loader(ktx2).setMeshoptDecoder(MeshoptDecoder);
 
     function load(url) {
       return new Promise((resolve, reject) => {

@@ -1,0 +1,368 @@
+{
+  "schemaVersion": 1,
+  "claudeVersion": "2.1.281",
+  "startedAt": "2026-09-26T21:23:02.253Z",
+  "durationSeconds": 15,
+  "costUsd": 0.6671232,
+  "partial": false,
+  "suite": {
+    "root": "D:\\m4bwa\\Claude\\Projects\\Ai\\threewright",
+    "ablation": "with-without",
+    "judgeModel": "sonnet",
+    "caseFilter": "decoy-*",
+    "threshold": 1,
+    "concurrency": 4,
+    "plugins": [
+      {
+        "name": "threewright",
+        "version": "0.4.0",
+        "path": "D:\\m4bwa\\Claude\\Projects\\Ai\\threewright"
+      }
+    ]
+  },
+  "cases": [
+    {
+      "name": "decoy-1",
+      "dir": "evals\\threewright-debug\\decoy-1",
+      "source": "prose",
+      "promptMarkdown": "add orbit controls to my three.js scene\n\n(For this run: say in two or three lines how you would approach it and which tools or skills you would use; do not carry it out.)",
+      "runsPerCase": 3,
+      "timeoutSeconds": 240,
+      "maxTurns": 8,
+      "graders": [
+        {
+          "name": "threewright-debug stays quiet",
+          "type": "tool_used",
+          "weight": 1,
+          "config": {
+            "tool": "Skill",
+            "input_match": "\"skill\"\\s*:\\s*\"(?:[\\w-]+:)?threewright-debug",
+            "min": 0,
+            "max": 0,
+            "arm": "both"
+          }
+        }
+      ],
+      "arms": {
+        "with": [
+          {
+            "score": 1,
+            "passed": true,
+            "turns": 1,
+            "costUsd": 0.0671166,
+            "judgeCostUsd": 0,
+            "durationSeconds": 5,
+            "startedAt": "2026-09-26T21:23:02.281Z",
+            "error": null,
+            "tracePath": "C:\\Users\\m4bwa\\AppData\\Local\\Temp\\claude-eval-ISyPt1\\out\\trace.jsonl",
+            "skippedPaidGraders": false,
+            "graders": [
+              {
+                "name": "threewright-debug stays quiet",
+                "passed": true,
+                "weight": 1,
+                "explanation": "Skill called 0x (expected 0..0)",
+                "withOnly": false,
+                "scored": true
+              }
+            ]
+          },
+          {
+            "score": 1,
+            "passed": true,
+            "turns": 1,
+            "costUsd": 0.0662486,
+            "judgeCostUsd": 0,
+            "durationSeconds": 5,
+            "startedAt": "2026-09-26T21:23:02.281Z",
+            "error": null,
+            "tracePath": "C:\\Users\\m4bwa\\AppData\\Local\\Temp\\claude-eval-ogpwJI\\out\\trace.jsonl",
+            "skippedPaidGraders": false,
+            "graders": [
+              {
+                "name": "threewright-debug stays quiet",
+                "passed": true,
+                "weight": 1,
+                "explanation": "Skill called 0x (expected 0..0)",
+                "withOnly": false,
+                "scored": true
+              }
+            ]
+          },
+          {
+            "score": 1,
+            "passed": true,
+            "turns": 1,
+            "costUsd": 0.06691659999999999,
+            "judgeCostUsd": 0,
+            "durationSeconds": 5,
+            "startedAt": "2026-09-26T21:23:02.281Z",
+            "error": null,
+            "tracePath": "C:\\Users\\m4bwa\\AppData\\Local\\Temp\\claude-eval-HMkqbW\\out\\trace.jsonl",
+            "skippedPaidGraders": false,
+            "graders": [
+              {
+                "name": "threewright-debug stays quiet",
+                "passed": true,
+                "weight": 1,
+                "explanation": "Skill called 0x (expected 0..0)",
+                "withOnly": false,
+                "scored": true
+              }
+            ]
+          }
+        ],
+        "without": [
+          {
+            "score": 1,
+            "passed": true,
+            "turns": 1,
+            "costUsd": 0.0437566,
+            "judgeCostUsd": 0,
+            "durationSeconds": 4,
+            "startedAt": "2026-09-26T21:23:02.281Z",
+            "error": null,
+            "tracePath": "C:\\Users\\m4bwa\\AppData\\Local\\Temp\\claude-eval-hiHY94\\out\\trace.jsonl",
+            "skippedPaidGraders": false,
+            "graders": [
+              {
+                "name": "threewright-debug stays quiet",
+                "passed": true,
+                "weight": 1,
+                "explanation": "Skill called 0x (expected 0..0)",
+                "withOnly": false,
+                "scored": true
+              }
+            ]
+          },
+          {
+            "score": 1,
+            "passed": true,
+            "turns": 1,
+            "costUsd": 0.045600600000000005,
+            "judgeCostUsd": 0,
+            "durationSeconds": 5,
+            "startedAt": "2026-09-26T21:23:06.387Z",
+            "error": null,
+            "tracePath": "C:\\Users\\m4bwa\\AppData\\Local\\Temp\\claude-eval-RqQWwU\\out\\trace.jsonl",
+            "skippedPaidGraders": false,
+            "graders": [
+              {
+                "name": "threewright-debug stays quiet",
+                "passed": true,
+                "weight": 1,
+                "explanation": "Skill called 0x (expected 0..0)",
+                "withOnly": false,
+                "scored": true
+              }
+            ]
+          },
+          {
+            "score": 1,
+            "passed": true,
+            "turns": 1,
+            "costUsd": 0.0481006,
+            "judgeCostUsd": 0,
+            "durationSeconds": 6,
+            "startedAt": "2026-09-26T21:23:06.846Z",
+            "error": null,
+            "tracePath": "C:\\Users\\m4bwa\\AppData\\Local\\Temp\\claude-eval-5XUMR3\\out\\trace.jsonl",
+            "skippedPaidGraders": false,
+            "graders": [
+              {
+                "name": "threewright-debug stays quiet",
+                "passed": true,
+                "weight": 1,
+                "explanation": "Skill called 0x (expected 0..0)",
+                "withOnly": false,
+                "scored": true
+              }
+            ]
+          }
+        ]
+      },
+      "aggregates": {
+        "score": 1,
+        "passRate": 1,
+        "scoreWithout": 1,
+        "passRateWithout": 1,
+        "delta": 0
+      }
+    },
+    {
+      "name": "decoy-2",
+      "dir": "evals\\threewright-debug\\decoy-2",
+      "source": "prose",
+      "promptMarkdown": "my React form does not submit\n\n(For this run: say in two or three lines how you would approach it and which tools or skills you would use; do not carry it out.)",
+      "runsPerCase": 3,
+      "timeoutSeconds": 240,
+      "maxTurns": 8,
+      "graders": [
+        {
+          "name": "threewright-debug stays quiet",
+          "type": "tool_used",
+          "weight": 1,
+          "config": {
+            "tool": "Skill",
+            "input_match": "\"skill\"\\s*:\\s*\"(?:[\\w-]+:)?threewright-debug",
+            "min": 0,
+            "max": 0,
+            "arm": "both"
+          }
+        }
+      ],
+      "arms": {
+        "with": [
+          {
+            "score": 1,
+            "passed": true,
+            "turns": 1,
+            "costUsd": 0.0659766,
+            "judgeCostUsd": 0,
+            "durationSeconds": 6,
+            "startedAt": "2026-09-26T21:23:06.971Z",
+            "error": null,
+            "tracePath": "C:\\Users\\m4bwa\\AppData\\Local\\Temp\\claude-eval-uInv4k\\out\\trace.jsonl",
+            "skippedPaidGraders": false,
+            "graders": [
+              {
+                "name": "threewright-debug stays quiet",
+                "passed": true,
+                "weight": 1,
+                "explanation": "Skill called 0x (expected 0..0)",
+                "withOnly": false,
+                "scored": true
+              }
+            ]
+          },
+          {
+            "score": 1,
+            "passed": true,
+            "turns": 1,
+            "costUsd": 0.0658846,
+            "judgeCostUsd": 0,
+            "durationSeconds": 5,
+            "startedAt": "2026-09-26T21:23:07.009Z",
+            "error": null,
+            "tracePath": "C:\\Users\\m4bwa\\AppData\\Local\\Temp\\claude-eval-trjkEA\\out\\trace.jsonl",
+            "skippedPaidGraders": false,
+            "graders": [
+              {
+                "name": "threewright-debug stays quiet",
+                "passed": true,
+                "weight": 1,
+                "explanation": "Skill called 0x (expected 0..0)",
+                "withOnly": false,
+                "scored": true
+              }
+            ]
+          },
+          {
+            "score": 1,
+            "passed": true,
+            "turns": 1,
+            "costUsd": 0.0658006,
+            "judgeCostUsd": 0,
+            "durationSeconds": 5,
+            "startedAt": "2026-09-26T21:23:11.559Z",
+            "error": null,
+            "tracePath": "C:\\Users\\m4bwa\\AppData\\Local\\Temp\\claude-eval-fx4uvO\\out\\trace.jsonl",
+            "skippedPaidGraders": false,
+            "graders": [
+              {
+                "name": "threewright-debug stays quiet",
+                "passed": true,
+                "weight": 1,
+                "explanation": "Skill called 0x (expected 0..0)",
+                "withOnly": false,
+                "scored": true
+              }
+            ]
+          }
+        ],
+        "without": [
+          {
+            "score": 1,
+            "passed": true,
+            "turns": 1,
+            "costUsd": 0.044036599999999995,
+            "judgeCostUsd": 0,
+            "durationSeconds": 4,
+            "startedAt": "2026-09-26T21:23:11.575Z",
+            "error": null,
+            "tracePath": "C:\\Users\\m4bwa\\AppData\\Local\\Temp\\claude-eval-Lr0iu6\\out\\trace.jsonl",
+            "skippedPaidGraders": false,
+            "graders": [
+              {
+                "name": "threewright-debug stays quiet",
+                "passed": true,
+                "weight": 1,
+                "explanation": "Skill called 0x (expected 0..0)",
+                "withOnly": false,
+                "scored": true
+              }
+            ]
+          },
+          {
+            "score": 1,
+            "passed": true,
+            "turns": 1,
+            "costUsd": 0.0439326,
+            "judgeCostUsd": 0,
+            "durationSeconds": 4,
+            "startedAt": "2026-09-26T21:23:12.806Z",
+            "error": null,
+            "tracePath": "C:\\Users\\m4bwa\\AppData\\Local\\Temp\\claude-eval-eB5WN3\\out\\trace.jsonl",
+            "skippedPaidGraders": false,
+            "graders": [
+              {
+                "name": "threewright-debug stays quiet",
+                "passed": true,
+                "weight": 1,
+                "explanation": "Skill called 0x (expected 0..0)",
+                "withOnly": false,
+                "scored": true
+              }
+            ]
+          },
+          {
+            "score": 1,
+            "passed": true,
+            "turns": 1,
+            "costUsd": 0.0437526,
+            "judgeCostUsd": 0,
+            "durationSeconds": 4,
+            "startedAt": "2026-09-26T21:23:13.150Z",
+            "error": null,
+            "tracePath": "C:\\Users\\m4bwa\\AppData\\Local\\Temp\\claude-eval-QZDSDf\\out\\trace.jsonl",
+            "skippedPaidGraders": false,
+            "graders": [
+              {
+                "name": "threewright-debug stays quiet",
+                "passed": true,
+                "weight": 1,
+                "explanation": "Skill called 0x (expected 0..0)",
+                "withOnly": false,
+                "scored": true
+              }
+            ]
+          }
+        ]
+      },
+      "aggregates": {
+        "score": 1,
+        "passRate": 1,
+        "scoreWithout": 1,
+        "passRateWithout": 1,
+        "delta": 0
+      }
+    }
+  ],
+  "aggregates": {
+    "casesTotal": 2,
+    "casesPassed": 2,
+    "overallScore": 1,
+    "overallPassRate": 1,
+    "meanDelta": 0
+  }
+}

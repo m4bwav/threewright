@@ -46,6 +46,9 @@ export async function resolveTarget(target, root) {
   if (/^(https?|data|about):/i.test(target)) return { url: target, server: null, base: null };
   // A query or hash after a local path (page/?model=x.glb, page.html#view) goes on the served URL.
   let suffix = '';
+  // Git Bash converts /c/... to C:/... for native programs, but not in an argument holding
+  // a '?', so a path with a query string arrives in MSYS form.
+  if (process.platform === 'win32') target = target.replace(/^\/([a-zA-Z])\//, '$1:/');
   const q = target.match(/^(.*?)([?#].*)$/);
   if (q && !existsSync(resolve(target)) && existsSync(resolve(q[1]))) { target = q[1]; suffix = q[2]; }
   const file = resolve(target);

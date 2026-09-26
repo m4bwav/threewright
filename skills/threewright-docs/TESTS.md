@@ -8,6 +8,15 @@ Entry shape: `### T-YYYYMMDD-n · date · harness · env · passed/total`, then 
 
 ## Runs
 
+### T-20260926-2 · 2026-09-26 · claude plugin eval 2.1.281 (trigger, decoy) + evergreen-tester (action, outcome) · owner-pc Windows 11, Chrome 153, RTX 5060 Ti · 6/6
+- trigger (trigger-1, trigger-2): fired 3/3 with the plugin, 0/3 without it. decoy (decoy-1, decoy-2): quiet 3/3 in both arms. Results: evals/results/docs-trigger.json and docs-decoy.json at the plugin root.
+- action-1 and outcome-1: one run each (not three, to hold cost), graded on disk by the caller (trace commands, files, rerun checks). The tester read SKILL.md in place of the Skill tool, since the plugin was not installed in the session: a proxy for the main loop. Details: evals/results/action-outcome.md.
+  - threewright-docs action-1 · with · PASS · trace: `tw.mjs new surface`, then `tw.mjs check docs/figure.html` (OK, and OK with --reduced-motion); docs/figure.html exists with f = sin(x)cos(y).
+  - threewright-docs outcome-1 · with · PASS · grader: docs/scatter.gif exists, 642 KB (under 5 MB), 720x480, 60 frames; the reply states the finding (three groups, gamma in front of alpha from some angles) and gives alt text.
+  - threewright-docs action-1 · base · evidence absent · wrote a surface page from scratch; syntax check only, never rendered.
+- redundant: none (every action baseline lacked the evidence; several reached a working result by hand, at more cost)
+- led to: none
+
 ### T-20260926-1 · 2026-09-26 · not yet run · skill · 0/0
 - Suite written (6 cases: triggers, decoys, one action case with evidence, one outcome case). Not run in the creating session: a plugin installed mid-session is invisible to that session's Skill tool (chartwright:L-20260918-1), so trigger results there would be inconclusive. Run from a fresh session after install (`evergreen-test`).
 - led to: none

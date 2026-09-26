@@ -23,7 +23,10 @@ export function ffmpegArgs({ fps, out, crf = 18, scale, audio, alpha = false, lo
     const pre = vf.length ? vf.join(',') + ',' : '';
     return [...input, '-filter_complex', `[0:v]${pre}split[a][b];[a]palettegen=stats_mode=diff[p];[b][p]paletteuse=dither=sierra2_4a`, '-loop', loop ? '0' : '-1', out];
   } else if (ext === '.webm') {
-    codec = ['-c:v', 'libvpx-vp9', '-b:v', '0', '-crf', String(Math.max(crf + 12, 24)), '-row-mt', '1', '-pix_fmt', alpha ? 'yuva420p' : 'yuv420p'];
+    // Tagged BT.709 like the MP4, so players do not guess the colour space.
+    vf.push('scale=trunc(iw/2)*2:trunc(ih/2)*2:out_color_matrix=bt709:out_range=tv');
+    codec = ['-c:v', 'libvpx-vp9', '-b:v', '0', '-crf', String(Math.max(crf + 12, 24)), '-row-mt', '1', '-pix_fmt', alpha ? 'yuva420p' : 'yuv420p',
+      '-color_primaries', 'bt709', '-color_trc', 'bt709', '-colorspace', 'bt709'];
     if (audio) codec.push('-c:a', 'libopus');
   } else if (ext === '.mov') {
     codec = ['-c:v', 'prores_ks', '-profile:v', alpha ? '4444' : '3', '-pix_fmt', alpha ? 'yuva444p10le' : 'yuv422p10le'];
@@ -31,7 +34,9 @@ export function ffmpegArgs({ fps, out, crf = 18, scale, audio, alpha = false, lo
   } else {
     vf.push('scale=trunc(iw/2)*2:trunc(ih/2)*2:out_color_matrix=bt709:out_range=tv');
     codec = ['-c:v', 'libx264', '-preset', 'medium', '-crf', String(crf), '-pix_fmt', 'yuv420p',
-      '-color_primaries', 'bt709', '-color_trc', 'bt709', '-colorspace', 'bt709', '-movflags', '+faststart'];
+      '-color_primaries', 'bt709', '-color_trc', 'bt709', '-colorspace', 'bt709', '-movflags', '+faststart',
+      // ffmpeg 9.0.1 (gyan.dev build) left primaries and transfer unset despite the flags above; write them into the stream.
+      '-bsf:v', 'h264_metadata=colour_primaries=1:transfer_characteristics=1:matrix_coefficients=1'];
     if (audio) codec.push('-c:a', 'aac', '-b:a', '192k');
   }
   if (ext === '.webm' || ext === '.mov') { /* no forced even size needed for these */ }

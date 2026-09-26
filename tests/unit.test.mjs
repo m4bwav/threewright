@@ -274,6 +274,12 @@ test('page: a query or hash on a local folder or file goes on the served URL', a
       try { assert.ok(r.url.endsWith(tail), r.url); } finally { await r.server.close(); }
     }
     await assert.rejects(resolveTarget(join(dir, 'nope') + '?a=1'), /not found/);
+    if (process.platform === 'win32') {
+      // Git Bash leaves /c/... unconverted in an argument that holds a '?'
+      const msys = '/' + dir[0].toLowerCase() + dir.slice(2).split(String.fromCharCode(92)).join('/') + '?m=1';
+      const r = await resolveTarget(msys);
+      try { assert.ok(r.url.endsWith('/index.html?m=1'), r.url); } finally { await r.server.close(); }
+    }
   } finally { rmSync(dir, { recursive: true, force: true }); }
 });
 

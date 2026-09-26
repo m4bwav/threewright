@@ -49,3 +49,8 @@
 - On the owner's explicit request, created GitHub Releases for v0.1.0 to v0.4.0 with notes from CHANGELOG.md; v0.4.0 is Latest.
 
 - XR (webxr-starter template, tw --xr via IWER) parked on the owner's word: no headset. Nothing was built.
+
+## 2026-09-26: evals run (v0.4.1)
+
+- Ran every skill's suite: 41 trigger and decoy cases through `claude plugin eval` 2.1.281 ($16.28, all passed with 3/3 runs, triggers 0/3 without the plugin), 20 action and outcome cases through evergreen testers in per-run workspaces (all passed on disk evidence), 10 no-skill action baselines (none produced the evidence; several got there by hand at higher cost).
+- Fixes from the runs: MP4 and WebM colour tags (ffmpeg 9.0.1), Git Bash /c/ paths with a query string, KTX2Loader in product-viewer, a lint rule named in color-management that never existed. Open: the scroll-hero template gaps (HANDOFF item 1).

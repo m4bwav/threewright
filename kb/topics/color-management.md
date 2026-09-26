@@ -34,9 +34,10 @@ template: html-importmap
 ## Verify
 
 - `tw check <page>` reports a `pixels:` line with mean brightness; a scene with `pixels: ... almost black` alongside the runtime warning `lit materials but no lights and no scene.environment` points at a lighting problem, not a color-space one (see `lighting-and-shadows`).
-- `tw lint <dir>` runs the `texture-loader-without-srgb` and `composer-without-output-pass` companion rules from `kb/rules/lint-rules.json`, which fire on exactly these two mistakes.
+- `tw lint <dir>` runs the `composer-without-output-pass` rule from `kb/rules/lint-rules.json`, which fires on the second mistake. No lint rule catches a colour texture left without `SRGBColorSpace` (it is a runtime property); `tw scene <page>` shows it instead: each material's map prints as `map:<kind>/<colorSpace>`, so a colour map reading `NoColorSpace` or `srgb-linear` is the bug.
 - `tw check <page> --eval "renderer.outputColorSpace"` should print `"srgb"` unless you deliberately changed it.
 
 ## Notes
 
 - 2026-09-26: written from the core r160-r186 research (sections 1, 3, 4) verified against `node_modules/three/src/math/ColorManagement.js`, `Texture.js`, `WebGLLights.js` and `WebGLRenderer.js` at the installed 0.186.1, and the r186 manual's color-management page.
+- 2026-09-26: Verify named a lint rule texture-loader-without-srgb that never existed (found by the threewright-curate eval run); corrected to point at tw scene's map:<kind>/<colorSpace> label.

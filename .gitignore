@@ -5,3 +5,5 @@ node_modules/
 *.webm
 !templates/**/*.png
 dist/
+# claude plugin eval HTML reports (the JSON summaries live in evals/results/)
+evals/*/results/
