@@ -23,7 +23,8 @@ Done and verified:
 
 1. scroll-hero template: it loads three, GSAP and Lenis from the CDN at runtime and has no poster, both against threewright-web's Step 2 rules, and under reduced motion it cut the camera per section instead of showing the final state (rule 4). Found by the web eval runs of 2026-09-26 (evals/results/action-outcome.md); the runs fixed their own copies, the template is unchanged.
 2. Evals, remaining protocol gaps: action and outcome cases ran once per skill instead of three times, the outcome cases have no no-skill baseline, and the tester read SKILL.md in place of the Skill tool (the plugin was not installed). For a stricter pass: install the plugin (`claude plugin install` from this folder or the marketplace), then rerun `evals/run-triggers.sh` and the tester cases. How the run was built: evals/results/action-outcome.md and the T-20260926-2 entries.
-3. Parked by the owner (2026-09-26, no headset): XR work, i.e. a webxr-starter template and `tw --xr` through IWER 2.5.0 (its `build/iwer.min.js` is a UMD bundle exposing `IWER.XRDevice` and `metaQuest3`, injectable before page scripts). Do not start it unless asked. A phone AR version was also floated and set aside.
+3. tw check false positives on landscapes: "the scene center is outside the camera view" and "the camera is inside the scene bounds" fire whenever far sky objects (a moon at 220 units, stars at 400) inflate the bounds. Seen on the campfire demo (D:/m4bwa/Claude/Projects/Ai/campfire-video, 2026-09-26). Idea: leave out objects with `material.fog === false` or Points beyond the camera far/2 when computing bounds.
+4. Parked by the owner (2026-09-26, no headset): XR work, i.e. a webxr-starter template and `tw --xr` through IWER 2.5.0 (its `build/iwer.min.js` is a UMD bundle exposing `IWER.XRDevice` and `metaQuest3`, injectable before page scripts). Do not start it unless asked. A phone AR version was also floated and set aside.
 
 ## Gotchas
 

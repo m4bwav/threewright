@@ -54,3 +54,8 @@
 
 - Ran every skill's suite: 41 trigger and decoy cases through `claude plugin eval` 2.1.281 ($16.28, all passed with 3/3 runs, triggers 0/3 without the plugin), 20 action and outcome cases through evergreen testers in per-run workspaces (all passed on disk evidence), 10 no-skill action baselines (none produced the evidence; several got there by hand at higher cost).
 - Fixes from the runs: MP4 and WebM colour tags (ffmpeg 9.0.1), Git Bash /c/ paths with a query string, KTX2Loader in product-viewer, a lint rule named in color-management that never existed. Open: the scroll-hero template gaps (HANDOFF item 1).
+
+## 2026-09-26: final test, campfire video
+
+- The owner asked for a night camp by a creek under a full moon with a low crackling fire. Built with the threewright-video flow at D:/m4bwa/Claude/Projects/Ai/campfire-video (outside the repo): a new page on the renderFrame contract, looked at in tw shots between edits, recorded with `tw video --audio`, checked with ffprobe, a frame strip, blackdetect and freezedetect. Owner follow-ups taken mid-build: a real tent (A-frame, seams, rainfly, poles, guy lines, open door, lantern), a less barren ground (relief, grass, ferns, bushes, rocks, stumps, firewood), a bedroll and a backpack.
+- Lessons: a point light placed among the logs throws hard radial shadows that read as a black pillar toward the camera (lift it above the logs, logs cast no shadow); scattered cover needs the camera's line of sight kept clear, or a near fern becomes a dark pillar; tw's bounds warnings misfire on landscapes (HANDOFF item 3).
