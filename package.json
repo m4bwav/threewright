@@ -1,0 +1,17 @@
+{
+  "name": "threewright",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Evergreen three.js skills, knowledge base and a zero-dependency verification CLI for AI agents",
+  "type": "module",
+  "license": "MIT",
+  "bin": { "tw": "scripts/tw.mjs" },
+  "engines": { "node": ">=22" },
+  "scripts": {
+    "test": "node --test tests/",
+    "kb": "node scripts/tw.mjs kb validate --strict && node scripts/tw.mjs kb index"
+  },
+  "devDependencies": {
+    "three": "0.186.1"
+  }
+}

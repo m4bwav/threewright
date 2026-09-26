@@ -21,6 +21,7 @@ Verify a page (file, folder with index.html, or URL); text first, images on requ
   video <page> --out f.mp4|.webm|.gif|.mov --seconds 5 --fps 30   deterministic capture via ffmpeg
       page options: --size 960x540 --dpr 1 --gl auto|gpu|swiftshader --webgpu --wait 1000 --root dir
                     --reduced-motion --timeout 60000 --headed
+                    --cdn local   serve jsdelivr/unpkg imports from node_modules (offline, CI, blocked CDN)
 Static tools (no browser):
   lint <files|dirs>     stale or wrong three.js API use, with the release that changed it
   glb <file.glb|.gltf>  compact model report: meshes, triangles, materials, textures, extensions, size
@@ -42,7 +43,7 @@ function print(obj, asJson, textFn) {
 }
 
 function pageOpts(a) {
-  return { size: a.size, dpr: a.dpr, gl: a.gl, webgpu: !!a.webgpu, root: a.root, headed: !!a.headed, reducedMotion: !!(a.reducedMotion || a['reduced-motion']), timeout: a.timeout ? Number(a.timeout) : undefined };
+  return { cdn: a.cdn, size: a.size, dpr: a.dpr, gl: a.gl, webgpu: !!a.webgpu, root: a.root, headed: !!a.headed, reducedMotion: !!(a.reducedMotion || a['reduced-motion']), timeout: a.timeout ? Number(a.timeout) : undefined };
 }
 
 function formatCheck(r) {
@@ -91,6 +92,10 @@ const commands = {
       const { digestLogs } = await import('./lib/page.mjs');
       const summary = await ctx.page.eval('window.__tw.summary()');
       const logs = digestLogs(ctx.logs);
+      if (ctx.cdn) {
+        for (const u of ctx.cdn.missing) logs.network.push('not in local node_modules: ' + u);
+        for (const m of ctx.cdn.mismatched) logs.warnings.push('--cdn local version mismatch: ' + m);
+      }
       const gl = await glString(ctx.page);
       const ok = !logs.exceptions.length && !logs.errors.length && !logs.network.length && !(summary.errors || []).length && !(summary.warn || []).length;
       const r = { url: ctx.url, ok, gl, summary, logs };

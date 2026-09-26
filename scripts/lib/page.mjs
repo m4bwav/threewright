@@ -2,10 +2,14 @@
 // verify it, as text first (errors, scene summary) and images only on request.
 
 import { existsSync, statSync, writeFileSync, mkdirSync } from 'node:fs';
-import { dirname, relative, resolve, sep } from 'node:path';
+import { dirname, join, relative, resolve, sep } from 'node:path';
 import { launch } from './cdp.mjs';
 import { serve } from './serve.mjs';
 import { injectScript } from './inject.mjs';
+import { enableLocalCdn, moduleDirs } from './cdn.mjs';
+import { fileURLToPath } from 'node:url';
+
+const PLUGIN_ROOT = resolve(dirname(fileURLToPath(import.meta.url)), '..', '..');
 
 export const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
 
@@ -36,7 +40,9 @@ export async function openPage(target, opts = {}) {
   const [width, height] = parseSize(opts.size, [960, 540]);
   const dpr = Number(opts.dpr || 1);
   const { url, server } = await resolveTarget(target, opts.root);
-  const browser = await launch({ width, height, gl: opts.gl || 'auto', webgpu: !!opts.webgpu, headless: !opts.headed });
+  let browser;
+  try { browser = await launch({ width, height, gl: opts.gl || 'auto', webgpu: !!opts.webgpu, headless: !opts.headed }); }
+  catch (e) { if (server) await server.close(); throw e; }
   const page = await browser.newPage();
   const logs = { console: [], exceptions: [], network: [], counts: {} };
   const inflight = new Set();
@@ -79,6 +85,12 @@ export async function openPage(target, opts = {}) {
   await page.send('Page.enable');
   await page.send('Emulation.setDeviceMetricsOverride', { width, height, deviceScaleFactor: dpr, mobile: false });
   if (opts.reducedMotion) await page.send('Emulation.setEmulatedMedia', { features: [{ name: 'prefers-reduced-motion', value: 'reduce' }] });
+  // --cdn local (or TW_CDN=local): answer jsdelivr and unpkg module requests from node_modules.
+  let cdn = null;
+  if ((opts.cdn || process.env.TW_CDN) === 'local') {
+    const start = /^(https?|data|about):/i.test(target) ? process.cwd() : resolve(target);
+    cdn = await enableLocalCdn(page, moduleDirs(start, [join(PLUGIN_ROOT, 'node_modules')]));
+  }
   await page.send('Page.addScriptToEvaluateOnNewDocument', { source: injectScript({ clock: !!opts.clock }) });
 
   const loaded = page.waitFor('Page.loadEventFired', opts.timeout || 60000);
@@ -89,7 +101,7 @@ export async function openPage(target, opts = {}) {
   for (const n of logs.network) if (n.id && urls.has(n.id)) n.url = urls.get(n.id);
 
   const ctx = {
-    browser, page, server, logs, url, width, height, dpr,
+    browser, page, server, logs, url, width, height, dpr, cdn,
     async networkIdle(quietMs = 500, maxMs = 20000) {
       const t0 = Date.now();
       while (Date.now() - t0 < maxMs) {

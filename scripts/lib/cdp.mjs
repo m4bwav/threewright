@@ -2,7 +2,7 @@
 // Node 22+ ships a global WebSocket; older Node is refused with a clear message.
 
 import { spawn } from 'node:child_process';
-import { existsSync, mkdtempSync, readFileSync, rmSync } from 'node:fs';
+import { existsSync, mkdtempSync, readFileSync, readdirSync, rmSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 
@@ -23,6 +23,13 @@ export function findChrome() {
     candidates.push('/Applications/Microsoft Edge.app/Contents/MacOS/Microsoft Edge');
   } else {
     for (const p of ['/usr/bin/google-chrome', '/usr/bin/google-chrome-stable', '/usr/bin/chromium', '/usr/bin/chromium-browser', '/snap/bin/chromium', '/usr/bin/microsoft-edge']) candidates.push(p);
+  }
+  // Playwright's bundled Chromium (common in CI and cloud containers).
+  const pw = process.env.PLAYWRIGHT_BROWSERS_PATH;
+  if (pw && existsSync(pw)) {
+    for (const d of readdirSync(pw).filter((n) => /^chromium-\d+$/.test(n)).sort().reverse()) {
+      candidates.push(join(pw, d, 'chrome-linux', 'chrome'), join(pw, d, 'chrome-win', 'chrome.exe'), join(pw, d, 'chrome-mac', 'Chromium.app/Contents/MacOS/Chromium'));
+    }
   }
   return candidates.find((p) => existsSync(p)) || null;
 }
@@ -52,6 +59,8 @@ export async function launch({ width = 1280, height = 720, gl = 'auto', webgpu =
     '--autoplay-policy=no-user-gesture-required',
     `--window-size=${width},${height}`,
     ...glFlags(gl, webgpu),
+    // Containers and CI often run as root, where Chrome refuses to start sandboxed.
+    ...(process.platform === 'linux' && process.getuid && process.getuid() === 0 ? ['--no-sandbox'] : []),
     ...extraArgs,
     'about:blank',
   ].filter(Boolean);

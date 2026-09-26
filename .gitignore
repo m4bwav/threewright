@@ -4,3 +4,4 @@ node_modules/
 *.gif
 *.webm
 !templates/**/*.png
+package-lock.json
