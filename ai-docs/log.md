@@ -47,3 +47,5 @@
 ## 2026-09-26: releases published
 
 - On the owner's explicit request, created GitHub Releases for v0.1.0 to v0.4.0 with notes from CHANGELOG.md; v0.4.0 is Latest.
+
+- XR (webxr-starter template, tw --xr via IWER) parked on the owner's word: no headset. Nothing was built.

@@ -22,7 +22,7 @@ Done and verified:
 ## Not done (in order)
 
 1. Run each skill's evals from a fresh session after installing the plugin (a plugin installed mid-session is invisible to that session's Skill tool). Fill in the baselines and record the results in TESTS.md and evergreen.json.
-2. The tools research list is done except XR emulation (IWER `--xr quest3`), left for when an XR template exists.
+2. Parked by the owner (2026-09-26, no headset): XR work, i.e. a webxr-starter template and `tw --xr` through IWER 2.5.0 (its `build/iwer.min.js` is a UMD bundle exposing `IWER.XRDevice` and `metaQuest3`, injectable before page scripts). Do not start it unless asked.
 
 ## Gotchas
 
