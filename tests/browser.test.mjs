@@ -84,6 +84,27 @@ test('video --capture canvas gets real frames from a render-on-demand page', { s
   } finally { rmSync(dir, { recursive: true, force: true }); }
 });
 
+test('sheet --sweep draws one tile per value', { skip, timeout: 300000 }, () => {
+  const dir = mkdtempSync(join(tmpdir(), 'tw-sweep-'));
+  try {
+    const r = tw('sheet', join(ROOT, 'tests/fixtures/pages/input'), '--sweep', "find('box').position.x=-1,0,1", '--cols', '3', '--out', join(dir, 's.png'), '--json');
+    assert.equal(r.code, 0, r.err || r.out);
+    assert.equal(r.json.width, 1440);
+    assert.equal(r.json.height, 270);
+  } finally { rmSync(dir, { recursive: true, force: true }); }
+});
+
+test('video steps a page through its advanceTime(ms)', { skip, timeout: 300000 }, () => {
+  const dir = mkdtempSync(join(tmpdir(), 'tw-adv-'));
+  try {
+    const r = tw('video', join(ROOT, 'tests/fixtures/pages/advance-time'), '--frames-dir', dir, '--frames', '3', '--fps', '10', '--size', '320x180', '--json');
+    assert.equal(r.code, 0, r.err || r.out);
+    assert.equal(r.json.driver, 'page advanceTime()');
+    const a = readFileSync(join(dir, 'frame-00000.png')), b = readFileSync(join(dir, 'frame-00002.png'));
+    assert.ok(!a.equals(b), 'frames change as time advances');
+  } finally { rmSync(dir, { recursive: true, force: true }); }
+});
+
 test('--actions sends trusted keys, clicks and wheel; --cycles passes a leak-free hook and flags a leak', { skip, timeout: 300000 }, () => {
   const page = join(ROOT, 'tests/fixtures/pages/input');
   let r = tw('check', page, '--json', '--size', '480x270', '--actions', 'key KeyW 50; click 100,80; wheel 240,135 120', '--eval', '__events', '--cycles', '4');

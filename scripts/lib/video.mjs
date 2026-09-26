@@ -1,6 +1,6 @@
 // Deterministic frame capture and encoding.
 // Time is virtual: each frame advances the page clock by exactly 1/fps seconds,
-// or calls the page's own window.__tw.renderFrame(i, fps) when it defines one.
+// or calls the page's own window.__tw.renderFrame(i, fps) or window.advanceTime(ms) when it defines one.
 
 import { spawn, spawnSync } from 'node:child_process';
 import { mkdirSync, writeFileSync } from 'node:fs';
@@ -38,28 +38,31 @@ export function ffmpegArgs({ fps, out, crf = 18, scale, audio, alpha = false, lo
   return [...input, ...(vf.length ? ['-vf', vf.join(',')] : []), ...codec, ...(audio ? ['-shortest'] : []), out];
 }
 
+// Drivers, first found wins: the page's __tw.renderFrame(i, fps), then the
+// advanceTime(ms) game convention (it steps the simulation and draws), then tw's virtual clock.
 export async function captureFrames(ctx, { frames, fps, mode = 'page', onFrame, start = 0 }) {
   const { page } = ctx;
-  const custom = await page.eval('typeof (window.__tw && window.__tw.renderFrame) === "function"');
+  const driver = await page.eval('typeof (window.__tw && window.__tw.renderFrame) === "function" ? "renderFrame" : typeof window.advanceTime === "function" ? "advanceTime" : "clock"');
   const dt = 1000 / fps;
+  const stepJs = (i) => (driver === 'renderFrame' ? `await window.__tw.renderFrame(${i}, ${fps});`
+    : driver === 'advanceTime' ? `await window.advanceTime(${dt});` : `window.__tw.advance(${dt});`);
   // Frame 0 is the state at t = start; the settle step already ran one frame.
-  if (start > 0 && !custom) await page.eval(`window.__tw.advance(${start * 1000}), true`);
+  if (start > 0 && driver === 'clock') await page.eval(`window.__tw.advance(${start * 1000}), true`);
+  if (start > 0 && driver === 'advanceTime') await page.eval(`Promise.resolve(window.advanceTime(${start * 1000})).then(() => true)`);
   for (let i = 0; i < frames; i++) {
     let png;
     if (mode === 'canvas') {
-      const step = custom ? `await window.__tw.renderFrame(${i}, ${fps});` : `window.__tw.advance(${dt});`;
-      const url = await page.eval(`(async () => { const n = window.__tw.screenRenders; ${step} return window.__tw.capture('image/png', undefined, n); })()`);
+      const url = await page.eval(`(async () => { const n = window.__tw.screenRenders; ${stepJs(i)} return window.__tw.capture('image/png', undefined, n); })()`);
       if (!url) throw new Error('no renderer canvas found for canvas capture; use --capture page');
       png = Buffer.from(url.slice(url.indexOf(',') + 1), 'base64');
     } else {
-      if (custom) await page.eval(`Promise.resolve(window.__tw.renderFrame(${i}, ${fps})).then(() => true)`);
-      else await page.eval(`window.__tw.advance(${dt}), true`);
+      await page.eval(`(async () => { ${stepJs(i)} return true; })()`);
       const { data } = await page.send('Page.captureScreenshot', { format: 'png', captureBeyondViewport: false });
       png = Buffer.from(data, 'base64');
     }
     await onFrame(png, i);
   }
-  return { custom };
+  return { driver };
 }
 
 export async function recordVideo(ctx, { out, frames, fps, mode, crf, scale, audio, alpha, framesDir, start }) {
@@ -90,5 +93,5 @@ export async function recordVideo(ctx, { out, frames, fps, mode, crf, scale, aud
     code = await new Promise((r) => ff.on('close', r));
     if (code !== 0) throw new Error('ffmpeg failed: ' + ffErr.slice(-800));
   }
-  return { out: outAbs, frames, fps, seconds: frames / fps, wallSeconds: (Date.now() - t0) / 1000, driver: res.custom ? 'page renderFrame()' : 'virtual clock' };
+  return { out: outAbs, frames, fps, seconds: frames / fps, wallSeconds: (Date.now() - t0) / 1000, driver: { renderFrame: 'page renderFrame()', advanceTime: 'page advanceTime()', clock: 'virtual clock' }[res.driver] };
 }

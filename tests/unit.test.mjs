@@ -6,7 +6,7 @@ import { tmpdir } from 'node:os';
 import { dirname, join, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
-import { parseArgs, list } from '../scripts/lib/args.mjs';
+import { parseArgs, list, parseSweep } from '../scripts/lib/args.mjs';
 import { imageFit, parseSize, evalWithTarget, digestLogs, resolveTarget } from '../scripts/lib/page.mjs';
 import { cmdSpec, quoteWin } from '../scripts/lib/proc.mjs';
 import vm from 'node:vm';
@@ -293,6 +293,12 @@ test('shaders: error lines get their source context, grouped by line', () => {
   assert.deepEqual(ctx, ["line 4: 'x' : undeclared identifier; 'constructor' : not enough data", '     3 | c', '>    4 | d', '     5 | e']);
   const text = formatShaders({ backend: 'webgl', programs: [{ id: 1, type: 'ShaderMaterial', name: 'glow', usedTimes: 1, materials: [], linked: false, programLog: 'Fragment shader is not compiled.', vertex: { log: '', source: 'v' }, fragment: { log: '', source: 'f' } }] });
   assert.ok(text.includes('1 FAILED') && text.includes('program: Fragment shader is not compiled.'), text);
+});
+
+test('args: --sweep splits on the last lone =, keeping == and !=', () => {
+  assert.deepEqual(parseSweep("find('knot').material.roughness=0, 0.5 ,1"), { lhs: "find('knot').material.roughness", values: ['0', '0.5', '1'] });
+  assert.deepEqual(parseSweep("scene.children.find((o) => o.name == 'a').visible=true,false"), { lhs: "scene.children.find((o) => o.name == 'a').visible", values: ['true', 'false'] });
+  assert.throws(() => parseSweep('roughness'), /--sweep needs/);
 });
 
 test('actions: parse the input burst language and map keys for CDP', () => {

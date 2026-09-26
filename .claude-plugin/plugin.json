@@ -1,6 +1,6 @@
 {
   "name": "threewright",
-  "version": "0.3.0",
+  "version": "0.4.0",
   "description": "Evergreen three.js skills for AI agents: current r186 APIs (WebGL, WebGPU, TSL), a knowledge base of topics, scenarios, libraries, recipes and rules with release ranges so stale advice stays labelled legacy, verified starters (single-file, WebGPU, Vite, React Three Fiber, 3D chart, video turntable, Rapier game), and a zero-dependency Node CLI that checks pages headlessly as text first (errors, scene numbers, pixel evidence), lints stale APIs against the installed release, reports glTF models, and records frame-exact video.",
   "author": { "name": "Mark Rogers" },
   "license": "MIT",

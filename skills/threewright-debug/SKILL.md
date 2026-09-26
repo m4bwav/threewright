@@ -26,7 +26,7 @@ Read `evergreen.json` next to this file. If `verify_at_use` is true, re-check th
 - A shader that does not compile: `TW shaders <page>` (each WebGL program, its materials, and the failing line with source context; `--dump dir` writes the sources).
 - A leak: `TW check <page> --cycles 5 --cycle "<js that builds and removes one thing>"` fails when geometries, textures or programs grow every cycle.
 - A bug that needs input first: `TW check <page> --actions "click 480,270; key KeyW 500"` (also on shot, sheet and video).
-- Visual only when text cannot answer: `TW shot <page> --size 640x360`, or `TW sheet <page>` for framing and hidden geometry. Add `--labels` to tag objects by name. `TW check <page> --shot a.png --tree` gets several outputs from one launch.
+- Visual only when text cannot answer: `TW shot <page> --size 640x360`, or `TW sheet <page>` for framing and hidden geometry. Add `--labels` to tag objects by name; `TW sheet <page> --sweep "<expr>=a,b,c"` compares values of one setting side by side. `TW check <page> --shot a.png --tree` gets several outputs from one launch.
 
 ## Step 3: fix and prove
 

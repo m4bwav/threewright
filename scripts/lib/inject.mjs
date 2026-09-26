@@ -63,7 +63,9 @@ function pageMain(cfg) {
     };
   }
 
-  const hook = new EventTarget();
+  // Share the three.js DevTools hook when an extension already installed one; otherwise make it.
+  const existing = window.__THREE_DEVTOOLS__;
+  const hook = existing && typeof existing.addEventListener === 'function' ? existing : new EventTarget();
   hook.addEventListener('observe', (e) => {
     const o = e.detail;
     if (!o) return;
@@ -73,7 +75,7 @@ function pageMain(cfg) {
     else if (typeof o.load === 'function') T.loaders++;
   });
   hook.addEventListener('register', () => {});
-  window.__THREE_DEVTOOLS__ = hook;
+  if (hook !== existing) window.__THREE_DEVTOOLS__ = hook;
 
   // Keep each shader's source for tw shaders: three deletes shaders right after linking,
   // and a deleted shader can no longer be read back.
@@ -495,7 +497,9 @@ function pageMain(cfg) {
   T.sheet = (opts = {}) => {
     const { scene, camera, renderer } = target();
     if (!scene || !camera || !renderer) return null;
-    const views = opts.views || ['current', 'front', 'right', 'top'];
+    // opts.steps (sheet --sweep): [{ label, set }], one tile each from the current view.
+    const steps = opts.steps;
+    const views = steps ? steps.map((st) => st.label) : opts.views || ['current', 'front', 'right', 'top'];
     T.sheetLabels = [];
     const tileW = opts.tileW || 480, tileH = opts.tileH || 270;
     const cols = Math.min(views.length, opts.cols || 2), rows = Math.ceil(views.length / cols);
@@ -510,7 +514,8 @@ function pageMain(cfg) {
     const dist = camera.isPerspectiveCamera ? (size / 2) / Math.tan((camera.fov * Math.PI) / 360) * 1.15 : camera.position.distanceTo(center);
     const dirs = { front: [0, 0, 1], back: [0, 0, -1], right: [1, 0, 0], left: [-1, 0, 0], top: [0, 1, 0.0001], bottom: [0, -1, 0.0001], iso: [1, 0.8, 1] };
     views.forEach((v, idx) => {
-      if (v !== 'current') {
+      if (steps) steps[idx].set();
+      else if (v !== 'current') {
         const d = dirs[v] || dirs.iso;
         const len = Math.hypot(d[0], d[1], d[2]);
         camera.position.set(center.x + (d[0] / len) * dist, center.y + (d[1] / len) * dist, center.z + (d[2] / len) * dist);
@@ -529,8 +534,9 @@ function pageMain(cfg) {
         drawTags(ctx, tags, x + (tileW - w) / 2, y + (tileH - h) / 2, w, h);
         T.sheetLabels.push(`${v}: ${tags.map((t) => t.text).join(', ') || '(none)'}`);
       }
-      ctx.fillStyle = 'rgba(0,0,0,.6)'; ctx.fillRect(x, y, 70, 18);
-      ctx.fillStyle = '#fff'; ctx.font = '12px sans-serif'; ctx.fillText(v, x + 5, y + 13);
+      ctx.font = '12px sans-serif';
+      ctx.fillStyle = 'rgba(0,0,0,.6)'; ctx.fillRect(x, y, Math.max(70, ctx.measureText(v).width + 10), 18);
+      ctx.fillStyle = '#fff'; ctx.fillText(v, x + 5, y + 13);
       camera.position.copy(saved.pos); camera.quaternion.copy(saved.quat); camera.up.copy(saved.up);
     });
     camera.updateMatrixWorld(true);

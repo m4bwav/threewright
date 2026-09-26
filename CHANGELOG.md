@@ -2,6 +2,14 @@
 
 Plugin versions. Skill-level changes are in each `skills/*/CHANGELOG.md`; the session record is `ai-docs/log.md`.
 
+## 0.4.0 · 2026-09-26
+
+The last items of the tools research list, and the KTX2 texture steps checked with KTX-Software installed.
+- `tw sheet --sweep "<expr>=a,b,c"` (also `check --sheet f --sweep ...`): one tile per value from the current view, labelled, with the old value put back afterwards.
+- `tw video` steps a page through `window.advanceTime(ms)` when it defines one and no `__tw.renderFrame`; the driver prints as `page advanceTime()`.
+- tw shares an existing `__THREE_DEVTOOLS__` hook (the three.js DevTools extension) instead of replacing it.
+- KTX-Software 4.4.2 installed on the Windows test machine; `gltf-transform etc1s` and `uastc` ran against a generated textured model and `validate` found no errors.
+
 ## 0.3.0 · 2026-09-26
 
 tw learns to drive a page and to find leaks and shader errors; six tw bugs from the 0.2.0 handoff are fixed.

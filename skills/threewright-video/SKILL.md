@@ -20,7 +20,7 @@ Settle before rendering: destination (README, social, editor, web embed), aspect
 ## Step 2: make the page capturable
 
 - Motion must come from time, never from a per-frame constant; tw replaces the page clock, so `THREE.Timer` and `setAnimationLoop` are captured exactly.
-- For exact control (turntables, camera paths, loops), define `window.__tw.renderFrame(i, fps)`, `__tw.duration` and `__tw.fps`; a loop ends one step short of 360 degrees. Start from `TW new video-turntable <dir>` when it fits.
+- For exact control (turntables, camera paths, loops), define `window.__tw.renderFrame(i, fps)`, `__tw.duration` and `__tw.fps` (a game that already has `window.advanceTime(ms)` is stepped through it instead); a loop ends one step short of 360 degrees. Start from `TW new video-turntable <dir>` when it fits.
 - Expose `window.__tw.ready` when assets load asynchronously. Avoid temporal effects that ghost in stepped capture (TAA) unless the page steps them itself.
 - Alpha needs `alpha: true`, a transparent clear colour, no `scene.background` and no CSS background.
 
@@ -34,7 +34,7 @@ Run the three checks in `capture-stills-and-video` `## Verify`: ffprobe (codec, 
 
 ## Step 5: report
 
-One to three lines: file path, codec, size in pixels and MB, duration and frame count, the driver (`virtual clock` or `page renderFrame()`), and the check results.
+One to three lines: file path, codec, size in pixels and MB, duration and frame count, the driver (`virtual clock`, `page renderFrame()` or `page advanceTime()`), and the check results.
 
 ## While working: capture learnings
 

@@ -2013,7 +2013,7 @@
     "Verify",
     "Notes"
    ],
-   "bytes": 5201
+   "bytes": 5393
   },
   {
    "slug": "css2d-labels",
@@ -2275,7 +2275,7 @@
     "Verify",
     "Notes"
    ],
-   "bytes": 6262
+   "bytes": 6626
   },
   {
    "slug": "raycast-hover-and-click",

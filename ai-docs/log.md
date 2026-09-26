@@ -37,3 +37,9 @@
 - Built the rest of the tools research list: `--actions`, `check --cycles`, `tw shaders`, `--labels`, several outputs per check launch, `render_game_to_text()` (added to game-starter, which was re-verified).
 - Updated the debug, games, docs and assets skills, four recipes (resize-and-pixel-ratio, dispose-a-scene, raycast-hover-and-click, optimize-gltf) plus a note on capture-stills-and-video, the README and CLI help.
 - `npm test`: 54/54. Version 0.3.0.
+
+## 2026-09-26: fifth session, second part (v0.4.0)
+
+- Installed KTX-Software 4.4.2 per user from the signed GitHub release (`/S /D=%LOCALAPPDATA%\Programs\KTX-Software`, no admin; bin added to the user PATH). gltf-transform 4.5.0 `etc1s` and `uastc` ran against a generated textured quad; `validate` clean.
+- Built the remaining tools-research items: `sheet --sweep`, the `advanceTime(ms)` video driver, and sharing an existing `__THREE_DEVTOOLS__` hook. XR emulation stays open.
+- `npm test`: 57/57. Version 0.4.0.

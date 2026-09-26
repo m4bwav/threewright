@@ -4,6 +4,11 @@ Every change to [SKILL.md](SKILL.md) and its companions, newest first, each with
 
 Entry shape: `### C-YYYYMMDD-n · date · one-line summary`, then `because:` (IDs or "user request"), `files:` (file and section), and a sentence on what changed. Cite section headings, not line numbers.
 
+### C-20260926-3 · 2026-09-26 · sheet --sweep in Step 2
+- because: ai-docs/research/2026-09-26-mcp-and-ai-tools.md (tw features to add, item 6)
+- files: SKILL.md (Step 2)
+- Names `sheet --sweep` for comparing values of one setting.
+
 ### C-20260926-2 · 2026-09-26 · New tw tools in Step 2
 - because: ai-docs/research/2026-09-26-mcp-and-ai-tools.md (tw features to add, items 4, 5, 7, 8, 9)
 - files: SKILL.md (Step 2)

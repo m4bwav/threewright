@@ -1,18 +1,19 @@
 # HANDOFF
 
-Updated 2026-09-26 (fifth session). Read this first, then `ai-docs/log.md`, then `ai-docs/research/`.
+Updated 2026-09-26 (fifth session, second part). Read this first, then `ai-docs/log.md`, then `ai-docs/research/`.
 
 ## Goal (from the owner)
 
 An expansive evergreen three.js plugin: skills plus a knowledge base plus token-saving scripts and tests, for everything from 3D charts in docs to videos to games. Research and use the latest, most popular three.js AI skills, tools and docs. Teach the latest three.js (r186, 0.186.1, 2026-09-24) and where it is heading (WebGPU, TSL); stale material is only for old versions. Public repo m4bwav/threewright. Follow the chartwright plugin layout (m4bwav/chartwright) and the evergreen protocol (m4bwav/evergreen-protocol). No AI attribution anywhere.
 
-## State (2026-09-26, after the fifth session; v0.3.0)
+## State (2026-09-26, after the fifth session; v0.4.0)
 
-Everything is on `main`, with no side branches. Tags `v0.1.0`, `v0.2.0` and `v0.3.0` are pushed. No GitHub Release exists yet for any of them.
+Everything is on `main`, with no side branches. Tags `v0.1.0` to `v0.4.0` are pushed. No GitHub Release exists yet for any of them.
 
 Done and verified:
-- CLI: see README and `node scripts/tw.mjs --help`. `npm test` passes 54/54 on Windows 11 with Chrome 153 and an RTX 5060 Ti. Browser tests build vite-ts, r3f and game-starter when their `node_modules` exists (`npm ci` in the template folder).
-- New in 0.3.0: `--actions` input bursts, `check --cycles` leak checks, `tw shaders`, `--labels`, `check --shot/--sheet/--tree`, `render_game_to_text()` output, `--color-scheme`, query strings on local paths, and six bug fixes (CHANGELOG.md).
+- CLI: see README and `node scripts/tw.mjs --help`. `npm test` passes 57/57 on Windows 11 with Chrome 153 and an RTX 5060 Ti. Browser tests build vite-ts, r3f and game-starter when their `node_modules` exists (`npm ci` in the template folder).
+- New in 0.3.0: `--actions` input bursts, `check --cycles` leak checks, `tw shaders`, `--labels`, `check --shot/--sheet/--tree`, `render_game_to_text()` output, `--color-scheme`, query strings on local paths, and six bug fixes (CHANGELOG.md). New in 0.4.0: `sheet --sweep`, the `advanceTime(ms)` video driver, sharing an existing `__THREE_DEVTOOLS__` hook.
+- KTX-Software 4.4.2 is installed on this machine (per user, `%LOCALAPPDATA%\Programs\KTX-Software\bin` on the user PATH), and the etc1s and uastc steps were checked with it.
 - Knowledge base: 89 entries, `tw kb validate --strict` clean, index generated. All 20 recipes have been executed.
 - WebGPU verified on a real GPU: html-webgpu, splats, bloom-webgpu, tsl-custom-material, webgpu-backend-check.
 - Templates (12, all verified): html-importmap, html-webgpu, vite-ts, r3f, chart-3d-scatter, video-turntable, game-starter, surface, globe, product-viewer, scroll-hero, splats. The light palettes of surface and globe are now shot too.
@@ -20,10 +21,9 @@ Done and verified:
 
 ## Not done (in order)
 
-1. Publish GitHub Releases for `v0.1.0`, `v0.2.0` and `v0.3.0`. The agent's auto-mode classifier blocked `gh release create` again this session ("Create Public Surface"), so the owner runs it or allows it. Notes are the matching CHANGELOG.md sections, e.g. `sed -n '/^## 0.3.0/,/^## 0.2.0/p' CHANGELOG.md | sed '1d;$d' > n.md && gh release create v0.3.0 --title "threewright 0.3.0" --latest --notes-file n.md`.
+1. Publish GitHub Releases for `v0.1.0` to `v0.4.0`. The agent's auto-mode classifier blocked `gh release create` again this session ("Create Public Surface"), so the owner runs it or allows it. Notes are the matching CHANGELOG.md sections, e.g. `sed -n '/^## 0.3.0/,/^## 0.2.0/p' CHANGELOG.md | sed '1d;$d' > n.md && gh release create v0.3.0 --title "threewright 0.3.0" --latest --notes-file n.md` (the `--latest` one is the newest tag, v0.4.0).
 2. Run each skill's evals from a fresh session after installing the plugin (a plugin installed mid-session is invisible to that session's Skill tool). Fill in the baselines and record the results in TESTS.md and evergreen.json.
-3. tw ideas still open from `ai-docs/research/2026-09-26-mcp-and-ai-tools.md` ("tw features to add"): `sheet --sweep "<expr>=a,b,c"` (one tile per value), stepping with a page's `advanceTime(ms)`, hook interop when `__THREE_DEVTOOLS__` already exists, and XR emulation later (IWER). Items 1 to 9 of that list are otherwise done.
-4. KTX-Software (`ktx` 4.4.2) is still not installed on this machine; threewright-assets now tells users it is needed for the etc1s and uastc steps.
+3. The tools research list is done except XR emulation (IWER `--xr quest3`), left for when an XR template exists.
 
 ## Gotchas
 

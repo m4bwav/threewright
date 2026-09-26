@@ -23,3 +23,10 @@ export function list(v) {
   if (v === undefined || v === true) return [];
   return [].concat(v).flatMap((s) => String(s).split(',')).map((s) => s.trim()).filter(Boolean);
 }
+
+// "expr=a,b,c" -> { lhs: 'expr', values: ['a', 'b', 'c'] }; the last lone = splits (== and != are kept).
+export function parseSweep(src) {
+  const m = src.match(/^(.*[^=!<>])=(?!=)(.+)$/);
+  if (!m || !m[1].trim()) throw new Error(`--sweep needs "<expression>=<v1>,<v2>,...", e.g. "find('knot').material.roughness=0,0.5,1"`);
+  return { lhs: m[1].trim(), values: m[2].split(',').map((v) => v.trim()).filter(Boolean) };
+}

@@ -33,10 +33,12 @@ Verify a page (file, folder with index.html, or URL); text first, images on requ
   shot <page> --out f.png [--canvas] [--alpha]   one screenshot; prints its token cost
                         (shot and sheet take --eval "<js>" to set a state first, e.g. scrollTo(0, 2000))
   sheet <page> --out f.png [--views current,front,right,top]   several angles in one image
+  sheet <page> --sweep "find('knot').material.roughness=0,0.5,1"   one tile per value, current view
                         (shot and sheet take --labels: name tags on objects, legend printed as text)
   video <page> --out f.mp4|.webm|.gif|.mov --seconds 5 --fps 30 [--alpha] [--frames-dir d]
                         deterministic capture via ffmpeg (alpha: .webm or .mov, page cleared transparent;
-                        --capture canvas reads the canvas alone, without HTML overlays)
+                        --capture canvas reads the canvas alone, without HTML overlays; a page's
+                        __tw.renderFrame(i, fps) or advanceTime(ms) drives the frames when defined)
   --actions "key KeyW 500; click 480,270; drag 100,100 300,120; wheel 480,270 -120; type hi; wait 500"
                         input sent before check, shot, sheet or video measures or captures
       page options: --size 960x540 --dpr 1 --gl auto|gpu|swiftshader --webgpu --wait 1000 --root dir
@@ -218,10 +220,22 @@ async function takeShot(ctx, a, out) {
 }
 
 async function takeSheet(ctx, a, out) {
-  const views = list(a.views);
   const [tw, th] = (a.tile || '480x270').split('x').map(Number);
-  const { writeDataUrl, imageFit } = await import('./lib/page.mjs');
-  const url = await ctx.page.eval(`window.__tw.sheet(${JSON.stringify({ views: views.length ? views : undefined, tileW: tw, tileH: th, cols: a.cols ? Number(a.cols) : undefined, labels: !!a.labels })})`);
+  const { writeDataUrl, imageFit, evalWithTarget } = await import('./lib/page.mjs');
+  const { parseSweep } = await import('./lib/args.mjs');
+  const opts = JSON.stringify({ tileW: tw, tileH: th, cols: a.cols ? Number(a.cols) : undefined, labels: !!a.labels });
+  let views = list(a.views), url;
+  if (a.sweep) {
+    // --sweep "find('knot').material.roughness=0,0.5,1": one tile per value, then the old value back.
+    const { lhs, values } = parseSweep(String(a.sweep));
+    views = values;
+    const set = (v) => `() => ${evalWithTarget(`${lhs} = ${v}`)}`;
+    const before = await ctx.page.eval(`(() => { const v = ${evalWithTarget(lhs)}; return v === null || ['number', 'string', 'boolean'].includes(typeof v) ? JSON.stringify(v) : null; })()`);
+    url = await ctx.page.eval(`window.__tw.sheet({ ...${opts}, steps: [${values.map((v) => `{ label: ${JSON.stringify(`${lhs.split('.').pop()}=${v}`)}, set: ${set(v)} }`).join(', ')}] })`);
+    if (before !== null) await ctx.page.eval(`(${set(before)})(), true`);
+  } else {
+    url = await ctx.page.eval(`window.__tw.sheet({ ...${opts}, views: ${JSON.stringify(views.length ? views : undefined)} })`);
+  }
   if (!url) throw new Error('no scene, camera or renderer observed; run tw check');
   writeDataUrl(url, out);
   const labels = a.labels ? await ctx.page.eval('window.__tw.sheetLabels') : undefined;
