@@ -10,6 +10,7 @@ Plugin versions. Skill-level changes are in each `skills/*/CHANGELOG.md`; the se
 - `tw check` bounds for `GaussianSplat` use the splat cloud, not its quad geometry.
 - npm is spawned without the Node 24 DEP0190 warning on Windows (`scripts/lib/proc.mjs`).
 - Browser tests build vite-ts, r3f and game-starter and check their `dist` when the template's `node_modules` exists.
+- `tw kb validate` warns on an em dash outside code fences (house style); `--strict` fails on it.
 - New template: splats (r186 native `GaussianSplat`, generated sample scene), verified on WebGPU and on the WebGL 2 fallback.
 - WebGPU verified on the real backend (Windows, Chrome 153, RTX 5060 Ti): the html-webgpu template and the bloom-webgpu, tsl-custom-material and webgpu-backend-check recipes.
 - bloom-webgpu: lower emissive and bloom strength and add a directional light; the old values blew the whole frame out on both backends.

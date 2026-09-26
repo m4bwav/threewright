@@ -15,7 +15,7 @@ import { safeJoin, contentType } from '../scripts/lib/serve.mjs';
 import { parseCdnUrl, untar, findInstalled, packageFile } from '../scripts/lib/cdn.mjs';
 import { compileRule, lintText, loadRules, stripComments, markdownCode, releaseIn, scanDeprecations, coveredBy, lintPaths } from '../scripts/lib/lint.mjs';
 import { imageSize, parseGlb, loadModel, report } from '../scripts/lib/glb.mjs';
-import { parseFrontmatter, parseRange, sections, tokens } from '../scripts/lib/kb.mjs';
+import { parseFrontmatter, parseRange, sections, tokens, emDashLine } from '../scripts/lib/kb.mjs';
 import { compareVersions } from '../scripts/lib/versions.mjs';
 import { glFlags, sandboxFlags } from '../scripts/lib/cdp.mjs';
 
@@ -295,4 +295,10 @@ test('digest: favicon 404 is noise, three deprecation warnings are singled out',
   assert.deepEqual(d.network, ['404 http://127.0.0.1:5173/model.glb']);
   assert.equal(d.deprecations.length, 1);
   assert.equal(d.warnings.length, 2);
+});
+
+test('kb: em dashes are found in prose, not in code fences', () => {
+  const d = String.fromCharCode(0x2014);
+  assert.equal(emDashLine(`# T\n\nplain line\n`), 0);
+  assert.equal(emDashLine(`# T\n\`\`\`js\n// a ${d} b\n\`\`\`\nprose ${d} here\n`), 5);
 });

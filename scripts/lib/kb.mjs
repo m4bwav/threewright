@@ -101,6 +101,17 @@ export function readEntries(ROOT) {
 
 const arr = (v) => (Array.isArray(v) ? v : v ? [v] : []);
 
+// First line (1-based) with an em dash outside code fences, or 0.
+export function emDashLine(text) {
+  let fence = false;
+  const lines = text.split('\n');
+  for (let i = 0; i < lines.length; i++) {
+    if (/^\s*(```|~~~)/.test(lines[i])) { fence = !fence; continue; }
+    if (!fence && lines[i].includes('—')) return i + 1;
+  }
+  return 0;
+}
+
 export function validate(ROOT, { today = new Date().toISOString().slice(0, 10) } = {}) {
   const entries = readEntries(ROOT);
   const errors = [], warnings = [];
@@ -127,6 +138,8 @@ export function validate(ROOT, { today = new Date().toISOString().slice(0, 10) }
     if (f.template && !templates.includes(f.template)) E(e, `template ${f.template} is not in templates/`);
     if (f.status === 'legacy' && !f.superseded_by) W(e, 'legacy entries should name superseded_by');
     for (const s of SECTIONS[e.kind] || []) if (!(s in e.secs)) E(e, `missing section "## ${s}"`);
+    // House style: no em dashes (AGENTS.md). Code fences are exempt.
+    { const dash = emDashLine(e.text); if (dash) W(e, `line ${dash}: em dash; use a comma, colon, parentheses or a new sentence`); }
     if (f.slug) { if (slugs.has(f.slug)) E(e, `duplicate slug (also ${slugs.get(f.slug)})`); slugs.set(f.slug, e.rel); }
     // Relative links must resolve.
     const linkRe = /\]\((?!https?:|mailto:|#)([^)#\s]+)(?:#[^)]*)?\)/g;
