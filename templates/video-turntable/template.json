@@ -1,0 +1,12 @@
+{
+  "name": "video-turntable",
+  "summary": "Product turntable for video: procedural studio model, neutral tone mapping, soft shadows, window.__tw.renderFrame(i, fps) so tw video captures exact frames and a seamless loop",
+  "renderer": "webgl",
+  "three": "0.186.1",
+  "entry": "index.html",
+  "use_for": ["turntable MP4, WebM or GIF for docs, READMEs and social", "a still hero image", "the base for a GLB turntable (swap the procedural model for GLTFLoader)"],
+  "next": ["node <threewright>/scripts/tw.mjs video <dir> --out turn.mp4 --seconds 3 --fps 30"],
+  "verified": [
+    { "date": "2026-09-26", "platform": "Linux container, Chromium 141, SwiftShader", "checks": "tw check OK, tw check --reduced-motion OK, tw lint clean, tw shot looked at, tw video mp4 through page renderFrame()" }
+  ]
+}

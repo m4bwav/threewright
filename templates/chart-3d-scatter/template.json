@@ -1,0 +1,12 @@
+{
+  "name": "chart-3d-scatter",
+  "summary": "3D scatter chart for docs: seeded data, axes with ticks and labels, legend with shape and colour per series, pause and reset buttons, reduced-motion aware, no build",
+  "renderer": "webgl",
+  "three": "0.186.1",
+  "entry": "index.html",
+  "use_for": ["a 3D scatter when the data really has three quantitative dimensions", "the base for surface and point-cloud charts"],
+  "next": ["replace the generated data with yours", "node <threewright>/scripts/tw.mjs check <dir>", "for a static document, export a still or turntable with tw shot or tw video"],
+  "verified": [
+    { "date": "2026-09-26", "platform": "Linux container, Chromium 141, SwiftShader", "checks": "tw check OK, tw check --reduced-motion OK, tw lint clean, tw shot looked at (axes, labels, four series, legend)" }
+  ]
+}
