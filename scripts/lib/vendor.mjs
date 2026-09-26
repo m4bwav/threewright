@@ -5,8 +5,11 @@
 // Only files the page reaches are copied: the page's module scripts are scanned
 // for import specifiers, each is resolved through the import map, and every
 // vendored file is scanned again for its own imports (relative ones inside the
-// package, bare ones through the import map). The bytes come from node_modules
-// with the exact version, the tw cache, or `npm pack` (never the CDN itself).
+// package, bare ones through the import map). Files a vendored module fetches
+// by `new URL('<relative>', import.meta.url)` come along too: that is how the
+// r185+ DRACOLoader and KTX2Loader find their WASM decoders next to themselves.
+// The bytes come from node_modules with the exact version, the tw cache, or
+// `npm pack` (never the CDN itself).
 
 import { copyFileSync, existsSync, mkdirSync, readdirSync, readFileSync, statSync, writeFileSync } from 'node:fs';
 import { dirname, join, relative, resolve, sep } from 'node:path';
@@ -23,6 +26,12 @@ export function importSpecifiers(src) {
   const dyn = /\bimport\s*\(\s*(['"])([^'"\n]+)\1\s*\)/g;
   for (const re of [stat, dyn]) for (const m of src.matchAll(re)) out.add(m[2]);
   return [...out];
+}
+
+// Relative asset URLs a module resolves against itself: new URL('../x.wasm', import.meta.url).
+export function metaUrlAssets(src) {
+  const re = /\bnew\s+URL\s*\(\s*(['"])(\.\.?\/[^'"\n]+)\1\s*,\s*import\.meta\.url\s*\)/g;
+  return [...new Set([...src.matchAll(re)].map((m) => m[2]))];
 }
 
 // Import map resolution for bare specifiers: exact key first, then the longest
@@ -100,10 +109,10 @@ export async function vendorPage(file, { roots = [], offline = false, dryRun = f
   const queue = [];
   const seen = new Set();
   const dirs = new Map();
-  const enqueue = (url, from) => {
+  const enqueue = (url, from, asset = false) => {
     const ref = parseCdnUrl(url);
     if (!ref) { r.warnings.push(`${from}: ${url} is not a pinned jsDelivr or unpkg URL; left as is`); return; }
-    if (!seen.has(url)) { seen.add(url); queue.push({ url, ref, from }); }
+    if (!seen.has(url)) { seen.add(url); queue.push({ url, ref, from, asset }); }
   };
   for (const s of seeds) {
     const url = isBare(s) ? resolveBare(s, imports) : s;
@@ -111,7 +120,7 @@ export async function vendorPage(file, { roots = [], offline = false, dryRun = f
     if (parseCdnUrl(url)) enqueue(url, 'page');
   }
   while (queue.length) {
-    const { url, ref: raw, from } = queue.shift();
+    const { url, ref: raw, from, asset } = queue.shift();
     const key = raw.name + '@' + raw.version;
     if (!dirs.has(key)) dirs.set(key, await packageDir(raw, roots, offline));
     const dir = dirs.get(key);
@@ -124,9 +133,11 @@ export async function vendorPage(file, { roots = [], offline = false, dryRun = f
     r.files.push({ file: relative(base, dest).split(sep).join('/'), bytes: size });
     r.bytes += size;
     if (!dryRun) { mkdirSync(dirname(dest), { recursive: true }); copyFileSync(src, dest); }
-    if (!/\.m?js$/i.test(ref.path)) continue;
+    if (asset || !/\.m?js$/i.test(ref.path)) continue; // decoder scripts are fetched, not imported
     const fileUrl = `https://cdn.jsdelivr.net/npm/${ref.name}@${ref.version}/${ref.path}`;
-    for (const s of importSpecifiers(readFileSync(src, 'utf8'))) {
+    const code = readFileSync(src, 'utf8');
+    for (const s of metaUrlAssets(stripComments(code))) enqueue(new URL(s, fileUrl).href, ref.path, true);
+    for (const s of importSpecifiers(code)) {
       if (/^\.\.?\//.test(s)) enqueue(new URL(s, fileUrl).href, ref.path);
       else if (isBare(s)) {
         const u = resolveBare(s, imports);

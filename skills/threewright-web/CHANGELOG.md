@@ -4,6 +4,11 @@ Every change to [SKILL.md](SKILL.md) and its companions, newest first, each with
 
 Entry shape: `### C-YYYYMMDD-n · date · one-line summary`, then `because:` (IDs or "user request"), `files:` (file and section), and a sentence on what changed. Cite section headings, not line numbers.
 
+### C-20260926-4 · 2026-09-26 · product-viewer vendors on `tw new`; rule 5 names decoders
+- because: ai-docs/HANDOFF.md (Not done, item 2)
+- files: SKILL.md (rule 5); templates/product-viewer; scripts/lib/vendor.mjs
+- `tw vendor` now also copies the files a vendored module fetches by `new URL('<relative>', import.meta.url)`, which is how r186's DRACOLoader and KTX2Loader find their decoders. product-viewer dropped its CDN `setTranscoderPath` and is marked `"vendor": true`, so a site made from it ships with no CDN requests.
+
 ### C-20260926-3 · 2026-09-26 · scroll-hero meets Step 2; `tw vendor` named in rule 5
 - because: T-20260926-2 (the action and outcome runs found runtime CDN libraries, no poster, and per-section cuts under reduced motion)
 - files: SKILL.md (Step 2, rule 5); templates/scroll-hero

@@ -38,7 +38,7 @@ Each one passes `tw check`; `node scripts/tw.mjs templates` lists where and how 
 | `game-starter` | Vite, TypeScript, Rapier; deterministic simulation with Node tests and `window.__game` hooks |
 | `surface` | 3D surface chart for documents: colour map, contours, axes, hover readout |
 | `globe` | Globe with great-circle routes, city labels that hide on the far side, no map downloads |
-| `product-viewer` | GLB viewer: environment light, soft shadow, fit to model, colour variants, loading and error states |
+| `product-viewer` | GLB viewer: environment light, soft shadow, fit to model, colour variants, loading and error states; `tw new` vendors three and the Draco and KTX2 decoders |
 | `scroll-hero` | Scroll-driven hero with GSAP ScrollTrigger and Lenis, poster first; reduced motion holds the final view; `tw new` vendors its libraries |
 | `splats` | Gaussian splat viewer on r186 `GaussianSplat` (WebGPU, WebGL 2 fallback) |
 
@@ -61,7 +61,7 @@ node scripts/tw.mjs lint src/                # stale APIs, with the release that
 node scripts/tw.mjs glb model.glb            # size, triangles, textures, decoders needed
 node scripts/tw.mjs kb search "bloom webgpu" # then: kb show <slug> --section <name>
 node scripts/tw.mjs new game-starter my-game
-node scripts/tw.mjs vendor site/              # copy the pinned CDN modules the page imports into vendor/, rewrite the import map
+node scripts/tw.mjs vendor site/              # copy the pinned CDN modules the page imports (and the decoder files they fetch) into vendor/, rewrite the import map
 node scripts/tw.mjs shot page/ --out poster.jpg   # .jpg or .webp for a poster image
 node scripts/tw.mjs deprecations             # @deprecated markers in the installed three no rule covers
 node scripts/tw.mjs versions --check         # npm versions vs the knowledge base

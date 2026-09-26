@@ -11,10 +11,10 @@ export const LOADER_EXTENSIONS = new Set(['KHR_binary_glTF', 'KHR_draco_mesh_com
 
 // What the page must set up for an extension, when anything.
 export const NEEDS = {
-  KHR_draco_mesh_compression: 'DRACOLoader: loader.setDRACOLoader(new DRACOLoader().setDecoderPath(...))',
+  KHR_draco_mesh_compression: 'DRACOLoader: loader.setDRACOLoader(new DRACOLoader()) (r185+ finds its decoder next to the module; setDecoderPath only when that folder is not served)',
   EXT_meshopt_compression: 'MeshoptDecoder: loader.setMeshoptDecoder(MeshoptDecoder) from three/addons/libs/meshopt_decoder.module.js',
   KHR_meshopt_compression: 'MeshoptDecoder: loader.setMeshoptDecoder(MeshoptDecoder) from three/addons/libs/meshopt_decoder.module.js',
-  KHR_texture_basisu: 'KTX2Loader: loader.setKTX2Loader(new KTX2Loader().setTranscoderPath(...).detectSupport(renderer))',
+  KHR_texture_basisu: 'KTX2Loader: loader.setKTX2Loader(new KTX2Loader().detectSupport(renderer)) (the transcoder loads from next to the module; setTranscoderPath only when that folder is not served)',
   KHR_gaussian_splatting: 'the r186 splat plugin: GLTFGaussianSplatLoaderExtension from three/addons/loaders/ (WebGPURenderer)',
   KHR_materials_variants: 'your own variant switching (see the three.js webgl_loader_gltf_variants example)',
 };

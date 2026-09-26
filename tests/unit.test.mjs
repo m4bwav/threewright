@@ -1,7 +1,7 @@
 // Unit tests for the tw CLI modules. No browser, no network: node --test tests/*.test.mjs
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { mkdtempSync, mkdirSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
+import { existsSync, mkdtempSync, mkdirSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { dirname, join, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
@@ -22,7 +22,7 @@ import { errorContext, formatShaders } from '../scripts/lib/shaders.mjs';
 import { glFlags, sandboxFlags } from '../scripts/lib/cdp.mjs';
 import { pixelWarnings } from '../scripts/lib/png.mjs';
 import { parseActions, keyInfo } from '../scripts/lib/actions.mjs';
-import { importSpecifiers, resolveBare, vendorPage } from '../scripts/lib/vendor.mjs';
+import { importSpecifiers, metaUrlAssets, resolveBare, vendorPage } from '../scripts/lib/vendor.mjs';
 
 const ROOT = resolve(dirname(fileURLToPath(import.meta.url)), '..');
 const tmp = () => mkdtempSync(join(tmpdir(), 'tw-test-'));
@@ -439,5 +439,26 @@ import { t } from 'fakelib/addons/thing.js';
     assert.ok(!out.includes('cdn.jsdelivr.net'));
     const again = await vendorPage(join(dir, 'index.html'), { roots: [dir], offline: true });
     assert.equal(again.files.length, 0);
+  } finally { rmSync(dir, { recursive: true, force: true }); }
+});
+
+test('vendor: files a module fetches by new URL(..., import.meta.url) are copied, not scanned', async () => {
+  assert.deepEqual(metaUrlAssets("const A = new URL( '../libs/dec/dec.wasm', import.meta.url ).toString();\n// new URL('./gone.js', import.meta.url)\nnew URL(\"./w.js\", import.meta.url);\nnew URL('https://x.org/a', import.meta.url);"), ['../libs/dec/dec.wasm', './gone.js', './w.js']);
+  const dir = tmp();
+  try {
+    const pkg = join(dir, 'node_modules', 'fakelib');
+    mkdirSync(join(pkg, 'loaders'), { recursive: true });
+    mkdirSync(join(pkg, 'libs', 'dec'), { recursive: true });
+    writeFileSync(join(pkg, 'package.json'), JSON.stringify({ name: 'fakelib', version: '1.2.3', module: 'main.js' }));
+    writeFileSync(join(pkg, 'loaders', 'DecLoader.js'), "const WASM = new URL( '../libs/dec/dec.wasm', import.meta.url ).toString();\nconst JS = new URL( '../libs/dec/wrapper.js', import.meta.url ).toString();\nexport class DecLoader {}\n");
+    writeFileSync(join(pkg, 'libs', 'dec', 'dec.wasm'), Buffer.from([0, 97, 115, 109]));
+    writeFileSync(join(pkg, 'libs', 'dec', 'wrapper.js'), "var Module = {}; import('not-a-module');\n");
+    writeFileSync(join(pkg, 'libs', 'dec', 'unused.wasm'), Buffer.from([0]));
+    writeFileSync(join(dir, 'index.html'), `<script type="importmap">{ "imports": { "fakelib/": "https://cdn.jsdelivr.net/npm/fakelib@1.2.3/" } }</script>
+<script type="module">import { DecLoader } from 'fakelib/loaders/DecLoader.js';</script>`);
+    const r = await vendorPage(join(dir, 'index.html'), { roots: [dir], offline: true });
+    assert.deepEqual(r.files.map((f) => f.file).sort(), ['vendor/fakelib@1.2.3/libs/dec/dec.wasm', 'vendor/fakelib@1.2.3/libs/dec/wrapper.js', 'vendor/fakelib@1.2.3/loaders/DecLoader.js']);
+    assert.deepEqual(r.warnings, []);
+    assert.ok(existsSync(join(dir, 'vendor', 'fakelib@1.2.3', 'libs', 'dec', 'dec.wasm')));
   } finally { rmSync(dir, { recursive: true, force: true }); }
 });

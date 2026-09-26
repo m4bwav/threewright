@@ -4,6 +4,11 @@ Every change to [SKILL.md](SKILL.md) and its companions, newest first, each with
 
 Entry shape: `### C-YYYYMMDD-n · date · one-line summary`, then `because:` (IDs or "user request"), `files:` (file and section), and a sentence on what changed. Cite section headings, not line numbers.
 
+### C-20260926-4 · 2026-09-26 · Decoder paths are optional in r186: recipe, topic and tw hints agree
+- because: ai-docs/HANDOFF.md (Not done, item 2); the recipe's own 2026-09-26 note found `setTranscoderPath` optional, while the topic still said it was needed
+- files: kb/recipes/load-gltf-with-decoders.md (Code, Notes); kb/topics/loaders-and-assets.md (Essentials); scripts/lib/glb.mjs and hints.mjs (needs lines and fix hints)
+- The recipe leaves `setTranscoderPath` commented out like `setDecoderPath`; the topic says the transcoder resolves next to the module; `tw glb` and `tw check` hints no longer tell you to set a path.
+
 ### C-20260926-3 · 2026-09-26 · KTX-Software prerequisite in Step 3; quantized bounds fixed
 - because: ai-docs/HANDOFF.md (Not done, items 3 and 5)
 - files: SKILL.md (Step 3); kb/recipes/optimize-gltf.md (Verify, Notes)

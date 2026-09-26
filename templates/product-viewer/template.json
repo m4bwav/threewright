@@ -1,6 +1,6 @@
 {
   "name": "product-viewer",
-  "summary": "Product viewer for one GLB, no build: GLTFLoader with Draco and Meshopt wired, RoomEnvironment light, soft shadow on an invisible floor, camera fitted on load, OrbitControls with damping and limits, loading and error states, colour buttons, keyboard orbit, reduced motion (no auto-rotate, no inertia)",
+  "summary": "Product viewer for one GLB, no build: GLTFLoader with Draco and Meshopt wired, RoomEnvironment light, soft shadow on an invisible floor, camera fitted on load, OrbitControls with damping and limits, loading and error states, colour buttons, keyboard orbit, reduced motion (no auto-rotate, no inertia); Draco and KTX2 decoders load from next to their loaders, so tw new vendors three and both decoders into vendor/",
   "renderer": "webgl",
   "three": "0.186.1",
   "entry": "index.html",
@@ -8,6 +8,8 @@
   "next": ["node <threewright>/scripts/tw.mjs check <dir>", "replace model.glb with your own and check it: node <threewright>/scripts/tw.mjs glb <dir>/model.glb", "model.glb is made by make-model.mjs (node make-model.mjs, after npm install three@0.186.1 outside the threewright folder); rename your materials or edit VARIANTS for the colour buttons", "serve the folder over http (module imports and model loads do not work from file://); ?model=missing.glb shows the error state"],
   "verified": [
     { "date": "2026-09-26", "platform": "Windows 11, Chrome 153 headless, NVIDIA RTX 5060 Ti", "checks": "tw check OK (also --cdn offline), tw check --reduced-motion OK (eval __tw.variant(3) gave Coral), tw lint clean (index.html, make-model.mjs), tw glb model.glb 239 KB, 8 draw calls, 12,352 triangles, no textures, no decoders; ?model=missing.glb over http shows the error text; tw shot looked at: speaker framed in the middle, fabric, metal cap and rubber foot read clearly, not blown out, soft shadow falling back right, swatches and Pause turning button below; reduced-motion shot shows Turn instead of Pause" },
-    { "date": "2026-09-26", "platform": "Windows 11, Chrome 153 headless, NVIDIA RTX 5060 Ti", "checks": "after wiring KTX2Loader: tw check OK and tw lint clean with model.glb; with a gltf-transform etc1s + meshopt model (?model=): tw check OK, tw scene shows map:CompressedTexture/srgb, tw shot looked at: the checker texture shows on the terrain" }
-  ]
+    { "date": "2026-09-26", "platform": "Windows 11, Chrome 153 headless, NVIDIA RTX 5060 Ti", "checks": "after wiring KTX2Loader: tw check OK and tw lint clean with model.glb; with a gltf-transform etc1s + meshopt model (?model=): tw check OK, tw scene shows map:CompressedTexture/srgb, tw shot looked at: the checker texture shows on the terrain" },
+    { "date": "2026-09-26", "platform": "Windows 11, Chrome 153 headless, NVIDIA RTX 5060 Ti", "checks": "vendored by tw new: 21 files, 4282 KB (three, addons, libs/draco and libs/basis), no CDN URL left in index.html; tw check --cdn offline OK with model.glb, with a gltf-transform draco model (?model=draco.glb) and with an etc1s KTX2 quad (?model=u.glb); tw lint 0/0; the --no-vendor copy also checks OK with both; tw shot looked at: the Draco speaker renders whole with its shadow, and the KTX2 checker texture shows (under --reduced-motion, since auto-rotate turns the one-sided quad away)" }
+  ],
+  "vendor": true
 }

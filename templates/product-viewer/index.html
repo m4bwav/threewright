@@ -149,9 +149,11 @@
     const statusText = document.getElementById('status-text');
     const progressEl = document.getElementById('progress');
 
+    // Both decoders load on first use from next to their loader module (r185+): three/addons/libs/draco/gltf/
+    // and libs/basis/, on the CDN or in vendor/ after tw vendor. No setDecoderPath or setTranscoderPath needed.
     const draco = new DRACOLoader(); // fetches its decoder only if the file uses Draco
-    // KTX2 (Basis) textures, as gltf-transform etc1s and uastc write them; the transcoder loads on first use.
-    const ktx2 = new KTX2Loader().setTranscoderPath('https://cdn.jsdelivr.net/npm/three@0.186.1/examples/jsm/libs/basis/').detectSupport(renderer);
+    // KTX2 (Basis) textures, as gltf-transform etc1s and uastc write them.
+    const ktx2 = new KTX2Loader().detectSupport(renderer);
     const loader = new GLTFLoader().setDRACOLoader(draco).setKTX2Loader(ktx2).setMeshoptDecoder(MeshoptDecoder);
 
     function load(url) {

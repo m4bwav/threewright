@@ -38,8 +38,10 @@ const dracoLoader = new DRACOLoader();
 // dracoLoader.setDecoderPath('https://cdn.jsdelivr.net/npm/three@0.186.1/examples/jsm/libs/draco/');
 
 const ktx2Loader = new KTX2Loader();
-ktx2Loader.setTranscoderPath('https://cdn.jsdelivr.net/npm/three@0.186.1/examples/jsm/libs/basis/');
-ktx2Loader.detectSupport(renderer); // must run after the transcoder path is set and the renderer exists
+// The transcoder (libs/basis/) also resolves next to the module in r186; set a path only
+// when that folder is not served, as with the Draco decoder above.
+// ktx2Loader.setTranscoderPath('https://cdn.jsdelivr.net/npm/three@0.186.1/examples/jsm/libs/basis/');
+ktx2Loader.detectSupport(renderer); // needs the renderer to exist (initialized, for WebGPU)
 
 const gltfLoader = new GLTFLoader();
 gltfLoader.setDRACOLoader(dracoLoader);
@@ -70,3 +72,4 @@ Only wire the decoder(s) a given file actually needs. `tw glb model.glb` names t
 
 - 2026-09-26: written from the core r160-r186 research (sections 2, 6, the r185 Draco default decoder path change) checked against `node_modules/three/examples/jsm/loaders/DRACOLoader.js`, `KTX2Loader.js` and `GLTFLoader.js` in the installed 0.186.1. Not run through `tw check` with a real GLB in this pass; the API calls themselves match the installed source exactly.
 - 2026-09-26: ran it with generated Draco, Meshopt and KTX2 files (see Verify). The code was right. The r185 default Draco decoder path works through tw's offline CDN, and `KTX2Loader` in r186 also defaults its transcoder path next to the module (`import.meta.url`), so `setTranscoderPath` is optional in the same way.
+- 2026-09-26: the code block now leaves `setTranscoderPath` commented out, matching that finding. Because both decoders sit next to their loader modules, `tw vendor` (0.6.0+) copies them into `vendor/` with the modules: it follows `new URL('../libs/...', import.meta.url)` in vendored files. Checked with the vendored product-viewer template: a Draco model and a KTX2 model loaded under `tw check --cdn offline` with no CDN URL left in the page, and the shot showed the checker texture.

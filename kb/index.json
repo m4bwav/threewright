@@ -332,7 +332,7 @@
     "Verify",
     "Notes"
    ],
-   "bytes": 5183
+   "bytes": 5328
   },
   {
    "slug": "materials",
@@ -945,7 +945,7 @@
     "Verify",
     "Notes"
    ],
-   "bytes": 5653
+   "bytes": 5874
   },
   {
    "slug": "splat-scenes",
@@ -2249,7 +2249,7 @@
     "Verify",
     "Notes"
    ],
-   "bytes": 5182
+   "bytes": 5818
   },
   {
    "slug": "optimize-gltf",
