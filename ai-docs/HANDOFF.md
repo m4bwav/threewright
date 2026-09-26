@@ -16,11 +16,11 @@ Done and verified:
 - Lint: 67 rules, no `verify` flags, `tw deprecations` shows 0 pending for r186.
 - Templates (7, all `tw check` clean): html-importmap, html-webgpu (WebGL 2 fallback only), vite-ts, r3f, chart-3d-scatter, video-turntable, game-starter.
 - Research: ten notes in `ai-docs/research/`, including the video track.
-- Packaging: README, AGENTS.md, CLAUDE.md, `.github/copilot-instructions.md`, `.claude-plugin/plugin.json` and `marketplace.json`, CHANGELOG.md. Tag `v0.1.0` pushed.
+- Packaging: README, AGENTS.md, CLAUDE.md, `.github/copilot-instructions.md`, `.claude-plugin/plugin.json` and `marketplace.json`, CHANGELOG.md. Version 0.1.0 in plugin.json and package.json; the tag could not be pushed from the cloud container (its git proxy drops tag and branch-delete pushes).
 
 ## Not done (in order)
 
-1. Publish the GitHub Release for tag v0.1.0 (notes: the 0.1.0 section of CHANGELOG.md). The cloud session had no release tool.
+1. Tag `v0.1.0` on the head of main and publish a GitHub Release for it (notes: the 0.1.0 section of CHANGELOG.md): `git tag -a v0.1.0 -m "threewright 0.1.0" && git push origin v0.1.0`, then `gh release create v0.1.0`.
 2. Run each skill's evals from a fresh session after installing the plugin (a plugin installed mid-session is invisible to that session's Skill tool). Fill in the baselines and record the results in TESTS.md and evergreen.json.
 3. Templates not started: surface, globe, product-viewer (with a generated CC0 `model.glb`), scroll-hero (GSAP 3.15.0, Lenis 1.3.26, `?progress=` jump), splats. Splats need the WebGPU backend: r186 GaussianSplat uses storage buffers and a compute sort. Verify it on a machine with a current Chrome, not the cloud container. Each must pass `tw check`, `tw check --reduced-motion`, `tw lint` and a looked-at `tw shot`.
 4. Run the unexecuted recipes (listed above) as scratch pages or scripts and record the result in each Verify section.
