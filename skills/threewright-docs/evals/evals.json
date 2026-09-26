@@ -1,0 +1,74 @@
+{
+  "skill": "threewright-docs",
+  "_format": "skill-creator evals.json plus evergreen fields (kind, decoy, evidence, baseline); extra fields are ignored by skill-creator's runner. Rules: the evergreen plugin's protocol/TESTING.md. Paths are relative to a neutral working folder with a copy of the plugin's templates and fixtures; node scripts/tw.mjs means the plugin's CLI.",
+  "evals": [
+    {
+      "id": "trigger-1",
+      "kind": "trigger",
+      "prompt": "add a 3D scatter plot of the three measurements in data.csv to the report",
+      "expectations": [
+        "the threewright-docs skill is invoked"
+      ],
+      "runs": 3
+    },
+    {
+      "id": "trigger-2",
+      "kind": "trigger",
+      "prompt": "should this chart of sales by quarter be 3D for the board deck?",
+      "expectations": [
+        "the threewright-docs skill is invoked"
+      ],
+      "runs": 3
+    },
+    {
+      "id": "decoy-1",
+      "kind": "trigger",
+      "decoy": true,
+      "prompt": "make a 3D product viewer with a colour switcher for our shop page",
+      "expectations": [
+        "the threewright-docs skill is not invoked (a web page (threewright-web))"
+      ],
+      "runs": 3
+    },
+    {
+      "id": "decoy-2",
+      "kind": "trigger",
+      "decoy": true,
+      "prompt": "make a line chart of price over time for the README",
+      "expectations": [
+        "the threewright-docs skill is not invoked (a 2D chart (chartwright))"
+      ],
+      "runs": 3
+    },
+    {
+      "id": "action-1",
+      "kind": "action",
+      "prompt": "put a rotating 3D surface of z = sin(x) * cos(y) into docs/figure.html",
+      "expectations": [
+        "the action happened, proven by the evidence below (a tool call in the trace or a written file), not by the reply saying so"
+      ],
+      "evidence": {
+        "type": "trace",
+        "tool": "Bash",
+        "input_match": "tw\\.mjs\\s+(new|check)\\b",
+        "or": {
+          "type": "file",
+          "path": "docs/figure.html"
+        }
+      },
+      "baseline": "filled by the first run: what a fresh session does with this prompt when the skill is not loaded",
+      "runs": 3
+    },
+    {
+      "id": "outcome-1",
+      "kind": "outcome",
+      "prompt": "make a README-ready turntable GIF of a 3D scatter of data.csv at docs/scatter.gif",
+      "files": [],
+      "expectations": [
+        "docs/scatter.gif exists and is under 5 MB",
+        "the reply states the finding and gives alt text"
+      ],
+      "runs": 3
+    }
+  ]
+}

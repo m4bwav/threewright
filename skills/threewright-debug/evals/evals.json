@@ -1,0 +1,70 @@
+{
+  "skill": "threewright-debug",
+  "_format": "skill-creator evals.json plus evergreen fields (kind, decoy, evidence, baseline); extra fields are ignored by skill-creator's runner. Rules: the evergreen plugin's protocol/TESTING.md. Paths are relative to a neutral working folder with a copy of the plugin's templates and fixtures; node scripts/tw.mjs means the plugin's CLI.",
+  "evals": [
+    {
+      "id": "trigger-1",
+      "kind": "trigger",
+      "prompt": "my three.js scene is just a black screen, no errors in the console",
+      "expectations": [
+        "the threewright-debug skill is invoked"
+      ],
+      "runs": 3
+    },
+    {
+      "id": "trigger-2",
+      "kind": "trigger",
+      "prompt": "the textures on my GLTF model look washed out",
+      "expectations": [
+        "the threewright-debug skill is invoked"
+      ],
+      "runs": 3
+    },
+    {
+      "id": "decoy-1",
+      "kind": "trigger",
+      "decoy": true,
+      "prompt": "add orbit controls to my three.js scene",
+      "expectations": [
+        "the threewright-debug skill is not invoked (a feature (threewright))"
+      ],
+      "runs": 3
+    },
+    {
+      "id": "decoy-2",
+      "kind": "trigger",
+      "decoy": true,
+      "prompt": "my React form does not submit",
+      "expectations": [
+        "the threewright-debug skill is not invoked (not 3D)"
+      ],
+      "runs": 3
+    },
+    {
+      "id": "action-1",
+      "kind": "action",
+      "prompt": "tests/fixtures/pages/black-mesh renders black; find out why",
+      "expectations": [
+        "the action happened, proven by the evidence below (a tool call in the trace or a written file), not by the reply saying so"
+      ],
+      "evidence": {
+        "type": "trace",
+        "tool": "Bash",
+        "input_match": "tw\\.mjs\\s+check\\b"
+      },
+      "baseline": "filled by the first run: what a fresh session does with this prompt when the skill is not loaded",
+      "runs": 3
+    },
+    {
+      "id": "outcome-1",
+      "kind": "outcome",
+      "prompt": "copy tests/fixtures/pages/black-mesh to out/fixed and fix it",
+      "files": [],
+      "expectations": [
+        "node scripts/tw.mjs check out/fixed exits 0",
+        "the reply names the cause with the check line that showed it"
+      ],
+      "runs": 3
+    }
+  ]
+}

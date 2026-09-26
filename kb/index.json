@@ -1,0 +1,215 @@
+{
+ "generated_by": "tw kb index",
+ "entries": [
+  {
+   "slug": "import-maps-and-builds",
+   "kind": "topic",
+   "path": "topics/import-maps-and-builds.md",
+   "title": "Import maps, entry points and builds",
+   "summary": "How to load three r186 without a bundler (pinned import map) or with one, which build files exist, and the entry points three, three/addons, three/webgpu and three/tsl.",
+   "tags": [
+    "import map",
+    "cdn",
+    "jsdelivr",
+    "esm",
+    "bundler",
+    "vite",
+    "addons",
+    "webgpu",
+    "tsl",
+    "builds"
+   ],
+   "applies_to": ">=r161",
+   "status": "current",
+   "renderer": "both",
+   "last_verified": "2026-09-26",
+   "template": "html-importmap",
+   "sections": [
+    "Essentials",
+    "Pitfalls",
+    "Legacy",
+    "Verify",
+    "Notes"
+   ],
+   "bytes": 5782
+  },
+  {
+   "slug": "3d-chart-in-docs",
+   "kind": "scenario",
+   "path": "scenarios/3d-chart-in-docs.md",
+   "title": "3D charts and 3D figures in documents",
+   "summary": "When a chart earns a third dimension, how to build it in three.js or a charting library, and what each document platform can show (GitHub, Office, Notion, Jupyter, Claude artifacts).",
+   "tags": [
+    "3d chart",
+    "scatter",
+    "surface",
+    "globe",
+    "data visualization",
+    "documentation",
+    "readme",
+    "github",
+    "office",
+    "notebook",
+    "artifact"
+   ],
+   "applies_to": ">=r161",
+   "status": "current",
+   "renderer": "webgl",
+   "last_verified": "2026-09-26",
+   "template": "chart-3d-scatter",
+   "sections": [
+    "When",
+    "Stack",
+    "Build",
+    "Pitfalls",
+    "Verify",
+    "Notes"
+   ],
+   "bytes": 6870
+  },
+  {
+   "slug": "react-three-fiber",
+   "kind": "library",
+   "path": "libraries/react-three-fiber.md",
+   "title": "React Three Fiber (R3F)",
+   "summary": "React renderer for three.js; v9.8 is the stable line for React 19.3, v10 is an alpha with WebGPU-first hooks; when to use it, how to set it up, and what trips agents.",
+   "tags": [
+    "react",
+    "r3f",
+    "fiber",
+    "jsx",
+    "drei",
+    "webgpu",
+    "declarative",
+    "components"
+   ],
+   "applies_to": ">=r156",
+   "status": "current",
+   "renderer": "both",
+   "last_verified": "2026-09-26",
+   "package": "@react-three/fiber",
+   "version_checked": "9.8.1",
+   "template": "r3f",
+   "sections": [
+    "Use it for",
+    "Avoid it when",
+    "Setup",
+    "Pitfalls",
+    "Notes"
+   ],
+   "bytes": 4409
+  },
+  {
+   "slug": "capture-stills-and-video",
+   "kind": "recipe",
+   "path": "recipes/capture-stills-and-video.md",
+   "title": "Capture stills and video from a three.js page",
+   "summary": "Get a PNG, a contact sheet, or a frame-exact MP4, WebM, GIF or ProRes from a page, headless and deterministic, and check the result without watching it.",
+   "tags": [
+    "screenshot",
+    "png",
+    "video",
+    "mp4",
+    "gif",
+    "turntable",
+    "ffmpeg",
+    "capture",
+    "headless",
+    "loop"
+   ],
+   "applies_to": ">=r152",
+   "status": "current",
+   "renderer": "both",
+   "last_verified": "2026-09-26",
+   "template": "html-importmap",
+   "sections": [
+    "Goal",
+    "Code",
+    "Verify",
+    "Notes"
+   ],
+   "bytes": 4854
+  },
+  {
+   "slug": "current-vs-legacy",
+   "kind": "rule",
+   "path": "rules/current-vs-legacy.md",
+   "title": "Teach current three.js; keep legacy for old projects",
+   "summary": "What counts as current in r186, what is the WebGL path (current, feature-light), what is legacy, and the release each old pattern changed in, for porting and for reading old code.",
+   "tags": [
+    "legacy",
+    "deprecated",
+    "removed",
+    "migration",
+    "upgrade",
+    "old tutorial",
+    "r186",
+    "webgpu",
+    "webgl"
+   ],
+   "applies_to": "any",
+   "status": "current",
+   "renderer": "both",
+   "last_verified": "2026-09-26",
+   "sections": [
+    "Rule",
+    "Why",
+    "Notes"
+   ],
+   "bytes": 5106
+  },
+  {
+   "slug": "verification-ladder",
+   "kind": "rule",
+   "path": "rules/verification-ladder.md",
+   "title": "The verification ladder (text before pixels)",
+   "summary": "Prove a three.js page works with the cheapest evidence first; lint, console and scene text, model report, then one small image, and what each rung costs in tokens.",
+   "tags": [
+    "verify",
+    "debug",
+    "tokens",
+    "screenshot",
+    "check",
+    "lint",
+    "agent",
+    "black screen"
+   ],
+   "applies_to": "any",
+   "status": "current",
+   "renderer": "both",
+   "last_verified": "2026-09-26",
+   "sections": [
+    "Rule",
+    "Why",
+    "Notes"
+   ],
+   "bytes": 3692
+  },
+  {
+   "slug": "when-3d-is-justified",
+   "kind": "rule",
+   "path": "rules/when-3d-is-justified.md",
+   "title": "When a chart may be 3D",
+   "summary": "Build a 3D chart only for data with three real axes or real geometry, always rotatable, always paired with an exact-value view; hand decorative 3D back to 2D.",
+   "tags": [
+    "3d chart",
+    "data visualization",
+    "when to use 3d",
+    "bar",
+    "pie",
+    "scatter",
+    "perception"
+   ],
+   "applies_to": "any",
+   "status": "current",
+   "renderer": "none",
+   "last_verified": "2026-09-26",
+   "sections": [
+    "Rule",
+    "Why",
+    "Notes"
+   ],
+   "bytes": 2611
+  }
+ ]
+}

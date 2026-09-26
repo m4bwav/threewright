@@ -1,0 +1,40 @@
+{
+  "name": "r3f",
+  "summary": "React Three Fiber + drei on Vite + TypeScript: <Canvas> with dpr [1, 2] and PCF shadows, drei OrbitControls (makeDefault), an offline <Environment> built from <Lightformer> panels, useFrame animation, window.__tw.ready from inside the Canvas",
+  "renderer": "webgl",
+  "three": "0.186.1",
+  "entry": "index.html",
+  "packages": {
+    "three": "0.186.1",
+    "@react-three/fiber": "9.8.1",
+    "@react-three/drei": "10.7.9",
+    "react": "19.3.0",
+    "react-dom": "19.3.0",
+    "@types/three": "0.186.0",
+    "@types/react": "19.3.0",
+    "@types/react-dom": "19.3.0",
+    "@vitejs/plugin-react": "6.1.1",
+    "typescript": "7.0.2",
+    "vite": "8.3.1"
+  },
+  "use_for": ["React apps", "scenes built from components", "the drei helpers (controls, loaders, text, staging)", "UI state shared between React and the 3D scene"],
+  "next": [
+    "cd <dir> && npm install",
+    "cd <dir> && npm run dev   (dev server with hot reload)",
+    "cd <dir> && npm run build   (tsc --noEmit, then vite build into <dir>/dist)",
+    "node <threewright>/scripts/tw.mjs check <dir>/dist"
+  ],
+  "bundle_gzip_bytes": 329766,
+  "notes": [
+    "fiber 9.8.1 creates a THREE.Clock for state.clock, so three r186 warns once per <Canvas> that Clock is deprecated; src/main.tsx drops only that message through THREE.setConsoleFunction. Remove the filter once fiber stops using Clock (the 10.0 alphas have, but they need react below 19.3)",
+    "a bare <Canvas shadows> asks for PCFSoftShadowMap, deprecated in r186 (WebGLRenderer warns, then uses PCF), so the template passes shadows=\"percentage\" (PCFShadowMap)",
+    "<Environment preset> downloads HDR files from a CDN at run time, which fails offline and under tw check; the lightformer environment downloads nothing. three's RoomEnvironment through PMREM also works and measured 18 KB smaller gzipped",
+    "<Canvas> registers every three export, so all of three is bundled: an empty scene is 1.2 MB minified, hence build.chunkSizeWarningLimit 1600 kB",
+    "npm ls three also lists three@0.170.0 nested under stats-gl (a drei dependency); stats-gl never imports it, so the bundle holds one copy of three",
+    "no peer conflicts; fiber 9.8.1 caps react and react-dom below 19.4, so check its range before bumping react",
+    "typescript 7 is the native compiler: tsc works, but require('typescript') no longer exposes the compiler API, so tools built on it (type-aware typescript-eslint, ts-node, ts-loader) need typescript 6.x"
+  ],
+  "verified": [
+    { "date": "2026-09-26", "platform": "Linux container, Node 22, Chromium 141, SwiftShader", "checks": "npm ci, typecheck and build with no warnings, tw check OK on dist with no console warnings (also on vite dev and vite preview), tw shot, tw lint clean, tw video --frames-dir on the virtual clock" }
+  ]
+}

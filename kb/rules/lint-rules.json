@@ -7,13 +7,13 @@
       "id": "umd-build",
       "pattern": "build/three(?:\\.min)?\\.js\\b",
       "since": 150,
-      "removed": 160,
+      "removed": 161,
       "status": "removed",
-      "message": "the UMD builds build/three.js and build/three.min.js were removed in r160",
+      "message": "the UMD builds build/three.js and build/three.min.js were deprecated in r150 and removed in r161",
       "fix": "load the ES module build through an import map (\"three\": \".../build/three.module.js\") or a bundler",
       "sample": "<script src=\"https://unpkg.com/three@0.150.0/build/three.min.js\"></script>",
       "ok": "import * as THREE from 'https://cdn.jsdelivr.net/npm/three@0.186.1/build/three.module.js';",
-      "source": "three.js Migration Guide r159 to r160"
+      "source": "npm tarballs: three 0.160.1 ships build/three.js and three.min.js, 0.161.0 does not (checked 2026-09-26)"
     },
     {
       "id": "minified-builds",

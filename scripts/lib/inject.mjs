@@ -24,10 +24,10 @@ function pageMain(cfg) {
   T.loaders = 0;
   T.errors = [];
   T.renderCalls = 0;
-  T.last = null; // { renderer, scene } of the most recent main render
   const cams = new Map(); // scene -> Map(camera -> { n, screen })
-  const screenRenders = new Map(); // scene -> renders to the default framebuffer
-  const allRenders = new Map(); // scene -> renders to any target (post-processing draws the scene into one)
+  // scene -> { frames: distinct animation frames it was rendered in, screen: renders to the canvas, last: frame id }
+  const use = new Map();
+  let frameId = 0; // bumped once per animation frame (see the requestAnimationFrame wrapper below)
 
   function wrapRenderer(r) {
     if (r.__twWrapped || typeof r.render !== 'function') return;
@@ -36,17 +36,20 @@ function pageMain(cfg) {
     r.render = function (scene, camera) {
       T.renderCalls++;
       if (scene && scene.isScene && camera && camera.isCamera) {
-        allRenders.set(scene, (allRenders.get(scene) || 0) + 1);
-        // Screen renders win: PMREM, shadow and helper scenes draw into targets.
         let toScreen = true;
         try { toScreen = typeof this.getRenderTarget !== 'function' || this.getRenderTarget() === null; } catch { /* ignore */ }
-        if (toScreen) screenRenders.set(scene, (screenRenders.get(scene) || 0) + 1);
+        const u0 = use.get(scene) || { frames: 0, screen: 0, last: -1, env: true };
+        if (u0.last !== frameId) { u0.frames++; u0.last = frameId; }
+        if (toScreen) u0.screen++;
+        // Environment scenes are only ever seen through a CubeCamera (PMREM, reflections).
+        if (!(camera.parent && camera.parent.isCubeCamera)) u0.env = false;
+        u0.renderer = this;
+        use.set(scene, u0);
         let m = cams.get(scene);
         if (!m) cams.set(scene, (m = new Map()));
         const u = m.get(camera) || { n: 0, screen: 0 };
         u.n++; if (toScreen) u.screen++;
         m.set(camera, u);
-        if (mainScene() === scene) T.last = { renderer: this, scene };
       }
       return orig.apply(this, arguments);
     };
@@ -66,6 +69,15 @@ function pageMain(cfg) {
 
   window.addEventListener('error', (e) => T.errors.push(String(e.message || e)));
   window.addEventListener('unhandledrejection', (e) => T.errors.push('unhandled rejection: ' + String(e.reason && (e.reason.stack || e.reason.message) || e.reason)));
+
+  // Count animation frames so a scene rendered once (an environment, a baked
+  // texture) never outranks the scene the loop renders every frame.
+  const wrapRaf = () => {
+    const raf = window.requestAnimationFrame;
+    window.requestAnimationFrame = function (cb) {
+      return raf.call(window, (t) => { if (T._rafTime !== t) { T._rafTime = t; frameId++; } return cb(t); });
+    };
+  };
 
   if (cfg.clock) {
     let now = 0;
@@ -89,23 +101,19 @@ function pageMain(cfg) {
     };
     T.time = () => now;
   }
+  wrapRaf();
 
   function descendants(o) { let n = 0; o.traverse(() => n++); return n; }
 
-  // The main scene is the one drawn to the screen most often (the animation loop);
-  // with post-processing the screen gets a quad, so next comes the scene rendered
-  // most often into any target (an environment is rendered once, the scene every
-  // frame), then the largest rendered scene.
+  // The main scene: rendered in the most animation frames (the loop), then one
+  // drawn straight to the canvas (with post-processing the canvas gets a quad and
+  // the scene goes to a target), never an environment seen only by a CubeCamera
+  // when anything else exists, then the largest.
   function mainScene() {
-    let best = null, bestN = -1;
-    for (const [s, n] of screenRenders) if (n > bestN) { best = s; bestN = n; }
-    if (best && bestN > 1) return best;
-    for (const [s, n] of allRenders) if (n > bestN) { best = s; bestN = n; }
-    if (best) return best;
-    for (const s of T.scenes) {
-      if (!cams.has(s)) continue;
-      const n = descendants(s);
-      if (n > bestN) { best = s; bestN = n; }
+    let best = null, bestKey = -1;
+    for (const [s, u] of use) {
+      const key = (u.env ? 0 : 1) * 1e12 + Math.min(u.frames, 1e5) * 1e6 + (u.screen ? 1 : 0) * 1e5 + Math.min(descendants(s), 99999);
+      if (key > bestKey) { best = s; bestKey = key; }
     }
     return best;
   }
@@ -141,7 +149,7 @@ function pageMain(cfg) {
   function target() {
     const scene = mainScene() || T.scenes[0] || null;
     const camera = scene ? cameraFor(scene) : null;
-    const renderer = (T.last && T.last.renderer) || T.renderers[0] || null;
+    const renderer = (scene && use.get(scene) && use.get(scene).renderer) || T.renderers[0] || null;
     return { scene, camera, renderer };
   }
   T.target = target;

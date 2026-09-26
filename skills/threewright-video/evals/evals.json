@@ -1,0 +1,74 @@
+{
+  "skill": "threewright-video",
+  "_format": "skill-creator evals.json plus evergreen fields (kind, decoy, evidence, baseline); extra fields are ignored by skill-creator's runner. Rules: the evergreen plugin's protocol/TESTING.md. Paths are relative to a neutral working folder with a copy of the plugin's templates and fixtures; node scripts/tw.mjs means the plugin's CLI.",
+  "evals": [
+    {
+      "id": "trigger-1",
+      "kind": "trigger",
+      "prompt": "render this three.js scene to a 10 second mp4 at 1080p",
+      "expectations": [
+        "the threewright-video skill is invoked"
+      ],
+      "runs": 3
+    },
+    {
+      "id": "trigger-2",
+      "kind": "trigger",
+      "prompt": "make a looping GIF turntable of the model for the README",
+      "expectations": [
+        "the threewright-video skill is invoked"
+      ],
+      "runs": 3
+    },
+    {
+      "id": "decoy-1",
+      "kind": "trigger",
+      "decoy": true,
+      "prompt": "trim the first 3 seconds off demo.mp4",
+      "expectations": [
+        "the threewright-video skill is not invoked (editing footage, not rendering a scene)"
+      ],
+      "runs": 3
+    },
+    {
+      "id": "decoy-2",
+      "kind": "trigger",
+      "decoy": true,
+      "prompt": "play a video as a texture on a plane in my three.js scene",
+      "expectations": [
+        "the threewright-video skill is not invoked (a scene feature (threewright))"
+      ],
+      "runs": 3
+    },
+    {
+      "id": "action-1",
+      "kind": "action",
+      "prompt": "record templates/html-importmap as a 2 second webm at out/clip.webm",
+      "expectations": [
+        "the action happened, proven by the evidence below (a tool call in the trace or a written file), not by the reply saying so"
+      ],
+      "evidence": {
+        "type": "trace",
+        "tool": "Bash",
+        "input_match": "tw\\.mjs\\s+video\\b",
+        "or": {
+          "type": "file",
+          "path": "out/clip.webm"
+        }
+      },
+      "baseline": "filled by the first run: what a fresh session does with this prompt when the skill is not loaded",
+      "runs": 3
+    },
+    {
+      "id": "outcome-1",
+      "kind": "outcome",
+      "prompt": "make out/turn.mp4: 3 seconds at 30 fps, 1280x720, of the video-turntable template",
+      "files": [],
+      "expectations": [
+        "ffprobe shows h264, yuv420p, 90 frames, 1280x720",
+        "the reply names the driver and the verification checks"
+      ],
+      "runs": 3
+    }
+  ]
+}

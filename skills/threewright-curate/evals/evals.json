@@ -1,0 +1,74 @@
+{
+  "skill": "threewright-curate",
+  "_format": "skill-creator evals.json plus evergreen fields (kind, decoy, evidence, baseline); extra fields are ignored by skill-creator's runner. Rules: the evergreen plugin's protocol/TESTING.md. Paths are relative to a neutral working folder with a copy of the plugin's templates and fixtures; node scripts/tw.mjs means the plugin's CLI.",
+  "evals": [
+    {
+      "id": "trigger-1",
+      "kind": "trigger",
+      "prompt": "add a note to the threewright knowledge base that HDRLoader replaced RGBELoader",
+      "expectations": [
+        "the threewright-curate skill is invoked"
+      ],
+      "runs": 3
+    },
+    {
+      "id": "trigger-2",
+      "kind": "trigger",
+      "prompt": "three.js r187 is out, update threewright",
+      "expectations": [
+        "the threewright-curate skill is invoked"
+      ],
+      "runs": 3
+    },
+    {
+      "id": "decoy-1",
+      "kind": "trigger",
+      "decoy": true,
+      "prompt": "load an HDR environment map in my scene",
+      "expectations": [
+        "the threewright-curate skill is not invoked (a scene task (threewright))"
+      ],
+      "runs": 3
+    },
+    {
+      "id": "decoy-2",
+      "kind": "trigger",
+      "decoy": true,
+      "prompt": "add the horizon chart to the chart knowledge base",
+      "expectations": [
+        "the threewright-curate skill is not invoked (the chart knowledge base (chartwright-curate))"
+      ],
+      "runs": 3
+    },
+    {
+      "id": "action-1",
+      "kind": "action",
+      "prompt": "note on the color-management entry: CanvasTexture colour content also needs SRGBColorSpace",
+      "expectations": [
+        "the action happened, proven by the evidence below (a tool call in the trace or a written file), not by the reply saying so"
+      ],
+      "evidence": {
+        "type": "trace",
+        "tool": "Bash",
+        "input_match": "tw\\.mjs\\s+kb\\s+note\\s+color-management",
+        "or": {
+          "type": "file",
+          "path": "kb/topics/color-management.md"
+        }
+      },
+      "baseline": "filled by the first run: what a fresh session does with this prompt when the skill is not loaded",
+      "runs": 3
+    },
+    {
+      "id": "outcome-1",
+      "kind": "outcome",
+      "prompt": "audit the threewright knowledge base",
+      "files": [],
+      "expectations": [
+        "tw kb validate --strict was run (trace) and its counts are in the reply",
+        "the reply lists stale or unverified entries or says there are none"
+      ],
+      "runs": 3
+    }
+  ]
+}

@@ -1,0 +1,74 @@
+{
+  "skill": "threewright-r3f",
+  "_format": "skill-creator evals.json plus evergreen fields (kind, decoy, evidence, baseline); extra fields are ignored by skill-creator's runner. Rules: the evergreen plugin's protocol/TESTING.md. Paths are relative to a neutral working folder with a copy of the plugin's templates and fixtures; node scripts/tw.mjs means the plugin's CLI.",
+  "evals": [
+    {
+      "id": "trigger-1",
+      "kind": "trigger",
+      "prompt": "set up a React Three Fiber scene with drei OrbitControls in my Vite app",
+      "expectations": [
+        "the threewright-r3f skill is invoked"
+      ],
+      "runs": 3
+    },
+    {
+      "id": "trigger-2",
+      "kind": "trigger",
+      "prompt": "useFrame is making my React app slow, how should I animate this mesh?",
+      "expectations": [
+        "the threewright-r3f skill is invoked"
+      ],
+      "runs": 3
+    },
+    {
+      "id": "decoy-1",
+      "kind": "trigger",
+      "decoy": true,
+      "prompt": "make a plain three.js page without React",
+      "expectations": [
+        "the threewright-r3f skill is not invoked (plain three.js (threewright))"
+      ],
+      "runs": 3
+    },
+    {
+      "id": "decoy-2",
+      "kind": "trigger",
+      "decoy": true,
+      "prompt": "write a React dropdown component with keyboard support",
+      "expectations": [
+        "the threewright-r3f skill is not invoked (not 3D)"
+      ],
+      "runs": 3
+    },
+    {
+      "id": "action-1",
+      "kind": "action",
+      "prompt": "create a React Three Fiber app in out/r3f",
+      "expectations": [
+        "the action happened, proven by the evidence below (a tool call in the trace or a written file), not by the reply saying so"
+      ],
+      "evidence": {
+        "type": "trace",
+        "tool": "Bash",
+        "input_match": "tw\\.mjs\\s+new\\s+r3f",
+        "or": {
+          "type": "file",
+          "path": "out/r3f/package.json"
+        }
+      },
+      "baseline": "filled by the first run: what a fresh session does with this prompt when the skill is not loaded",
+      "runs": 3
+    },
+    {
+      "id": "outcome-1",
+      "kind": "outcome",
+      "prompt": "out/r3f builds and runs clean",
+      "files": [],
+      "expectations": [
+        "npm run build in out/r3f exits 0",
+        "node scripts/tw.mjs check out/r3f/dist exits 0"
+      ],
+      "runs": 3
+    }
+  ]
+}

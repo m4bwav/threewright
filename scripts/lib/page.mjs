@@ -150,7 +150,8 @@ export function writeDataUrl(dataUrl, out) {
   writeFileSync(out, Buffer.from(b64, 'base64'));
 }
 
-export async function screenshot(ctx, out, { canvasOnly = false } = {}) {
+export async function screenshot(ctx, out, { canvasOnly = false, alpha = false } = {}) {
+  if (alpha) await ctx.page.send('Emulation.setDefaultBackgroundColorOverride', { color: { r: 0, g: 0, b: 0, a: 0 } });
   let clip;
   if (canvasOnly) {
     const r = await ctx.page.eval('(() => { const t = window.__tw && window.__tw.target && window.__tw.target(); const c = (t && t.renderer && t.renderer.domElement) || document.querySelector("canvas"); if (!c) return null; const b = c.getBoundingClientRect(); return { x: b.x, y: b.y, width: b.width, height: b.height }; })()');

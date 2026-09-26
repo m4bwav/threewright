@@ -14,16 +14,20 @@ export const ROOT = resolve(HERE, '..');
 const HELP = `threewright CLI (tw)  usage: node scripts/tw.mjs <command> [options]
 
 Verify a page (file, folder with index.html, or URL); text first, images on request:
-  check <page>          errors, warnings, failed requests, renderer and scene summary, runtime warnings
+  check <page>          errors, warnings, failed requests, renderer and scene summary, runtime warnings,
+                        pixel evidence (coverage, bounds, brightness of what the canvas shows)
   scene <page>          compact scene-graph tree (--depth 6 --max 80)
-  shot <page> --out f.png [--canvas]      one screenshot; prints its token cost
+  check <page> --eval "<js>"   also print the value of an expression after the page settles
+  shot <page> --out f.png [--canvas] [--alpha]   one screenshot; prints its token cost
   sheet <page> --out f.png [--views current,front,right,top]   several angles in one image
-  video <page> --out f.mp4|.webm|.gif|.mov --seconds 5 --fps 30   deterministic capture via ffmpeg
+  video <page> --out f.mp4|.webm|.gif|.mov --seconds 5 --fps 30 [--alpha] [--frames-dir d]
+                        deterministic capture via ffmpeg (alpha: .webm or .mov, page cleared transparent)
       page options: --size 960x540 --dpr 1 --gl auto|gpu|swiftshader --webgpu --wait 1000 --root dir
                     --reduced-motion --timeout 60000 --headed
                     --cdn auto|offline|net   pinned jsDelivr/unpkg files come from node_modules or the
                                              npm cache (auto: CDN when absent, npm if the CDN fails)
 Static tools (no browser):
+  diff <a.png> <b.png> [--threshold 0.1] [--max 0.001] [--out d.png]   pixel comparison, PASS/FAIL
   lint <files|dirs> [--target r186] [--md] [--strict]   stale or risky three.js API use, with the
                         release that changed it and the fix (rules: kb/rules/lint-rules.json)
   glb <file.glb|.gltf>  model report: size, draw calls, triangles, textures in px, extensions and the
@@ -69,16 +73,34 @@ function formatCheck(r) {
   }
   if (r.summary.bounds) L.push(`bounds: center ${r.summary.bounds.center} size ${r.summary.bounds.size}`);
   if (r.summary.camera) { const c = r.summary.camera; L.push(`camera: ${c.type} pos ${c.pos}${c.fov ? ' fov ' + c.fov : ''} near ${c.near} far ${c.far}${c.aspect ? ' aspect ' + c.aspect : ''}`); }
+  if (r.pixels) L.push(formatPixels(r.pixels));
+  if (r.eval !== undefined) L.push('eval: ' + JSON.stringify(r.eval).slice(0, 2000));
   const d = r.logs;
   const sec = (name, arr) => { if (arr && arr.length) { L.push(`${name} (${arr.length}):`); for (const x of arr.slice(0, 12)) L.push('  ' + x.replace(/\n/g, '\n    ')); if (arr.length > 12) L.push(`  … ${arr.length - 12} more`); } };
   sec('EXCEPTIONS', d.exceptions);
   sec('ERRORS', d.errors.concat(r.summary.errors || []));
   sec('FAILED REQUESTS', d.network);
   sec('warnings', d.warnings);
-  sec('CHECK', r.summary.warn);
+  sec('CHECK', [...(r.summary.warn || []), ...((r.pixels && r.pixels.warn) || [])]);
   sec('fix hints', r.hints);
   L.push(r.ok ? 'result: OK (no exceptions, errors, failed requests or scene warnings)' : 'result: PROBLEMS FOUND');
   return L.join('\n');
+}
+
+function formatPixels(p) {
+  const pct = (v) => (v >= 0.1 ? Math.round(v * 100) : Math.round(v * 1000) / 10) + '%';
+  return `pixels: ${pct(p.coverage)} differ from the background ${p.background}${p.bbox ? ` · bbox x ${p.bbox.x0}-${p.bbox.x1} y ${p.bbox.y0}-${p.bbox.y1}` : ''} · mean luma ${Math.round(p.meanLuma * 100) / 100} · ${p.colours} colours${p.transparentShare > 0.01 ? ` · ${pct(p.transparentShare)} transparent` : ''}`;
+}
+
+// Measure what the main canvas shows, from a small screenshot of its box.
+async function canvasPixels(ctx) {
+  const box = await ctx.page.eval('(() => { const t = window.__tw && window.__tw.target && window.__tw.target(); const c = (t && t.renderer && t.renderer.domElement) || document.querySelector("canvas"); if (!c) return null; const b = c.getBoundingClientRect(); return b.width > 0 && b.height > 0 ? { x: b.x, y: b.y, width: b.width, height: b.height } : null; })()');
+  if (!box) return null;
+  const { decodePng, pixelStats, pixelWarnings } = await import('./lib/png.mjs');
+  const scale = Math.min(1, 240 / box.width);
+  const { data } = await ctx.page.send('Page.captureScreenshot', { format: 'png', clip: { ...box, scale }, captureBeyondViewport: false });
+  const stats = pixelStats(decodePng(Buffer.from(data, 'base64')));
+  return { ...stats, warn: pixelWarnings(stats) };
 }
 
 async function withPage(target, a, fn, extra = {}) {
@@ -98,12 +120,14 @@ const commands = {
       await ctx.settle({ wait: Number(a.wait || 1000) });
       const { digestLogs } = await import('./lib/page.mjs');
       const summary = await ctx.page.eval('window.__tw.summary()');
+      const pixels = await canvasPixels(ctx);
+      const evaluated = a.eval ? await ctx.page.eval(String(a.eval)).catch((e) => 'eval failed: ' + e.message) : undefined;
       const logs = digestLogs(ctx.logs);
       const gl = await glString(ctx.page);
-      const ok = !logs.exceptions.length && !logs.errors.length && !logs.network.length && !(summary.errors || []).length && !(summary.warn || []).length;
+      const ok = !logs.exceptions.length && !logs.errors.length && !logs.network.length && !(summary.errors || []).length && !(summary.warn || []).length && !(pixels && pixels.warn.length);
       const { hintsFor } = await import('./lib/hints.mjs');
       const hints = hintsFor([...logs.exceptions, ...logs.errors, ...logs.network, ...logs.warnings, ...(summary.errors || [])]);
-      const r = { url: ctx.url, ok, gl, cdn: ctx.cdn.stats(), summary, logs, hints };
+      const r = { url: ctx.url, ok, gl, cdn: ctx.cdn.stats(), summary, pixels, logs, hints, ...(a.eval ? { eval: evaluated } : {}) };
       print(r, a.json, formatCheck);
       if (!ok) process.exitCode = 1;
     });
@@ -122,10 +146,14 @@ const commands = {
     return withPage(a._[1], a, async (ctx) => {
       await ctx.settle({ wait: Number(a.wait || 1000) });
       const { screenshot, digestLogs } = await import('./lib/page.mjs');
-      const r = await screenshot(ctx, out, { canvasOnly: !!a.canvas });
+      const r = await screenshot(ctx, out, { canvasOnly: !!a.canvas, alpha: !!a.alpha });
+      const { readFileSync } = await import('node:fs');
+      const { decodePng, pixelStats, pixelWarnings } = await import('./lib/png.mjs');
+      const px = pixelStats(decodePng(readFileSync(out)));
+      const pixels = { ...px, warn: pixelWarnings(px) };
       const logs = digestLogs(ctx.logs);
       const problems = logs.exceptions.length + logs.errors.length + logs.network.length;
-      print({ ...r, problems, logs: problems ? logs : undefined }, a.json, (x) => `wrote ${x.file} (${x.width}x${x.height}, ${x.tokens} image tokens${x.seenAs ? `; the model downscales it to ${x.seenAs}` : ''})${problems ? `\n${problems} problem(s): run tw check for details\n` + [...logs.exceptions, ...logs.errors, ...logs.network].slice(0, 5).map((s) => '  ' + s.split('\n')[0]).join('\n') : ''}`);
+      print({ ...r, pixels, problems, logs: problems ? logs : undefined }, a.json, (x) => `wrote ${x.file} (${x.width}x${x.height}, ${x.tokens} image tokens${x.seenAs ? `; the model downscales it to ${x.seenAs}` : ''})\n${formatPixels(x.pixels)}${x.pixels.warn.length ? '\n' + x.pixels.warn.map((w) => 'CHECK ' + w).join('\n') : ''}${problems ? `\n${problems} problem(s): run tw check for details\n` + [...logs.exceptions, ...logs.errors, ...logs.network].slice(0, 5).map((s) => '  ' + s.split('\n')[0]).join('\n') : ''}`);
     });
   },
 
@@ -192,6 +220,19 @@ const commands = {
       x.swiftshader ? `headless --gl swiftshader: WebGL ${x.swiftshader.gl} · WebGPU ${x.swiftshader.gpu}` : '',
       x.auto && x.auto.cdn ? `cdn.jsdelivr.net from the browser: ${x.auto.cdn}${x.auto.cdn.startsWith('reachable') ? '' : ` (tw serves pinned packages from node_modules or via npm ${x.npm || 'NOT FOUND'} into ${x.cache})`}` : '',
     ].filter(Boolean).join('\n'));
+  },
+
+  async diff(a) {
+    const [fa, fb] = a._.slice(1);
+    if (!fa || !fb) throw new Error('diff <a.png> <b.png> [--threshold 0.1] [--max 0.001] [--out diff.png]');
+    const { readFileSync, writeFileSync } = await import('node:fs');
+    const { decodePng, encodePng, diffImages } = await import('./lib/png.mjs');
+    const d = diffImages(decodePng(readFileSync(fa)), decodePng(readFileSync(fb)), { threshold: a.threshold ? Number(a.threshold) : 0.1 });
+    if (a.out) writeFileSync(a.out, encodePng(d.image));
+    const max = a.max !== undefined ? Number(a.max) : 0.001;
+    const r = { share: d.share, pixels: d.pixels, maxDelta: Math.round(d.maxDelta * 1000) / 1000, pass: d.share <= max, max, out: a.out || null };
+    print(r, a.json, (x) => `${x.pixels} pixel(s) differ (${(x.share * 100).toFixed(3)}%, budget ${(x.max * 100).toFixed(3)}%) · largest channel change ${x.maxDelta} · ${x.pass ? 'PASS' : 'FAIL'}${x.out ? ' · wrote ' + x.out + ' (differences in red)' : ''}`);
+    if (!r.pass) process.exitCode = 1;
   },
 
   async lint(a) { const m = await import('./lib/lint.mjs'); return m.cmdLint(a, print); },

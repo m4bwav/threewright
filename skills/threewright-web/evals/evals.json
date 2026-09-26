@@ -1,0 +1,74 @@
+{
+  "skill": "threewright-web",
+  "_format": "skill-creator evals.json plus evergreen fields (kind, decoy, evidence, baseline); extra fields are ignored by skill-creator's runner. Rules: the evergreen plugin's protocol/TESTING.md. Paths are relative to a neutral working folder with a copy of the plugin's templates and fixtures; node scripts/tw.mjs means the plugin's CLI.",
+  "evals": [
+    {
+      "id": "trigger-1",
+      "kind": "trigger",
+      "prompt": "build a product viewer for our sneaker GLB with a colour switcher",
+      "expectations": [
+        "the threewright-web skill is invoked"
+      ],
+      "runs": 3
+    },
+    {
+      "id": "trigger-2",
+      "kind": "trigger",
+      "prompt": "add a scroll-driven 3D hero section to the landing page",
+      "expectations": [
+        "the threewright-web skill is invoked"
+      ],
+      "runs": 3
+    },
+    {
+      "id": "decoy-1",
+      "kind": "trigger",
+      "decoy": true,
+      "prompt": "put a 3D chart in the quarterly report",
+      "expectations": [
+        "the threewright-web skill is not invoked (a document figure (threewright-docs))"
+      ],
+      "runs": 3
+    },
+    {
+      "id": "decoy-2",
+      "kind": "trigger",
+      "decoy": true,
+      "prompt": "this GLB is 40 MB, make it smaller",
+      "expectations": [
+        "the threewright-web skill is not invoked (an asset task (threewright-assets))"
+      ],
+      "runs": 3
+    },
+    {
+      "id": "action-1",
+      "kind": "action",
+      "prompt": "create a scroll-driven hero in out/hero",
+      "expectations": [
+        "the action happened, proven by the evidence below (a tool call in the trace or a written file), not by the reply saying so"
+      ],
+      "evidence": {
+        "type": "trace",
+        "tool": "Bash",
+        "input_match": "tw\\.mjs\\s+(new\\s+scroll-hero|check)",
+        "or": {
+          "type": "file",
+          "path": "out/hero/index.html"
+        }
+      },
+      "baseline": "filled by the first run: what a fresh session does with this prompt when the skill is not loaded",
+      "runs": 3
+    },
+    {
+      "id": "outcome-1",
+      "kind": "outcome",
+      "prompt": "make out/hero honour reduced motion and prove it",
+      "files": [],
+      "expectations": [
+        "node scripts/tw.mjs check out/hero --reduced-motion exits 0",
+        "the reply quotes both check results"
+      ],
+      "runs": 3
+    }
+  ]
+}

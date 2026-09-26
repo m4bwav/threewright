@@ -1,0 +1,83 @@
+{
+  "skill": "threewright",
+  "_format": "skill-creator evals.json plus evergreen fields (kind, decoy, evidence, baseline); extra fields are ignored by skill-creator's runner. Rules: the evergreen plugin's protocol/TESTING.md. Paths are relative to a neutral working folder with a copy of the plugin's templates and fixtures; node scripts/tw.mjs means the plugin's CLI.",
+  "evals": [
+    {
+      "id": "trigger-1",
+      "kind": "trigger",
+      "prompt": "make a three.js scene with a spinning torus knot, soft lighting and orbit controls in index.html",
+      "expectations": [
+        "the threewright skill is invoked"
+      ],
+      "runs": 3
+    },
+    {
+      "id": "trigger-2",
+      "kind": "trigger",
+      "prompt": "can you bring this old three.js r128 page up to the current version?",
+      "expectations": [
+        "the threewright skill is invoked"
+      ],
+      "runs": 3
+    },
+    {
+      "id": "trigger-3",
+      "kind": "trigger",
+      "prompt": "should I use WebGLRenderer or WebGPURenderer for a new three.js project?",
+      "expectations": [
+        "the threewright skill is invoked"
+      ],
+      "runs": 3
+    },
+    {
+      "id": "decoy-1",
+      "kind": "trigger",
+      "decoy": true,
+      "prompt": "make a bar chart of sales by region from sales.csv",
+      "expectations": [
+        "the threewright skill is not invoked (a 2D chart (chartwright))"
+      ],
+      "runs": 3
+    },
+    {
+      "id": "decoy-2",
+      "kind": "trigger",
+      "decoy": true,
+      "prompt": "write a Unity C# script that rotates a cube",
+      "expectations": [
+        "the threewright skill is not invoked (not three.js)"
+      ],
+      "runs": 3
+    },
+    {
+      "id": "action-1",
+      "kind": "action",
+      "prompt": "create a minimal three.js page in out/scene with a lit cube and verify it works",
+      "expectations": [
+        "the action happened, proven by the evidence below (a tool call in the trace or a written file), not by the reply saying so"
+      ],
+      "evidence": {
+        "type": "trace",
+        "tool": "Bash",
+        "input_match": "tw\\.mjs\\s+(new|check)\\b",
+        "or": {
+          "type": "file",
+          "path": "out/scene/index.html"
+        }
+      },
+      "baseline": "filled by the first run: what a fresh session does with this prompt when the skill is not loaded",
+      "runs": 3
+    },
+    {
+      "id": "outcome-1",
+      "kind": "outcome",
+      "prompt": "build out/knot/index.html: a torus knot lit by an environment, with orbit controls, using the current three.js",
+      "files": [],
+      "expectations": [
+        "node scripts/tw.mjs check out/knot exits 0",
+        "the page pins three@0.186.1 and does not use THREE.Clock (tw lint out/knot reports 0 errors and 0 warnings)"
+      ],
+      "runs": 3
+    }
+  ]
+}

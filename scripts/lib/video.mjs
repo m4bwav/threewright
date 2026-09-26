@@ -71,6 +71,9 @@ export async function recordVideo(ctx, { out, frames, fps, mode, crf, scale, aud
     ff.stderr.on('data', (d) => { ffErr += d.toString(); });
   }
   if (framesDir) mkdirSync(framesDir, { recursive: true });
+  // Chrome paints an opaque white page behind the canvas; alpha needs it transparent
+  // (the page must also clear with alpha: new WebGLRenderer({ alpha: true }) and no CSS background).
+  if (alpha) await ctx.page.send('Emulation.setDefaultBackgroundColorOverride', { color: { r: 0, g: 0, b: 0, a: 0 } });
   const t0 = Date.now();
   const res = await captureFrames(ctx, {
     frames, fps, mode, start,

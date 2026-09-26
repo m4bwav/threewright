@@ -1,0 +1,70 @@
+{
+  "skill": "threewright-assets",
+  "_format": "skill-creator evals.json plus evergreen fields (kind, decoy, evidence, baseline); extra fields are ignored by skill-creator's runner. Rules: the evergreen plugin's protocol/TESTING.md. Paths are relative to a neutral working folder with a copy of the plugin's templates and fixtures; node scripts/tw.mjs means the plugin's CLI.",
+  "evals": [
+    {
+      "id": "trigger-1",
+      "kind": "trigger",
+      "prompt": "this GLB is 40 MB, make it small enough for the web",
+      "expectations": [
+        "the threewright-assets skill is invoked"
+      ],
+      "runs": 3
+    },
+    {
+      "id": "trigger-2",
+      "kind": "trigger",
+      "prompt": "where can I get a free HDRI and some CC0 models for my three.js scene?",
+      "expectations": [
+        "the threewright-assets skill is invoked"
+      ],
+      "runs": 3
+    },
+    {
+      "id": "decoy-1",
+      "kind": "trigger",
+      "decoy": true,
+      "prompt": "resize these PNG photos for the blog",
+      "expectations": [
+        "the threewright-assets skill is not invoked (2D images)"
+      ],
+      "runs": 3
+    },
+    {
+      "id": "decoy-2",
+      "kind": "trigger",
+      "decoy": true,
+      "prompt": "build a product viewer page for our shoe",
+      "expectations": [
+        "the threewright-assets skill is not invoked (a web page (threewright-web))"
+      ],
+      "runs": 3
+    },
+    {
+      "id": "action-1",
+      "kind": "action",
+      "prompt": "tell me what is inside models/duck.glb",
+      "expectations": [
+        "the action happened, proven by the evidence below (a tool call in the trace or a written file), not by the reply saying so"
+      ],
+      "evidence": {
+        "type": "trace",
+        "tool": "Bash",
+        "input_match": "tw\\.mjs\\s+glb\\b"
+      },
+      "baseline": "filled by the first run: what a fresh session does with this prompt when the skill is not loaded",
+      "runs": 3
+    },
+    {
+      "id": "outcome-1",
+      "kind": "outcome",
+      "prompt": "optimize models/big.glb into models/big.opt.glb for the web",
+      "files": [],
+      "expectations": [
+        "models/big.opt.glb exists and is smaller than the input",
+        "tw glb on the output shows no size warning, and the reply lists the decoders to wire"
+      ],
+      "runs": 3
+    }
+  ]
+}
