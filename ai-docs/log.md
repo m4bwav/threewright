@@ -72,3 +72,7 @@
 - The owner asked for a short video of a shootout in Austin, Texas. Built outside the repo at D:/m4bwa/Claude/Projects/Ai/austin-shootout-video with the threewright-video flow: a stylized dusk showdown where Pecan Street crosses Congress Avenue, the Capitol dome at the end of the street, bats, tumbleweed, a Texas flag, letterbox and a title card; six camera shots; procedural audio (wind, bell, drone, two shots with echoes, ricochet, fall). 12 s, 1920x1080, 360 frames, BT.709, AAC at -16.7 LUFS, no black or frozen frames.
 - Iterations driven by tw shots in contact sheets (ffmpeg xstack): the low sun left the whole street in shadow and the side shots looked into buildings, so the duel moved to an open cross street lit straight down by a due-west sun; a moustache read as a censor bar; a close-up camera sat inside a coat and was replaced by a matching close-up of the villain.
 - Owner question answered: the campfire audio came from make-audio.mjs (plain Node synthesis), not ComfyUI or Ollama. Two learnings added to threewright-video (shared timeline module, loudnorm before muxing).
+
+## 2026-09-26: releases v0.4.1 and v0.5.0
+
+- The owner added `Bash(gh release create:*)` to the user allow list (the auto-mode classifier had blocked it as a public surface); created both Releases from the CHANGELOG sections, v0.5.0 Latest.

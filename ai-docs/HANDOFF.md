@@ -8,7 +8,7 @@ An expansive evergreen three.js plugin: skills plus a knowledge base plus token-
 
 ## State (2026-09-26, after the sixth session; v0.5.0)
 
-Everything is on `main`, with no side branches. Tags `v0.1.0` to `v0.5.0` are pushed. v0.1.0 to v0.4.0 have GitHub Releases; v0.4.1 and v0.5.0 have none yet (need the owner's go-ahead).
+Everything is on `main`, with no side branches. Tags `v0.1.0` to `v0.5.0` are pushed. Every tag has a GitHub Release; v0.5.0 is Latest.
 
 Done and verified:
 - CLI: see README and `node scripts/tw.mjs --help`. `npm test` passes 60/60; every skill's eval suite passed on 2026-09-26 (61 cases, `evals/`, TESTS.md T-20260926-2) on Windows 11 with Chrome 153 and an RTX 5060 Ti. Browser tests build vite-ts, r3f and game-starter when their `node_modules` exists (`npm ci` in the template folder).
@@ -42,5 +42,5 @@ Done and verified:
 - `tw shot/check --eval` takes one expression: join steps with commas, `"(__tw.setProgress(1), hide())"`; a `;` is a syntax error.
 - Git Bash does not convert `/tmp/...?query` paths; pass a `C:/...` path when a local page carries a query string outside `/c/`.
 - Never stop a test server with `taskkill /IM python.exe`; kill it by PID.
-- Releases: `gh release create` is blocked by the agent's auto-mode classifier unless the owner explicitly says to run it; then use the CHANGELOG section as notes (`sed -n '/^## X.Y.Z/,/^## <previous>/p' CHANGELOG.md | sed '1d;$d'`) and `--latest` only on the newest tag.
+- Releases: `gh release create` is on the owner's allow list (`Bash(gh release create:*)` in ~/.claude/settings.json since 2026-09-26), so cut a release with each tag, no need to ask; use the CHANGELOG section as notes (`sed -n '/^## X.Y.Z/,/^## <previous>/p' CHANGELOG.md | sed '1d;$d'`) and `--latest` only on the newest tag.
 - No AI attribution anywhere: commits and files carry none.
