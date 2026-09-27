@@ -1,7 +1,7 @@
 """Run the action and outcome cases headless: claude -p in a fresh workspace per run.
 
-with: the workspace holds a copy of the plugin (skills, kb, scripts, templates, tests/fixtures)
-      and is loaded with --plugin-dir, so the skills reach the model through the Skill tool.
+with: the workspace holds a copy of the repo files (skills, kb, scripts, templates, tests/fixtures),
+      and a separate plugin copy is loaded with --plugin-dir, so the skills come through the Skill tool.
 base: the workspace holds only the templates, fixtures and inputs, and no plugin.
 Each run writes <root>/runs/<id>/trace.jsonl (stream-json) and meta.json; finished runs are
 skipped, so the script resumes. Grade afterwards with grade.py.
@@ -9,8 +9,9 @@ skipped, so the script resumes. Grade afterwards with grade.py.
 Usage: python evals/headless/run.py [--runs 3] [--par 4] [--filter REGEX] [--root DIR]
 
 Caveats (evergreen L-025, L-026):
-- The workspace root is resolved to its real casing: the permission check compares paths
-  case-sensitively, and a mis-cased cwd got the model's own writes denied.
+- The plugin is loaded from a separate copy (<root>/plugin), never from the workspace: Claude Code
+  denies edits inside a loaded plugin's folder, which blocked the runs' own writes when the
+  workspace was the --plugin-dir. A pilot's permission_denials (in meta.json) should be 0.
 - Runs inherit the user's home (memory, CLAUDE.md, plugins). A baseline can find the real repo
   through memory; the script warns when the repo's git status changed during the batch.
 """
@@ -91,7 +92,9 @@ def run(root, job):
     cmd = [shutil.which('claude'), '-p', prompt_of(skill, case), '--output-format', 'stream-json', '--verbose',
            '--permission-mode', 'acceptEdits', '--allowedTools', *TOOLS, '--max-budget-usd', '6', '--no-session-persistence']
     if arm == 'with':
-        cmd += ['--plugin-dir', ws]
+        # a separate copy: Claude Code denies edits inside a loaded plugin's folder, so the
+        # workspace itself must not be the --plugin-dir
+        cmd += ['--plugin-dir', os.path.join(root, 'plugin')]  # built once in main()
     t0 = time.time()
     trace = os.path.join(rd, 'trace.jsonl')
     with open(trace, 'w', encoding='utf-8') as f:
@@ -124,9 +127,16 @@ def main():
     for s in sorted(os.listdir(os.path.join(REPO, 'skills'))):
         for case in ('action-1', 'outcome-1'):
             jobs += [(s, case, 'with', r) for r in range(1, a.runs + 1)]
-        jobs.append((s, 'outcome-1', 'base', 1))
+        if s != 'threewright-curate':  # its baseline finds the real repo through the user's memory and edits it
+            jobs.append((s, 'outcome-1', 'base', 1))
     if a.filter:
         jobs = [j for j in jobs if re.search(a.filter, '__'.join(map(str, j)))]
+    plugin = os.path.join(root, 'plugin')  # a fresh copy per batch, loaded by every with-plugin run
+    if os.path.exists(plugin):
+        shutil.rmtree(plugin)
+    for name in ('skills', 'kb', 'scripts', 'templates', 'README.md', 'package.json', '.claude-plugin'):
+        src = os.path.join(REPO, name)
+        (copytree if os.path.isdir(src) else shutil.copy2)(src, os.path.join(plugin, name))
     before = git_status()
     print(f'{len(jobs)} runs, root {root}', flush=True)
     with cf.ThreadPoolExecutor(a.par) as ex:

@@ -1,17 +1,17 @@
 # HANDOFF
 
-Updated 2026-09-26 (seventh session). Read this first, then `ai-docs/log.md`, then `ai-docs/research/`.
+Updated 2026-09-26 (seventh session, v0.6.1). Read this first, then `ai-docs/log.md`, then `ai-docs/research/`.
 
 ## Goal (from the owner)
 
 An expansive evergreen three.js plugin: skills plus a knowledge base plus token-saving scripts and tests, for everything from 3D charts in docs to videos to games. Research and use the latest, most popular three.js AI skills, tools and docs. Teach the latest three.js (r186, 0.186.1, 2026-09-24) and where it is heading (WebGPU, TSL); stale material is only for old versions. Public repo m4bwav/threewright. Follow the chartwright plugin layout (m4bwav/chartwright) and the evergreen protocol (m4bwav/evergreen-protocol). No AI attribution anywhere.
 
-## State (2026-09-26, after the seventh session; v0.6.0)
+## State (2026-09-26, after the seventh session; v0.6.1)
 
-Everything is on `main`, with no side branches. Tags `v0.1.0` to `v0.6.0` are pushed. Every tag has a GitHub Release; v0.6.0 is Latest.
+Everything is on `main`, with no side branches. Tags `v0.1.0` to `v0.6.1` are pushed. Every tag has a GitHub Release; v0.6.1 is Latest.
 
 Done and verified:
-- CLI: see README and `node scripts/tw.mjs --help`. `npm test` passes 61/61 (2026-09-26); every skill's eval suite passed on 2026-09-26 (61 cases, `evals/`, TESTS.md T-20260926-2) on Windows 11 with Chrome 153 and an RTX 5060 Ti. Browser tests build vite-ts, r3f and game-starter when their `node_modules` exists (`npm ci` in the template folder).
+- CLI: see README and `node scripts/tw.mjs --help`. `npm test` passes 61/61 (2026-09-26); every skill's eval suite passed on 2026-09-26 (triggers T-20260926-2; action and outcome x3 through the Skill tool T-20260926-3, evals/results/headless-latest.md; r3f outcome 2 of 3) on Windows 11 with Chrome 153 and an RTX 5060 Ti. Browser tests build vite-ts, r3f and game-starter when their `node_modules` exists (`npm ci` in the template folder).
 - New in 0.3.0: `--actions` input bursts, `check --cycles` leak checks, `tw shaders`, `--labels`, `check --shot/--sheet/--tree`, `render_game_to_text()` output, `--color-scheme`, query strings on local paths, and six bug fixes (CHANGELOG.md). New in 0.4.0: `sheet --sweep`, the `advanceTime(ms)` video driver, sharing an existing `__THREE_DEVTOOLS__` hook.
 - KTX-Software 4.4.2 is installed on this machine (per user, `%LOCALAPPDATA%\Programs\KTX-Software\bin` on the user PATH), and the etc1s and uastc steps were checked with it.
 - Knowledge base: 89 entries, `tw kb validate --strict` clean, index generated. All 20 recipes have been executed.
@@ -23,9 +23,10 @@ Done and verified:
 
 ## Not done (in order)
 
-1. Finish the eval pass (evals/results/2026-09-26-headless.md). 28 of 70 runs are done, and the Skill tool fired in all 25 with-plugin runs. Left: games, r3f, shaders, video and web in full, docs action runs 1 and 3 plus its outcomes, and reruns of the 14 runs that had tool calls denied. Then grade the outcomes on disk and write T- entries with `evergreen.py tested`. Two blockers: build workspaces from the real path casing (`D--m4bwa-...`; evergreen L-026), and get the owner's go-ahead, because the auto-mode classifier refused relaunching the headless `claude -p` runs as "creating unsafe agents". Options: the owner runs the runner script, adds a permission rule, or uses `claude plugin eval` in WSL2 (throwaway home, clean baselines).
-2. Fix curate action-1: its note already exists in color-management, so pick a new one and grade on a content regex (evergreen L-025). Then tune threewright-curate so it refuses a note that repeats an existing line (2 of 3 runs duplicated it).
-3. Parked by the owner (2026-09-26, no headset): XR work, i.e. a webxr-starter template and `tw --xr` through IWER 2.5.0 (its `build/iwer.min.js` is a UMD bundle exposing `IWER.XRDevice` and `metaQuest3`, injectable before page scripts). Do not start it unless asked. A phone AR version was also floated and set aside.
+1. Optional, only if it matters: r3f outcome-1 run 3 fired no skill for "out/r3f builds and runs clean" (1 of 3). Most outcome cases also pass without the plugin; sharpen or drop them if the suite should prove more than the action cases do.
+2. Parked by the owner (2026-09-26, no headset): XR work, i.e. a webxr-starter template and `tw --xr` through IWER 2.5.0 (its `build/iwer.min.js` is a UMD bundle exposing `IWER.XRDevice` and `metaQuest3`, injectable before page scripts). Do not start it unless asked. A phone AR version was also floated and set aside.
+
+The owner's direction (2026-09-26): nobody else uses this library; keep it cheap to maintain. Rerun evals only after a skill changes: `python evals/headless/run.py --filter <skill>` then `python evals/headless/grade.py` (about $0.50 a run; runs inherit your home, and the runner warns if the repo changed).
 
 ## Gotchas
 
@@ -45,4 +46,4 @@ Done and verified:
 - Never stop a test server with `taskkill /IM python.exe`; kill it by PID.
 - Releases: `gh release create` is on the owner's allow list (`Bash(gh release create:*)` in ~/.claude/settings.json since 2026-09-26), so cut a release with each tag, no need to ask; use the CHANGELOG section as notes (`sed -n '/^## X.Y.Z/,/^## <previous>/p' CHANGELOG.md | sed '1d;$d'`) and `--latest` only on the newest tag.
 - No AI attribution anywhere: commits and files carry none.
-- Headless eval baselines inherit the user's home and memory, which names this repo; one wrote into the real repo on 2026-09-26. After any eval batch, run `git status` here.
+- Headless eval baselines inherit the user's home and memory, which names this repo; one wrote into the real repo on 2026-09-26, so run.py leaves the curate baseline out and warns when the repo changes. Never pass a run's workspace as `--plugin-dir`: Claude Code refuses edits inside a loaded plugin.

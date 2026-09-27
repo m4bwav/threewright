@@ -2,6 +2,14 @@
 
 Plugin versions. Skill-level changes are in each `skills/*/CHANGELOG.md`; the session record is `ai-docs/log.md`.
 
+## 0.6.1 · 2026-09-26
+
+The eval pass is complete, with a harness in the repo so the next one is one command.
+- `evals/headless/`: `run.py` runs every action and outcome case through `claude -p --plugin-dir` in fresh workspaces (3 runs each plus a no-plugin baseline, resumable), and `grade.py` grades them on the trace and the disk into evals/results/headless-latest.md. `make-inputs.mjs` regenerates the input models and CSV.
+- Result (69 runs, $39): every skill's action and outcome cases pass 3 of 3 through the Skill tool, except r3f outcome-1, where run 3 fired no skill. Baselines without the plugin also pass most outcome cases, so the plugin's measurable difference is the verified `tw` step (action cases).
+- threewright-curate edits the knowledge base of a git checkout, never the installed plugin copy (which Claude Code refuses to edit and an update would overwrite).
+- Outcome cases no longer grade the reply's wording (quotes, alt text, driver names): only files, exit codes and trace calls.
+
 ## 0.6.0 · 2026-09-26
 
 product-viewer ships with no CDN requests, the decoder advice agrees with r186 everywhere, and a partial eval pass through the Skill tool.

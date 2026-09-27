@@ -82,3 +82,9 @@
 - HANDOFF items 1 and 2. product-viewer is vendored: `tw vendor` follows `new URL(..., import.meta.url)` in vendored modules, which brings the r186 Draco and KTX2 decoders along (checked offline with a Draco model and a KTX2 model; shots looked at). The decoder hints in tw glb and tw check and the KB decoder text now agree that paths are optional in r186.
 - Eval pass through `claude -p --plugin-dir` (Skill tool, per-run workspaces): 28 of 70 runs, $12.47. The Skill tool fired in all 25 with-plugin runs. Stopped for two reasons. 14 runs had tool calls denied because the workspaces used the wrong path casing (d-- vs D--). And the curate baseline escaped to the real repo through the user's memory and wrote an audit note, which was removed; its four scenario findings were checked and fixed. The auto-mode classifier then refused relaunching the headless runs. Record: evals/results/2026-09-26-headless.md; lessons in the evergreen plugin's LEARNINGS (L-025, L-026).
 - `npm test` 61/61 on main (58 plus 3 skipped in the worktree, which had no template node_modules). kb validate --strict clean.
+
+## 2026-09-26: v0.6.1, eval pass finished
+
+- The owner said to relaunch the runner and to optimise for low upkeep (nobody else uses the library). The harness moved into the repo as evals/headless/ (run.py, grade.py, make-inputs.mjs).
+- The earlier denials were not path casing. The workspace was loaded as the `--plugin-dir`, and Claude Code refuses edits inside a loaded plugin. With a separate plugin copy the pilot had 0 denials. Evergreen L-026 was corrected.
+- 69 runs, $39.10: every action and outcome case passed 3 of 3 through the Skill tool, except r3f outcome-1 (run 3 invoked no skill). The curate skill was tuned first: it now edits a checkout, not the installed plugin. Outcome grading dropped reply-wording criteria. Baselines passed most outcome cases.

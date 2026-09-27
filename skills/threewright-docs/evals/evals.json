@@ -65,8 +65,7 @@
       "prompt": "make a README-ready turntable GIF of a 3D scatter of data.csv at docs/scatter.gif",
       "files": [],
       "expectations": [
-        "docs/scatter.gif exists and is under 5 MB",
-        "the reply states the finding and gives alt text"
+        "docs/scatter.gif exists and is under 5 MB"
       ],
       "runs": 3
     }

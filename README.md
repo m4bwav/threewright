@@ -82,6 +82,7 @@ Claude Code: `/plugin marketplace add m4bwav/threewright`, then `/plugin install
 
 ```
 skills/       ten skills, each with SKILL.md, RESEARCH, CHANGELOG, LEARNINGS, TESTS, evergreen.json, evals/
+evals/        exported eval cases; headless/ runs the action and outcome cases (python evals/headless/run.py, then grade.py)
 kb/           topics, scenarios, libraries, recipes, rules; INDEX.md and index.json are generated
 templates/    verified starters
 scripts/      tw.mjs and scripts/lib/

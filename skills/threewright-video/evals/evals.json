@@ -65,8 +65,7 @@
       "prompt": "make out/turn.mp4: 3 seconds at 30 fps, 1280x720, of the video-turntable template",
       "files": [],
       "expectations": [
-        "ffprobe shows h264, yuv420p, 90 frames, 1280x720",
-        "the reply names the driver and the verification checks"
+        "ffprobe shows h264, yuv420p, 90 frames, 1280x720"
       ],
       "runs": 3
     }

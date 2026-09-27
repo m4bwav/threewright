@@ -7,7 +7,7 @@ description: "Grow and correct threewright's three.js knowledge base and keep it
 
 Outcome: the knowledge base (and, when needed, lint rules, fix hints and template pins) gained or corrected content that `tw kb validate --strict` accepts, `kb/INDEX.md` was regenerated, the change is logged with its reason and sources, and nothing was edited from memory.
 
-Plugin root: two levels above this file. `TW` = `node "<plugin root>/scripts/tw.mjs"`. Schema: `kb/SCHEMA.md`; standard: `ai-docs/notes/kb-authoring-brief.md`. The full procedure for each path is in [references/procedures.md](references/procedures.md); read only the section you need.
+Knowledge base to edit: a git checkout of threewright, never an installed plugin copy (a plugin cache is overwritten on the next update, and Claude Code refuses edits inside a loaded plugin). Use the current directory when it holds `kb/SCHEMA.md` and `scripts/tw.mjs`; otherwise the plugin root (two levels above this file) if it is a git checkout; otherwise ask where the checkout is. `TW` = `node "<checkout>/scripts/tw.mjs"`, since `tw kb` edits the `kb/` next to the script it runs from. Schema: `kb/SCHEMA.md`; standard: `ai-docs/notes/kb-authoring-brief.md`. The full procedure for each path is in [references/procedures.md](references/procedures.md); read only the section you need.
 
 ## Step 0: freshness (every use, one read)
 

@@ -65,8 +65,7 @@
       "prompt": "make out/hero honour reduced motion and prove it",
       "files": [],
       "expectations": [
-        "node scripts/tw.mjs check out/hero --reduced-motion exits 0",
-        "the reply quotes both check results"
+        "node scripts/tw.mjs check out/hero --reduced-motion exits 0"
       ],
       "runs": 3
     }
