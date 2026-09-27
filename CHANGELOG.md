@@ -2,6 +2,13 @@
 
 Plugin versions. Skill-level changes are in each `skills/*/CHANGELOG.md`; the session record is `ai-docs/log.md`.
 
+## 0.6.2 · 2026-09-26
+
+Less to run, one trigger gap closed.
+- Outcome cases the no-plugin baseline also passes are marked `redundant` in evals.json (8 of 10 skills; games and curate keep theirs). `evals/headless/run.py` skips them unless `--all`, so a full pass is 37 runs instead of 69.
+- threewright-r3f's description covers checking that an R3F app builds and runs; the case that missed now fires the skill 3 of 3.
+- XR is dropped from the plan.
+
 ## 0.6.1 · 2026-09-26
 
 The eval pass is complete, with a harness in the repo so the next one is one command.

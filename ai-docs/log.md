@@ -88,3 +88,8 @@
 - The owner said to relaunch the runner and to optimise for low upkeep (nobody else uses the library). The harness moved into the repo as evals/headless/ (run.py, grade.py, make-inputs.mjs).
 - The earlier denials were not path casing. The workspace was loaded as the `--plugin-dir`, and Claude Code refuses edits inside a loaded plugin. With a separate plugin copy the pilot had 0 denials. Evergreen L-026 was corrected.
 - 69 runs, $39.10: every action and outcome case passed 3 of 3 through the Skill tool, except r3f outcome-1 (run 3 invoked no skill). The curate skill was tuned first: it now edits a checkout, not the installed plugin. Outcome grading dropped reply-wording criteria. Baselines passed most outcome cases.
+
+## 2026-09-26: v0.6.2, redundant outcome cases and the r3f trigger
+
+- Outcome cases that the no-plugin baseline also passed are marked `redundant` and skipped by run.py unless `--all` (full pass 37 runs, was 69). threewright-r3f's description now covers "does this R3F app build and run"; outcome-1 rerun fired the skill 3 of 3 (T-20260926-4).
+- The owner dropped XR: removed from the handoff's plan.

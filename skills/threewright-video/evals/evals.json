@@ -67,7 +67,8 @@
       "expectations": [
         "ffprobe shows h264, yuv420p, 90 frames, 1280x720"
       ],
-      "runs": 3
+      "runs": 3,
+      "redundant": "the no-plugin baseline passed it too (T-20260926-3); kept for reference, skipped by evals/headless/run.py unless --all"
     }
   ]
 }

@@ -68,7 +68,8 @@
         "npm run build in out/r3f exits 0",
         "node scripts/tw.mjs check out/r3f/dist exits 0"
       ],
-      "runs": 3
+      "runs": 3,
+      "redundant": "the no-plugin baseline passed it too (T-20260926-3); kept for reference, skipped by evals/headless/run.py unless --all"
     }
   ]
 }

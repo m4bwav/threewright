@@ -64,7 +64,8 @@
         "node scripts/tw.mjs check out/fixed exits 0",
         "the reply names the cause with the check line that showed it"
       ],
-      "runs": 3
+      "runs": 3,
+      "redundant": "the no-plugin baseline passed it too (T-20260926-3); kept for reference, skipped by evals/headless/run.py unless --all"
     }
   ]
 }

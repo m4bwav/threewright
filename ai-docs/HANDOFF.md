@@ -1,17 +1,17 @@
 # HANDOFF
 
-Updated 2026-09-26 (seventh session, v0.6.1). Read this first, then `ai-docs/log.md`, then `ai-docs/research/`.
+Updated 2026-09-26 (seventh session, v0.6.2). Read this first, then `ai-docs/log.md`, then `ai-docs/research/`.
 
 ## Goal (from the owner)
 
 An expansive evergreen three.js plugin: skills plus a knowledge base plus token-saving scripts and tests, for everything from 3D charts in docs to videos to games. Research and use the latest, most popular three.js AI skills, tools and docs. Teach the latest three.js (r186, 0.186.1, 2026-09-24) and where it is heading (WebGPU, TSL); stale material is only for old versions. Public repo m4bwav/threewright. Follow the chartwright plugin layout (m4bwav/chartwright) and the evergreen protocol (m4bwav/evergreen-protocol). No AI attribution anywhere.
 
-## State (2026-09-26, after the seventh session; v0.6.1)
+## State (2026-09-26, after the seventh session; v0.6.2)
 
-Everything is on `main`, with no side branches. Tags `v0.1.0` to `v0.6.1` are pushed. Every tag has a GitHub Release; v0.6.1 is Latest.
+Everything is on `main`, with no side branches. Tags `v0.1.0` to `v0.6.2` are pushed. Every tag has a GitHub Release; v0.6.2 is Latest.
 
 Done and verified:
-- CLI: see README and `node scripts/tw.mjs --help`. `npm test` passes 61/61 (2026-09-26); every skill's eval suite passed on 2026-09-26 (triggers T-20260926-2; action and outcome x3 through the Skill tool T-20260926-3, evals/results/headless-latest.md; r3f outcome 2 of 3) on Windows 11 with Chrome 153 and an RTX 5060 Ti. Browser tests build vite-ts, r3f and game-starter when their `node_modules` exists (`npm ci` in the template folder).
+- CLI: see README and `node scripts/tw.mjs --help`. `npm test` passes 61/61 (2026-09-26); every skill's eval suite passed on 2026-09-26 (triggers T-20260926-2; action and outcome x3 through the Skill tool T-20260926-3, evals/results/headless-latest.md; all 3 of 3 after the r3f fix, T-20260926-4) on Windows 11 with Chrome 153 and an RTX 5060 Ti. Browser tests build vite-ts, r3f and game-starter when their `node_modules` exists (`npm ci` in the template folder).
 - New in 0.3.0: `--actions` input bursts, `check --cycles` leak checks, `tw shaders`, `--labels`, `check --shot/--sheet/--tree`, `render_game_to_text()` output, `--color-scheme`, query strings on local paths, and six bug fixes (CHANGELOG.md). New in 0.4.0: `sheet --sweep`, the `advanceTime(ms)` video driver, sharing an existing `__THREE_DEVTOOLS__` hook.
 - KTX-Software 4.4.2 is installed on this machine (per user, `%LOCALAPPDATA%\Programs\KTX-Software\bin` on the user PATH), and the etc1s and uastc steps were checked with it.
 - Knowledge base: 89 entries, `tw kb validate --strict` clean, index generated. All 20 recipes have been executed.
@@ -21,12 +21,11 @@ Done and verified:
 - Templates (12, all verified): html-importmap, html-webgpu, vite-ts, r3f, chart-3d-scatter, video-turntable, game-starter, surface, globe, product-viewer, scroll-hero, splats. The light palettes of surface and globe are now shot too.
 - Lint: 67 rules; `tw deprecations` 0 pending for r186.
 
-## Not done (in order)
+## Not done
 
-1. Optional, only if it matters: r3f outcome-1 run 3 fired no skill for "out/r3f builds and runs clean" (1 of 3). Most outcome cases also pass without the plugin; sharpen or drop them if the suite should prove more than the action cases do.
-2. Parked by the owner (2026-09-26, no headset): XR work, i.e. a webxr-starter template and `tw --xr` through IWER 2.5.0 (its `build/iwer.min.js` is a UMD bundle exposing `IWER.XRDevice` and `metaQuest3`, injectable before page scripts). Do not start it unless asked. A phone AR version was also floated and set aside.
+Nothing is open. XR (a webxr-starter template, `tw --xr` through IWER) was considered and dropped on 2026-09-26: not coming. The IWER notes are in ai-docs/log.md if that changes.
 
-The owner's direction (2026-09-26): nobody else uses this library; keep it cheap to maintain. Rerun evals only after a skill changes: `python evals/headless/run.py --filter <skill>` then `python evals/headless/grade.py` (about $0.50 a run; runs inherit your home, and the runner warns if the repo changed).
+The owner's direction (2026-09-26): nobody else uses this library; keep it cheap to maintain. Rerun evals only after a skill changes: `python evals/headless/run.py --filter <skill>` then `python evals/headless/grade.py` (about $0.50 a run; a full pass is 37 runs, cases marked `redundant` need `--all`; runs inherit your home, and the runner warns if the repo changed).
 
 ## Gotchas
 

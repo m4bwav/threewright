@@ -6,7 +6,8 @@ base: the workspace holds only the templates, fixtures and inputs, and no plugin
 Each run writes <root>/runs/<id>/trace.jsonl (stream-json) and meta.json; finished runs are
 skipped, so the script resumes. Grade afterwards with grade.py.
 
-Usage: python evals/headless/run.py [--runs 3] [--par 4] [--filter REGEX] [--root DIR]
+Usage: python evals/headless/run.py [--runs 3] [--par 4] [--filter REGEX] [--root DIR] [--all]
+Cases marked "redundant" in evals.json (the no-plugin baseline passes them too) are skipped unless --all.
 
 Caveats (evergreen L-025, L-026):
 - The plugin is loaded from a separate copy (<root>/plugin), never from the workspace: Claude Code
@@ -117,6 +118,7 @@ def main():
     ap.add_argument('--runs', type=int, default=3)
     ap.add_argument('--par', type=int, default=4)
     ap.add_argument('--filter')
+    ap.add_argument('--all', action='store_true', help='include cases marked redundant')
     ap.add_argument('--root', default=os.path.join(tempfile.gettempdir(), 'threewright-evals'))
     a = ap.parse_args()
     root = os.path.realpath(a.root)
@@ -125,10 +127,15 @@ def main():
         subprocess.run(['node', os.path.join(REPO, 'evals', 'headless', 'make-inputs.mjs'), os.path.join(root, 'inputs')], check=True)
     jobs = []
     for s in sorted(os.listdir(os.path.join(REPO, 'skills'))):
+        evals = json.load(open(os.path.join(REPO, 'skills', s, 'evals', 'evals.json'), encoding='utf-8'))['evals']
+        redundant = {e['id'] for e in evals if e.get('redundant')}
         for case in ('action-1', 'outcome-1'):
+            if case in redundant and not a.all:
+                continue
             jobs += [(s, case, 'with', r) for r in range(1, a.runs + 1)]
-        if s != 'threewright-curate':  # its baseline finds the real repo through the user's memory and edits it
-            jobs.append((s, 'outcome-1', 'base', 1))
+            # curate's baseline finds the real repo through the user's memory and edits it
+            if case == 'outcome-1' and s != 'threewright-curate':
+                jobs.append((s, case, 'base', 1))
     if a.filter:
         jobs = [j for j in jobs if re.search(a.filter, '__'.join(map(str, j)))]
     plugin = os.path.join(root, 'plugin')  # a fresh copy per batch, loaded by every with-plugin run

@@ -1,6 +1,6 @@
 # Headless eval results
 
-Graded by evals/headless/grade.py. 69 runs, $39.10. A with-plugin run passes only if the Skill tool fired the expected skill, no tool call inside its workspace was denied (edits to the loaded plugin copy are refused by design), and the evidence held. Baselines (base) show what happens without the plugin.
+Graded by evals/headless/grade.py. 69 runs, $38.79. A with-plugin run passes only if the Skill tool fired the expected skill, no tool call inside its workspace was denied (edits to the loaded plugin copy are refused by design), and the evidence held. Baselines (base) show what happens without the plugin.
 
 ## By case
 
@@ -25,7 +25,7 @@ Graded by evals/headless/grade.py. 69 runs, $39.10. A with-plugin run passes onl
 | threewright-games | outcome-1 | with | 3/3 |
 | threewright-r3f | action-1 | with | 3/3 |
 | threewright-r3f | outcome-1 | base | 1/1 |
-| threewright-r3f | outcome-1 | with | 2/3 |
+| threewright-r3f | outcome-1 | with | 3/3 |
 | threewright-shaders | action-1 | with | 3/3 |
 | threewright-shaders | outcome-1 | base | 1/1 |
 | threewright-shaders | outcome-1 | with | 3/3 |
@@ -78,9 +78,9 @@ Graded by evals/headless/grade.py. 69 runs, $39.10. A with-plugin run passes onl
 | threewright-r3f | action-1 | with 2 | yes | 0 | PASS | file: out/r3f/package.json | $0.35 |
 | threewright-r3f | action-1 | with 3 | yes | 0 | PASS | file: out/r3f/package.json | $0.36 |
 | threewright-r3f | outcome-1 | base 1 | no | 0 | PASS | build 0; check dist True | $0.40 |
-| threewright-r3f | outcome-1 | with 1 | yes | 0 | PASS | build 0; check dist True | $0.48 |
-| threewright-r3f | outcome-1 | with 2 | yes | 0 | PASS | build 0; check dist True | $0.42 |
-| threewright-r3f | outcome-1 | with 3 | no | 0 | FAIL | build 0; check dist True | $0.33 |
+| threewright-r3f | outcome-1 | with 1 | yes | 0 | PASS | build 0; check dist True | $0.33 |
+| threewright-r3f | outcome-1 | with 2 | yes | 0 | PASS | build 0; check dist True | $0.31 |
+| threewright-r3f | outcome-1 | with 3 | yes | 0 | PASS | build 0; check dist True | $0.28 |
 | threewright-shaders | action-1 | with 1 | yes | 0 | PASS | trace: $TW check | $0.55 |
 | threewright-shaders | action-1 | with 2 | yes | 0 | PASS | trace: $TW check | $0.55 |
 | threewright-shaders | action-1 | with 3 | yes | 0 | PASS | trace: tw.mjs check | $0.65 |

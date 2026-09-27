@@ -1,6 +1,6 @@
 ---
 name: threewright-r3f
-description: "Build and fix React Three Fiber apps (R3F 9.8 with drei 10.7 on React 19.3, three r186): scenes as JSX components, useFrame animation on refs, drei helpers, Rapier physics through @react-three/rapier, post-processing, WebGPU through the async gl factory, and the v10 alpha caveats; verified by building and running tw check on the output. Use whenever the user mentions React Three Fiber, R3F, @react-three/fiber, drei, a Canvas component, useFrame, useThree, a 3D scene in a React or Next.js app, or asks to move a three.js scene into React; also 'refresh threewright-r3f'. Plain three.js pages stay with threewright; games add threewright-games."
+description: "Build and fix React Three Fiber apps (R3F 9.8 with drei 10.7 on React 19.3, three r186): scenes as JSX components, useFrame animation on refs, drei helpers, Rapier physics through @react-three/rapier, post-processing, WebGPU through the async gl factory, and the v10 alpha caveats; verified by building and running tw check on the output. Use whenever the user mentions React Three Fiber, R3F, @react-three/fiber, drei, a Canvas component, useFrame, useThree, a 3D scene in a React or Next.js app, asks to move a three.js scene into React, or asks whether an R3F app (a folder whose package.json has @react-three/fiber) builds and runs clean; also 'refresh threewright-r3f'. Plain three.js pages stay with threewright; games add threewright-games."
 ---
 
 # threewright-r3f

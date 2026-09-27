@@ -77,7 +77,8 @@
         "node scripts/tw.mjs check out/knot exits 0",
         "the page pins three@0.186.1 and does not use THREE.Clock (tw lint out/knot reports 0 errors and 0 warnings)"
       ],
-      "runs": 3
+      "runs": 3,
+      "redundant": "the no-plugin baseline passed it too (T-20260926-3); kept for reference, skipped by evals/headless/run.py unless --all"
     }
   ]
 }

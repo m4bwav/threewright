@@ -1,6 +1,6 @@
 {
   "name": "threewright",
-  "version": "0.6.1",
+  "version": "0.6.2",
   "private": true,
   "description": "Evergreen three.js skills, knowledge base and a zero-dependency verification CLI for AI agents",
   "type": "module",

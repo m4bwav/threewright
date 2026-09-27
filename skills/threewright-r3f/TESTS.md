@@ -8,6 +8,10 @@ Entry shape: `### T-YYYYMMDD-n · date · harness · env · passed/total`, then 
 
 ## Runs
 
+### T-20260926-4 · 2026-09-26 · claude -p --plugin-dir (evals/headless) · owner-pc Windows 11, Chrome 153, RTX 5060 Ti · 7/7
+- outcome-1 rerun 3 times after C-20260926-2: the Skill tool fired threewright-r3f in 3 of 3, build and tw check passed. outcome-1 is now marked redundant (the baseline passes it too) and is skipped by default.
+- led to: none
+
 ### T-20260926-3 · 2026-09-26 · claude -p --plugin-dir (evals/headless) · owner-pc Windows 11, Chrome 153, RTX 5060 Ti · 6/7
 - outcome-1 · outcome · trigger-miss · run 3 invoked no skill for "out/r3f builds and runs clean"; the build and tw check still passed. Runs 1 and 2 passed through the Skill tool.
 - action-1 3/3 through the Skill tool. Triggers and decoys: T-20260926-2.

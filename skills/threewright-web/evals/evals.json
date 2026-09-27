@@ -67,7 +67,8 @@
       "expectations": [
         "node scripts/tw.mjs check out/hero --reduced-motion exits 0"
       ],
-      "runs": 3
+      "runs": 3,
+      "redundant": "the no-plugin baseline passed it too (T-20260926-3); kept for reference, skipped by evals/headless/run.py unless --all"
     }
   ]
 }
