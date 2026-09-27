@@ -93,3 +93,9 @@
 
 - Outcome cases that the no-plugin baseline also passed are marked `redundant` and skipped by run.py unless `--all` (full pass 37 runs, was 69). threewright-r3f's description now covers "does this R3F app build and run"; outcome-1 rerun fired the skill 3 of 3 (T-20260926-4).
 - The owner dropped XR: removed from the handoff's plan.
+
+## 2026-09-27: learnings from a site hero (markdavidrogers-web vapor3d island)
+
+- Used threewright (WebGLRenderer, lines only, lazy-loaded chunk in a Vite React island) to build the opt-in 3D version of Mark's synthwave hero. Verified with `tw check` and `tw shot` through a scratch root and a harness page carrying the site's CSP; not committed here.
+- Added L-20260927-1 (fade floor-grid rows early and columns late to avoid horizon moire), L-20260927-2 (scratch-root harness for bundled islands behind a backend) and L-20260927-3 (reading reduced motion and teardown from `render calls` and the renderer line; the detached-canvas problem after switching off) to skills/threewright/LEARNINGS.md. evergreen.json counts.learnings 0 -> 3.
+- Candidate tw change from L-20260927-3: report a detached canvas whose renderer has 0 programs and 0 geometries as information, not a problem.
