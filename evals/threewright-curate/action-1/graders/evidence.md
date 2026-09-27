@@ -1,9 +1,7 @@
 ---
-type: tool_used
-name: 'evidence: Bash called'
-tool: Bash
-input_match: 'tw\.mjs\s+kb\s+note\s+color-management'
-min: 1
+type: regex
+name: 'evidence: the note is in the entry'
+file: kb/topics/color-management.md
+pattern: 'VideoTexture'
 arm: both
 ---
-

@@ -5,4 +5,4 @@ allowed_tools: [Read, Glob, Grep, Skill, Bash, Write, Edit]
 runs: 3
 ---
 
-note on the color-management entry: CanvasTexture colour content also needs SRGBColorSpace
+note on the color-management entry: VideoTexture colour content also needs SRGBColorSpace

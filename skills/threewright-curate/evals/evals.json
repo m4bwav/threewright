@@ -43,18 +43,15 @@
     {
       "id": "action-1",
       "kind": "action",
-      "prompt": "note on the color-management entry: CanvasTexture colour content also needs SRGBColorSpace",
+      "prompt": "note on the color-management entry: VideoTexture colour content also needs SRGBColorSpace",
       "expectations": [
         "the action happened, proven by the evidence below (a tool call in the trace or a written file), not by the reply saying so"
       ],
       "evidence": {
-        "type": "trace",
-        "tool": "Bash",
-        "input_match": "tw\\.mjs\\s+kb\\s+note\\s+color-management",
-        "or": {
-          "type": "file",
-          "path": "kb/topics/color-management.md"
-        }
+        "type": "file",
+        "path": "kb/topics/color-management.md",
+        "regex": "VideoTexture",
+        "_why": "the entry does not mention VideoTexture before the run; a file-exists check proved nothing (evergreen L-025)"
       },
       "baseline": "filled by the first run: what a fresh session does with this prompt when the skill is not loaded",
       "runs": 3
