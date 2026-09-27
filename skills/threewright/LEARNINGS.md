@@ -16,6 +16,14 @@ Write an entry the moment a real signal happens: a user correction, the same err
 - Status: active · helpful 1 · harmful 0 · last_confirmed date
 -->
 
+### L-20260927-5 · 2026-09-27 · tw --eval takes one expression and the shot follows at once; test page interactions with instant motion
+- Trigger: checking a carousel on markdavidrogers.com. `--eval "a.click(); a.click()"` failed with "SyntaxError: Unexpected token ';'". A comma expression with a `setTimeout` second click never fired, and the shot caught a smooth `scrollTo` part-way (the slide sat 40 to 65 px off), which looked like a layout bug.
+- Hypothesis: tw wraps --eval as an expression and captures right after it resolves; compositor-driven smooth scrolling and later timers are not waited for.
+- Rule: chain actions with commas inside one expression, and pass `--reduced-motion` when the page honours it (its motion becomes instant), so the shot shows the settled state. Read an offset in a smooth-scroll shot as timing until the instant run disagrees.
+- Evidence: markdavidrogers-web PR #14, `/scripts/carousel.js`; the reduced-motion run showed slide 3 of 10 exactly aligned.
+- Scope: skill (tw shot and check usage)
+- Status: active · helpful 0 · harmful 0 · last_confirmed 2026-09-27
+
 ### L-20260927-4 · 2026-09-27 · On the real production page tw check misses a bundled three.js; judge the clicked state by the shot
 - Trigger: after integrating the vapor3d island into markdavidrogers-web, `tw check http://localhost:5080/ --eval "document.querySelector('.hero button').click()" --wait 4000` printed "three: not detected ... no three.js scene observed ... PROBLEMS FOUND", while `tw shot` with the same --eval showed the live scene drawn and the button reading "Picture".
 - Hypothesis: tw finds scenes through hooks that a bundled, minified three.js on a page it does not control never exposes (the harness in L-20260927-2 sets `window.__tw.ready`); the pixel statistics of `shot` still see the canvas.
