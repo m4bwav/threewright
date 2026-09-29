@@ -55,3 +55,35 @@ Write an entry the moment a real signal happens: a user correction, the same err
 - Evidence: markdavidrogers-web session 2026-09-27 (tw check runs listed in the rule); possible tw change: report a detached canvas with 0 programs as information, not a problem; confirmed 2026-09-27
 - Scope: skill
 - Status: active · helpful 1 · harmful 0 · last_confirmed 2026-09-27
+
+### L-20260929-1 · 2026-09-29 · On a real page, tw check sees a lazily created renderer after a click; count draw calls with an eval when perf prints "?"
+- Trigger: 2026-09-29, markdavidrogers-web vapor3d hero (three bundled by Vite, loaded on a toggle). Earlier notes said `tw check` reports "no three.js scene observed" there. With `--actions "click 1187,597; wait 3000"` it printed the full renderer line (draw calls 37, geometries, programs). `tw perf` on the same page gave 60 fps but `draw calls ? · triangles ?`.
+- Hypothesis: tw hooks the renderer when three announces it. That happens when the island imports the chunk, so a check without the click finds nothing. perf's per-frame counters need a hook it does not have for a bundled copy.
+- Rule: check an opt-in scene with the click in `--actions` and read its renderer line. For draw calls per frame, pass `--eval` with a promise that wraps `WebGL2RenderingContext.prototype.drawArrays` and `drawElements` with counters (patching the prototype also counts the context that already exists), counts 60 `requestAnimationFrame`s and resolves `calls / frames`. Take two waits to compare a state with and without an object (37.0 against 41.0 here).
+- Evidence: markdavidrogers-web session 2026-09-29 (branch feat/hero-buggy-highway, log entry); confirmed 2026-09-29
+- Scope: skill
+- Status: active · helpful 1 · harmful 0 · last_confirmed 2026-09-29
+
+### L-20260929-2 · 2026-09-29 · An object that must stand on procedural meshes gets the mesh data from the same pure module as its motion
+- Trigger: 2026-09-29, a dune buggy had to drive over the vapor3d hero's faceted ridges (seeded random peaks built inside the scene file) and pitch and roll with the rock. Its height had to match what is drawn, and the tests had to prove it without three.js.
+- Hypothesis: when two copies of the shape exist (one drawn, one guessed for motion), they drift apart. When the mesh is data that both the scene and the motion read, they match by construction.
+- Rule: move the mesh generator into the three-free motion module as plain arrays (points, triangle index), keeping the same random draws in the same order. The scene only wraps them in a BufferGeometry. The surface height at (x, z) is the highest barycentric height over the triangles under the point, with a reach test per mesh first. Pose a wheeled vehicle from four contact heights: y is their mean, pitch is atan2(front minus rear, 2 wheelbase), roll is atan2(left minus right, 2 track), with Euler order YXZ (heading, then pitch, then roll). Then pixel-diff the still frame against main with `tw diff` (0 pixels here) to prove the seeded stream is unchanged.
+- Evidence: markdavidrogers-web client/src/islands/vapor3d-motion.ts (peakShape, terrainHeight, buggyPose) and its tests; confirmed 2026-09-29
+- Scope: skill
+- Status: active · helpful 1 · harmful 0 · last_confirmed 2026-09-29
+
+### L-20260929-3 · 2026-09-29 · Lines on top of other lines: no depth writes stops z-fighting, and a fixed renderOrder stops blend flicker
+- Trigger: 2026-09-29, a highway's dashed centre line lies exactly on the floor grid's middle column, and both are transparent line sets that scroll.
+- Hypothesis: if neither writes depth, they cannot depth-fight. But three sorts transparent objects by the distance of their origins, and origins that scroll change that order, so which colour is on top would flip from frame to frame.
+- Rule: give coplanar decal lines `depthWrite: false` like the floor, and an explicit `renderOrder` between the floor and the objects on it (grid -0.5, road -0.25, the rest 0). Put parallel edges midway between grid lines (half-width 1.12 with columns every 0.32), not on them. Fade the dashes with depth like the grid's rows (their period shrinks with the square of depth) and let two long edges run on to the horizon at low alpha.
+- Evidence: markdavidrogers-web vapor3d-scene.ts (ROAD_FRAGMENT, renderOrder); screenshots at 1280x800 in dark and light; confirmed 2026-09-29
+- Scope: skill
+- Status: active · helpful 1 · harmful 0 · last_confirmed 2026-09-29
+
+### L-20260929-4 · 2026-09-29 · Time screenshots of seeded animation from the plan and look at one contact sheet
+- Trigger: 2026-09-29, a buggy that appears for about 15 s every 20 to 40 s had to be caught on the flat, on a ridge and leaving. Guessed waits would each cost a full-page image read.
+- Hypothesis: when every appearance is planned from a seed as a pure function of time, a script can print the schedule. Parallel shots cropped to the canvas and tiled cost one image read.
+- Rule: keep a small timeline script next to the scene that replays the scene's seeds and prints when each event happens (Node 23.6+ runs a `.mts` file directly; a `.ts` file outside a `"type": "module"` package fails to import). Shoot the chosen moments in parallel, crop to the canvas, tile at half scale with labels, and read only the sheet. Crop at full resolution only where a detail needs checking. Under light load, headless shots in parallel kept to the plan's timing within about half a second.
+- Evidence: markdavidrogers-web scripts/hero-timeline.mts and scripts/hero-shots.py; three sheets of six to seven moments; confirmed 2026-09-29
+- Scope: skill
+- Status: active · helpful 1 · harmful 0 · last_confirmed 2026-09-29

@@ -42,7 +42,7 @@ Read [references/build-rules.md](references/build-rules.md) before writing three
 ## Step 4: verify (the step that makes it done)
 
 1. `TW lint <dir>`: 0 errors. Fix warnings unless the user's release needs the old API.
-2. `TW check <page>`: must print `result: OK`. Its lines are the evidence: the renderer and backend, draw calls, scene counts, bounds, camera, the `pixels:` line (content present, not black), no exceptions, errors or failed requests. Read the fix hints when it fails; `threewright-debug` owns hard cases.
+2. `TW check <page>`: must print `result: OK`. Its lines are the evidence: the renderer and backend, draw calls, scene counts, bounds, camera, the `pixels:` line (content present, not black), no exceptions, errors or failed requests. Read the fix hints when it fails; `threewright-debug` owns hard cases. A scene that only starts on a click (a lazy island) is seen only when the click is in `--actions "click x,y; wait ms"`. When `perf` prints draw calls as `?`, count them with an `--eval` ([L-20260929-1](LEARNINGS.md)). For seeded animation, time the shots from the plan and read one contact sheet ([L-20260929-4](LEARNINGS.md)).
 3. Only for a visual question: `TW shot <page> --size 640x360` (299 image tokens) or `TW sheet <page>` (700). Look once, fix, re-check.
 4. A page that cannot be served headless (needs a login, a device, XR) is reported as unverified, with what was checked instead.
 

@@ -4,6 +4,11 @@ Every change to [SKILL.md](SKILL.md) and its companions, newest first, each with
 
 Entry shape: `### C-YYYYMMDD-n · date · one-line summary`, then `because:` (IDs or "user request"), `files:` (file and section), and a sentence on what changed. Cite section headings, not line numbers.
 
+### C-20260929-1 · 2026-09-29 · Lessons from the vapor3d buggy and highway: opt-in scenes, draw-call counting, shared meshes, coplanar lines, timed shots
+- because: L-20260929-1, L-20260929-2, L-20260929-3, L-20260929-4 (user request: record learnings that pay off)
+- files: LEARNINGS.md (Active), SKILL.md (verification step 2)
+- Four lessons added; step 2 now says to click an opt-in scene before checking it, and points to the draw-call eval and to timing shots from a seeded plan.
+
 ### C-20260926-2 · 2026-09-26 · All recipes executed; tw check, perf, save and against
 - because: ai-docs/HANDOFF.md steps 3 and 4
 - files: kb/recipes/*.md (Verify, Notes), kb/topics/performance.md (Verify)
