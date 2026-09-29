@@ -4,6 +4,11 @@ Every change to [SKILL.md](SKILL.md) and its companions, newest first, each with
 
 Entry shape: `### C-YYYYMMDD-n · date · one-line summary`, then `because:` (IDs or "user request"), `files:` (file and section), and a sentence on what changed. Cite section headings, not line numbers.
 
+### C-20260929-2 · 2026-09-29 · Lessons from the vapor3d road clearing and picture match: still-frame poster renders, shader masks for line overlays
+- because: L-20260929-5, L-20260929-6 (the markdavidrogers-web session prompt asked for tw and three.js lessons)
+- files: LEARNINGS.md (Active)
+- Two lessons added: render a still-image fallback from the scene pinned at its size (captures do not paint past the viewport; dpr 1 matches the live lines), and clear lines under an overlay with a fragment-shader mask mirrored by a tested pure function.
+
 ### C-20260929-1 · 2026-09-29 · Lessons from the vapor3d buggy and highway: opt-in scenes, draw-call counting, shared meshes, coplanar lines, timed shots
 - because: L-20260929-1, L-20260929-2, L-20260929-3, L-20260929-4 (user request: record learnings that pay off)
 - files: LEARNINGS.md (Active), SKILL.md (verification step 2)

@@ -87,3 +87,19 @@ Write an entry the moment a real signal happens: a user correction, the same err
 - Evidence: markdavidrogers-web scripts/hero-timeline.mts and scripts/hero-shots.py; three sheets of six to seven moments; confirmed 2026-09-29
 - Scope: skill
 - Status: active · helpful 1 · harmful 0 · last_confirmed 2026-09-29
+
+### L-20260929-5 · 2026-09-29 · Render a still-image fallback from the live scene's still frame, pinned at the image's size, so switching does not jump
+- Trigger: 2026-09-29, markdavidrogers.com's hero had a generated picture and an opt-in three.js scene "of the same world". Their ridges, sun, grid and colours differed, and the owner saw the jump when switching. The first capture of a 1536x640 canvas in a 1280x800 viewport came back 1536 wide, but everything right of x 1280 was page background.
+- Hypothesis: `Page.captureScreenshot` with a clip does not paint beyond the viewport (tw sets captureBeyondViewport false), so an element wider than the viewport is cut. An image generated separately never matches a scene built "to look like it"; one rendered from the scene matches by construction. WebGL draws 1 device-pixel lines, so rendering at dpr 2 and scaling down gives thinner, dimmer lines than the live canvas shows at dpr 1.
+- Rule: make the fallback the scene's reduced-motion still. Use `tw shot <page> --canvas --reduced-motion --size <w+64>x<h+64> --dpr 1 --eval "<click the toggle by element; pin the container position:fixed at 0,0 with the exact width and height; hide overlays with an injected style>" --evalWait 3000`, check the PNG's size, and save WebP with Pillow. Keep a script for it next to the scene and re-run it whenever the still changes. Compare the displayed picture with the canvas by the mean absolute difference, not by `tw diff`'s pixel count: the scaled 1536 picture against the native 1152 canvas differs at every line edge (6.7% of pixels, mean 4/255 per channel, against 15/255 for the old generated image).
+- Evidence: markdavidrogers-web PR #23, scripts/hero-picture.py; confirmed 2026-09-29
+- Scope: skill (tw shot usage, poster images for opt-in scenes)
+- Status: active · helpful 1 · harmful 0 · last_confirmed 2026-09-29
+
+### L-20260929-6 · 2026-09-29 · To clear line geometry under an overlay, mask it in the fragment shader by floor x and view depth, with the reveal as a tested pure function
+- Trigger: 2026-09-29, a highway drawn over a synthwave floor grid had the grid's rows and a column running through it and under its centre dashes; the owner called it "stupid". The road sweeps out over 4 s, so the clearing had to grow with it.
+- Hypothesis: rebuilding the grid geometry per frame or splitting it would be heavy, and a depth or stencil trick fights the no-depth-write lines. The grid shader already knows each fragment's floor x (the grid only slides in z) and its view depth, which is what the road's reach is measured in.
+- Rule: pass the reveal as uniforms (reach, half width, margin, tip length) and multiply alpha by `1 - across * along`, with `across = 1 - smoothstep(half - fwidth(x), half + margin + fwidth(x), abs(x))` and `along = 1 - smoothstep(reach - tip, reach, depth)`, the same tip the overlay fades in over, so the lines cross-fade behind its tip. Leave lines that should stay (the horizon line) out by kind, and discard below a tiny alpha. Write the same formula as a pure function in the motion module and test it: nothing cleared in the still frame, all cleared once out, never the nearest lines outside, nothing ahead of the tip.
+- Evidence: markdavidrogers-web PR #23, `roadClearing` in client/src/islands/vapor3d-motion.ts and GRID_FRAGMENT; four tests; contact sheet at 2, 3.5 and 6 s; confirmed 2026-09-29
+- Scope: skill (line-based scenes)
+- Status: active · helpful 1 · harmful 0 · last_confirmed 2026-09-29
