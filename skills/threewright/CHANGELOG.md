@@ -4,6 +4,11 @@ Every change to [SKILL.md](SKILL.md) and its companions, newest first, each with
 
 Entry shape: `### C-YYYYMMDD-n · date · one-line summary`, then `because:` (IDs or "user request"), `files:` (file and section), and a sentence on what changed. Cite section headings, not line numbers.
 
+### C-20260929-4 · 2026-09-29 · Lessons from the vapor3d random runs and dirt bike: per-run seeds pinned by URL, routes that double back, riding a two-wheeler
+- because: L-20260929-4 (updated), L-20260929-10, L-20260929-11 (user request: update the skills used)
+- files: LEARNINGS.md (Active)
+- L-20260929-4 now covers a random seed per run with a URL pin for checks; two lessons added: test the tightest turn of planned routes over a scrolling floor, and pose a bike from both wheels on the path with a windowed lean.
+
 ### C-20260929-3 · 2026-09-29 · Lessons from the vapor3d road cars: background-colour fills for wireframes, models judged in the scene's camera, a scratch showroom
 - because: L-20260929-7, L-20260929-8, L-20260929-9 (the markdavidrogers-web session prompt asked for tw and three.js lessons)
 - files: LEARNINGS.md (Active)
