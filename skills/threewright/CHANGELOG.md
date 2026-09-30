@@ -4,6 +4,11 @@ Every change to [SKILL.md](SKILL.md) and its companions, newest first, each with
 
 Entry shape: `### C-YYYYMMDD-n · date · one-line summary`, then `because:` (IDs or "user request"), `files:` (file and section), and a sentence on what changed. Cite section headings, not line numbers.
 
+### C-20260930-1 · 2026-09-30 · Lessons from the vapor3d old man: a controllable figure on a scrolling floor, headless checks of controls
+- because: L-20260930-1, L-20260930-2, L-20260929-8 (confirmed again) (user request: update the skills used)
+- files: LEARNINGS.md (Active)
+- Two lessons added: steer a figure on a moving floor by its speed over the floor, so idle is keeping pace; check interactive controls with tw --actions after focusing the canvas, aiming from the projection and hit-testing against the projected outline. L-20260929-8 confirmed again by the old man's cane.
+
 ### C-20260929-4 · 2026-09-29 · Lessons from the vapor3d random runs and dirt bike: per-run seeds pinned by URL, routes that double back, riding a two-wheeler
 - because: L-20260929-4 (updated), L-20260929-10, L-20260929-11 (user request: update the skills used)
 - files: LEARNINGS.md (Active)

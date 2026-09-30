@@ -117,9 +117,9 @@ Write an entry the moment a real signal happens: a user correction, the same err
 - Trigger: 2026-09-29, markdavidrogers-web hero road cars. The cars looked right in side and three-quarter views, but the hero camera looks down the road, so it sees every car nearly end-on (6 to 7 degrees of side at the closest full view). The scanner car's sweeping light is on its nose, so going away it was a plain wedge. The fire-trail car's trails are behind it, so coming toward the viewer it was a plain wedge too.
 - Hypothesis: a detail that is only on one face of a model is invisible for the whole pass when the camera sees the other face, and a model tuned in a showroom view is tuned for a view the scene never shows.
 - Rule: check each model in the scene's own camera at the depths it will be seen from, at native pixel size (for example with `camera.setViewOffset(fullW, fullH, x, y, w, h)` round its projected position), from both ends. Put the telling detail where that camera sees it (roof, nose, tail, trails) or fix the model's direction in the plan (here a `way` on the car kind, honoured when picking pair partners), and test that the rule holds.
-- Evidence: markdavidrogers-web PR #25, `CARS[].way` in `vapor3d-motion.ts` and its test; crops of the scanner at 112.9 and 113.6 s and the fire trails at 134 and 135.3 s; confirmed 2026-09-29
+- Evidence: markdavidrogers-web PR #25, `CARS[].way` in `vapor3d-motion.ts` and its test; crops of the scanner at 112.9 and 113.6 s and the fire trails at 134 and 135.3 s; confirmed 2026-09-29. Again 2026-09-30 (PR #28): an old man's hunch did not show end-on, and his cane, under his hand, hid behind his leg until it was drawn in gold and angled out to the side.
 - Scope: skill (modelling for a fixed camera)
-- Status: active · helpful 1 · harmful 0 · last_confirmed 2026-09-29
+- Status: active · helpful 2 · harmful 0 · last_confirmed 2026-09-30
 
 ### L-20260929-9 · 2026-09-29 · Iterate on small models in a scratch showroom page served by the project's Vite, not by waiting for them to appear in the scene
 - Trigger: 2026-09-29, markdavidrogers-web hero road cars. Each car appears for a few seconds every 25 to 50 s, the rarest first at 384 s, so checking a shape change in the real scene meant headless shots with waits of minutes.
@@ -144,3 +144,19 @@ Write an entry the moment a real signal happens: a user correction, the same err
 - Evidence: PR #27, `bikePose` and `routePointBeyond` (vapor3d-motion.ts), the dirt bike tests; crops of the bike at 11 to 15 s and 69.8 s; confirmed 2026-09-29
 - Scope: skill (vehicles on planned paths)
 - Status: active · helpful 1 · harmful 0 · last_confirmed 2026-09-29
+
+### L-20260930-1 · 2026-09-30 · A player-controlled figure on a scrolling floor keeps its place by moving over the floor at the floor's pace; steer it by the world velocity asked for
+- Trigger: 2026-09-30, markdavidrogers-web hero: a controllable old man on a floor that slides toward the viewer at 0.9 units a second. Standing on it he would be carried out of the picture in about 9 s, and moving him in world terms alone would make him slide over the floor like ice, with his legs out of step.
+- Hypothesis: what the eye reads as motion is motion over the floor. To stay put in the picture the figure must walk (or ride) against the floor's motion, and to go anywhere its speed over the floor is the asked world velocity less the floor's.
+- Rule: keep the state as place, heading and speed over the floor. Each step, turn toward the heading of (asked world velocity minus the floor's velocity), at a turn rate per mode, and ease the speed toward that vector's length scaled by the cosine of the heading error. Move by heading times speed plus the floor's drift. Idle is then walking toward the horizon at the floor's pace, and asking to come toward the viewer turns the figure round. Drive the gait from the speed over the floor. Choose the model's scale so the floor's pace reads as the gait you want: here a brisk walk at 0.55 units a metre against the cars' 0.34. Keep the rules in a pure module with tests: stays put when idle, turns round, a vehicle turns more slowly, stays in bounds, reaches a clicked spot and stops.
+- Evidence: PR #28, `stepMan` in `client/src/islands/vapor3d-old-man.ts` and its 9 tests; the controls sheet; confirmed 2026-09-30
+- Scope: skill (interactive characters in moving scenes)
+- Status: active · helpful 1 · harmful 0 · last_confirmed 2026-09-30
+
+### L-20260930-2 · 2026-09-30 · Check interactive controls headlessly with tw --actions; focus first, aim clicks from the projection, hit-test taps against the projected outline
+- Trigger: 2026-09-30, PR #28's first control shots. A tap aimed from a hand-computed position missed the old man by 75 px (he was still walking in at 9 s), so he never mounted the scooter. A "walk here" click at y 430 did nothing because it was above the horizon, where there is no ground. The first hit test was a fixed circle round his middle, too small at his size on screen.
+- Hypothesis: interactive checks fail silently when the click misses or keys go to the page. Clicks must land where the scene says the target is, after it has settled, and a hit test must scale with how big the target is drawn.
+- Rule: make the canvas focusable (`tabIndex = 0`, role `application`, an aria-label that says how to control it) and take keys only while it has focus, so arrows still scroll the page elsewhere. In tw, `click` on the canvas first (it focuses), then `key ArrowUp 1600` to hold a key. Wait until the character has settled, and aim clicks from the plan or the projection. Remember that clicks above the horizon hit no ground. Hit-test a tap against the target's projected outline (feet and head projected, a fraction of its height either side, a few pixels to spare), not a fixed radius. Shoot every control case in parallel, one per shot, and tile them.
+- Evidence: PR #28, `onPointerDown` in `vapor3d-scene.ts`, the scratch script behind `docs/screenshots/hero-old-man-2026-09-30-controls.webp`: six cases, all acting as meant on the second try; confirmed 2026-09-30
+- Scope: skill (verification of interactive scenes)
+- Status: active · helpful 1 · harmful 0 · last_confirmed 2026-09-30
