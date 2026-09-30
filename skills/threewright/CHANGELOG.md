@@ -4,6 +4,11 @@ Every change to [SKILL.md](SKILL.md) and its companions, newest first, each with
 
 Entry shape: `### C-YYYYMMDD-n · date · one-line summary`, then `because:` (IDs or "user request"), `files:` (file and section), and a sentence on what changed. Cite section headings, not line numbers.
 
+### C-20260929-3 · 2026-09-29 · Lessons from the vapor3d road cars: background-colour fills for wireframes, models judged in the scene's camera, a scratch showroom
+- because: L-20260929-7, L-20260929-8, L-20260929-9 (the markdavidrogers-web session prompt asked for tw and three.js lessons)
+- files: LEARNINGS.md (Active)
+- Three lessons added: fill a wireframe on a line-drawn floor in the background colour so nothing shows through it; check small models from the ends the fixed camera sees and drive them the way that shows their detail; iterate on models in a git-excluded showroom page served by Vite.
+
 ### C-20260929-2 · 2026-09-29 · Lessons from the vapor3d road clearing and picture match: still-frame poster renders, shader masks for line overlays
 - because: L-20260929-5, L-20260929-6 (the markdavidrogers-web session prompt asked for tw and three.js lessons)
 - files: LEARNINGS.md (Active)

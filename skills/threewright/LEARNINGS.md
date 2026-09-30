@@ -103,3 +103,27 @@ Write an entry the moment a real signal happens: a user correction, the same err
 - Evidence: markdavidrogers-web PR #23, `roadClearing` in client/src/islands/vapor3d-motion.ts and GRID_FRAGMENT; four tests; contact sheet at 2, 3.5 and 6 s; confirmed 2026-09-29
 - Scope: skill (line-based scenes)
 - Status: active · helpful 1 · harmful 0 · last_confirmed 2026-09-29
+
+### L-20260929-7 · 2026-09-29 · Give a wireframe object on a line-drawn floor a fill in the background colour, or the floor shows through it and it reads as a ghost
+- Trigger: 2026-09-29, markdavidrogers-web hero road cars. The first full-resolution crops of seven wireframe cars on the highway showed the road's cyan edge line and the purple grid drawing straight through the van's and the wagon's bodies, and each car's far-side lines cluttered its shape. From behind, a van, a coupe and a wagon were all the same tangle of boxes.
+- Hypothesis: line materials hide nothing, so everything behind a wireframe shows through it: the floor, the road and the object's own back. On a busy floor that destroys the silhouette, which is what makes a small object recognisable.
+- Rule: build each solid part twice from the same outline: the lines, and triangles (a fan round each side profile's middle plus quads between neighbouring corners) drawn in the background colour with the same fade shader, `DoubleSide`, `polygonOffset` factor 1 and units 1, as the ridges' fill does. Give all the fills a `renderOrder` just below the lines (-0.1 against 0), after the floor and road decals, so every fill writes depth before any object's lines and one object hides another. Share the uniforms object between the line and fill materials, so palette and fade updates reach both. Leave thin parts (wheels, spoilers, rails) as lines only.
+- Evidence: markdavidrogers-web PR #25, `client/src/islands/vapor3d-cars.ts` (`hull`, `face`, `quad`, `fill`, `createCars`); before and after crops of the same passes; confirmed 2026-09-29
+- Scope: skill (line-based scenes)
+- Status: active · helpful 1 · harmful 0 · last_confirmed 2026-09-29
+
+### L-20260929-8 · 2026-09-29 · Judge a small model from the ends the scene's camera sees, and drive it the way that shows its detail
+- Trigger: 2026-09-29, markdavidrogers-web hero road cars. The cars looked right in side and three-quarter views, but the hero camera looks down the road, so it sees every car nearly end-on (6 to 7 degrees of side at the closest full view). The scanner car's sweeping light is on its nose, so going away it was a plain wedge. The fire-trail car's trails are behind it, so coming toward the viewer it was a plain wedge too.
+- Hypothesis: a detail that is only on one face of a model is invisible for the whole pass when the camera sees the other face, and a model tuned in a showroom view is tuned for a view the scene never shows.
+- Rule: check each model in the scene's own camera at the depths it will be seen from, at native pixel size (for example with `camera.setViewOffset(fullW, fullH, x, y, w, h)` round its projected position), from both ends. Put the telling detail where that camera sees it (roof, nose, tail, trails) or fix the model's direction in the plan (here a `way` on the car kind, honoured when picking pair partners), and test that the rule holds.
+- Evidence: markdavidrogers-web PR #25, `CARS[].way` in `vapor3d-motion.ts` and its test; crops of the scanner at 112.9 and 113.6 s and the fire trails at 134 and 135.3 s; confirmed 2026-09-29
+- Scope: skill (modelling for a fixed camera)
+- Status: active · helpful 1 · harmful 0 · last_confirmed 2026-09-29
+
+### L-20260929-9 · 2026-09-29 · Iterate on small models in a scratch showroom page served by the project's Vite, not by waiting for them to appear in the scene
+- Trigger: 2026-09-29, markdavidrogers-web hero road cars. Each car appears for a few seconds every 25 to 50 s, the rarest first at 384 s, so checking a shape change in the real scene meant headless shots with waits of minutes.
+- Hypothesis: the shape code is a plain module; any page that imports it can draw every model at once, in the scene's camera, instantly.
+- Rule: add a throwaway `client/showroom/index.html` plus a small script that imports the model module and renders a grid of tiles with scissored viewports (`renderer.setScissorTest(true)`, then `setViewport` and `setScissor` per tile): a side view, a three-quarter view, and the scene camera cropped round the model at two or three depths each way with `setViewOffset`. Serve it with `npx vite` (the config's `base` applies: here `/app/showroom/index.html`), shoot it with `tw shot`, and keep the folder in `.git/info/exclude`; delete it before committing. Use the real scene only for the final contact sheets, timed from the plan (L-20260929-4).
+- Evidence: markdavidrogers-web PR #25 session: three showroom rounds of about 10 s each before the first real sheet; confirmed 2026-09-29
+- Scope: skill (workflow)
+- Status: active · helpful 1 · harmful 0 · last_confirmed 2026-09-29
