@@ -1,6 +1,6 @@
 // End-to-end tests through headless Chrome: every template passes `tw check`,
 // and broken fixture pages fail with the right message and hint.
-// Skipped when no Chrome is found, when three is not installed (npm install),
+// Skipped when no Chrome is found, when three is not installed (npm install in dev/),
 // or with TW_SKIP_BROWSER=1. Pinned CDN files are served from node_modules or npm.
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
@@ -18,7 +18,7 @@ const ROOT = resolve(dirname(fileURLToPath(import.meta.url)), '..');
 const TW = join(ROOT, 'scripts/tw.mjs');
 const skip = process.env.TW_SKIP_BROWSER ? 'TW_SKIP_BROWSER is set'
   : !findChrome() ? 'no Chrome or Chromium found (set TW_CHROME)'
-    : !existsSync(join(ROOT, 'node_modules/three/package.json')) ? 'three is not installed (npm install)' : false;
+    : !['node_modules', 'dev/node_modules'].some((d) => existsSync(join(ROOT, d, 'three/package.json'))) ? 'three is not installed (npm install in dev/)' : false;
 
 function tw(...args) {
   const r = spawnSync(process.execPath, [TW, ...args], { encoding: 'utf8', timeout: 240000 });

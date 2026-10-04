@@ -52,11 +52,13 @@ def build(root, skill, case, arm, jid):
         shutil.rmtree(ws)
     os.makedirs(os.path.join(ws, 'tests'))
     if arm == 'with':
-        for name in ('skills', 'kb', 'scripts', 'templates', 'README.md', 'package.json', '.claude-plugin'):
+        for name in ('skills', 'kb', 'scripts', 'templates', 'README.md', '.claude-plugin'):
             src = os.path.join(REPO, name)
             (copytree if os.path.isdir(src) else shutil.copy2)(src, os.path.join(ws, name))
         # three for tw's offline CDN serving, linked rather than copied
-        nm = os.path.join(REPO, 'node_modules')
+        nm = os.path.join(REPO, 'dev', 'node_modules')
+        if not os.path.isdir(nm):
+            nm = os.path.join(REPO, 'node_modules')
         if os.name == 'nt':
             subprocess.run(['cmd', '/c', 'mklink', '/J', os.path.join(ws, 'node_modules'), nm], check=True, capture_output=True)
         else:
@@ -141,7 +143,7 @@ def main():
     plugin = os.path.join(root, 'plugin')  # a fresh copy per batch, loaded by every with-plugin run
     if os.path.exists(plugin):
         shutil.rmtree(plugin)
-    for name in ('skills', 'kb', 'scripts', 'templates', 'README.md', 'package.json', '.claude-plugin'):
+    for name in ('skills', 'kb', 'scripts', 'templates', 'README.md', '.claude-plugin'):
         src = os.path.join(REPO, name)
         (copytree if os.path.isdir(src) else shutil.copy2)(src, os.path.join(plugin, name))
     before = git_status()

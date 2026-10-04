@@ -1,0 +1,19 @@
+{
+  "name": "threewright",
+  "version": "0.6.4",
+  "private": true,
+  "description": "Development setup for threewright's tests: three for the browser tests and offline CDN serving. Kept out of the plugin root so installing the plugin installs nothing.",
+  "type": "module",
+  "license": "MIT",
+  "repository": "github:m4bwav/threewright",
+  "engines": {
+    "node": ">=22"
+  },
+  "scripts": {
+    "test": "node --test ../tests/*.test.mjs",
+    "tw": "node ../scripts/tw.mjs"
+  },
+  "devDependencies": {
+    "three": "0.186.1"
+  }
+}

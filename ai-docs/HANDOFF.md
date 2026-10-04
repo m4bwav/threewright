@@ -11,6 +11,7 @@ An expansive evergreen three.js plugin: skills plus a knowledge base plus token-
 Everything is on `main`, with no side branches. Tags `v0.1.0` to `v0.6.2` are pushed. Every tag has a GitHub Release; v0.6.2 is Latest.
 
 Done and verified:
+- 2026-10-04, v0.6.4: the development `package.json` and lockfile live in `dev/` (a root lockfile held the Claude directory submission). Run `npm install` and `npm test` there; `npm test` passed 62/62 on 2026-10-04.
 - CLI: see README and `node scripts/tw.mjs --help`. `npm test` passes 61/61 (2026-09-26); every skill's eval suite passed on 2026-09-26 (triggers T-20260926-2; action and outcome x3 through the Skill tool T-20260926-3, evals/results/headless-latest.md; all 3 of 3 after the r3f fix, T-20260926-4) on Windows 11 with Chrome 153 and an RTX 5060 Ti. Browser tests build vite-ts, r3f and game-starter when their `node_modules` exists (`npm ci` in the template folder).
 - New in 0.3.0: `--actions` input bursts, `check --cycles` leak checks, `tw shaders`, `--labels`, `check --shot/--sheet/--tree`, `render_game_to_text()` output, `--color-scheme`, query strings on local paths, and six bug fixes (CHANGELOG.md). New in 0.4.0: `sheet --sweep`, the `advanceTime(ms)` video driver, sharing an existing `__THREE_DEVTOOLS__` hook.
 - KTX-Software 4.4.2 is installed on this machine (per user, `%LOCALAPPDATA%\Programs\KTX-Software\bin` on the user PATH), and the etc1s and uastc steps were checked with it.

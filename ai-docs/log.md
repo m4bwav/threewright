@@ -108,3 +108,10 @@
 - `npm test`: 62 of 62, browser tests included. `claude plugin validate .` passes.
 - 2026-10-04: the plugin icon (icon.png in .claude-plugin) for the Claude directory, chosen from two Z-Image candidates. Z-Image Turbo bf16, 9 steps, cfg 1, res_multistep/simple, seed 4193800087, prompt "flat vector app icon, bold simple shapes, minimal, centered single motif, thick clean outlines, high contrast, readable at small size, no text, no letters, no numbers, no words, no logos, square composition, a glowing wireframe cube in isometric view, cyan lines on deep navy background"; white corners painted to the background (4, 11, 64)
 - 2026-10-04: submitted to the Claude plugin directory, https://claude.ai/directory/manage/plugins/1341ab59-9fbd-45b0-a55e-ff60fe7475e2 (validated main@0f117b9, Scheduled check only, auto-publish on); holds: lockfile, image/font references (9), credential (4: CDN vendor, research note, cdp.mjs), all documented or false positives; status after submit: in review
+
+## 2026-10-04: v0.6.4, lockfile out of the plugin root
+
+- The Claude directory held 0.6.3 for content policy review: Claude Code would install from `package-lock.json` at the plugin root when a user installs the plugin. `package.json` and the lockfile moved to `dev/` (three 0.186.1 is the only, dev, dependency).
+- `tw` finds three in `dev/node_modules` too: CDN serving (cdn.mjs roots), `tw new` asset generation (templates.mjs), `tw deprecations` (lint.mjs). browser.test.mjs skips only when neither node_modules has three; `evals/headless/run.py` links `dev/node_modules` and no longer copies a root package.json.
+- `npm test` in `dev/`: 62 of 62. The first run had one flake (perf test, `check --against` saw 5.3% pixel change on the animated html-importmap page); the rerun passed. `tw deprecations` from the repo root finds three in dev/.
+- The scanner's image warnings (templates/scroll-hero/*.jpg) are left alone: only `<img>`/`<source>` tags in the template's index.html reference them, nothing executes them.

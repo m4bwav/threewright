@@ -276,7 +276,7 @@ export function isSkipped(skipped, d) {
 
 export function cmdDeprecations(a, print, ROOT) {
   const root = resolve(a.src || join(process.cwd(), 'node_modules/three'));
-  const alt = join(ROOT, 'node_modules/three');
+  const alt = [join(ROOT, 'node_modules/three'), join(ROOT, 'dev/node_modules/three')].find((d) => existsSync(join(d, 'src'))) || join(ROOT, 'node_modules/three');
   const dir = existsSync(join(root, 'src')) ? root : alt;
   if (!existsSync(join(dir, 'src'))) throw new Error(`no three source at ${root} (npm install three, or pass --src path/to/three)`);
   const version = JSON.parse(readFileSync(join(dir, 'package.json'), 'utf8')).version;

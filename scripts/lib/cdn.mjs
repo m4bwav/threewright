@@ -152,7 +152,7 @@ export function packageFile(dir, path) {
 }
 
 export function createCdnResolver({ mode = 'auto', roots = [] } = {}) {
-  const allRoots = [...roots, process.cwd(), TW_ROOT];
+  const allRoots = [...roots, process.cwd(), TW_ROOT, join(TW_ROOT, 'dev')];
   const served = { node_modules: 0, cache: 0, npm: 0 };
   const packages = new Map();
   const note = (ref, where) => {

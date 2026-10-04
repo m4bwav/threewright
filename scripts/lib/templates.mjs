@@ -40,7 +40,7 @@ export async function generateAssets(t, out, ROOT) {
     try {
       for (const [name, version] of Object.entries(g.needs || {})) {
         const cached = cacheDirFor(name, version);
-        const dir = findInstalled(name, version, [ROOT]) || (existsSync(join(cached, '.complete')) ? cached : await fetchPackage(name, version));
+        const dir = findInstalled(name, version, [ROOT, join(ROOT, 'dev')]) || (existsSync(join(cached, '.complete')) ? cached : await fetchPackage(name, version));
         if (!dir) throw new Error(`${g.file}: could not get ${name}@${version} from node_modules, the tw cache or npm`);
         const link = join(tmp, 'node_modules', name);
         mkdirSync(dirname(link), { recursive: true });

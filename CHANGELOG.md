@@ -2,6 +2,12 @@
 
 Plugin versions. Skill-level changes are in each `skills/*/CHANGELOG.md`; the session record is `ai-docs/log.md`.
 
+## 0.6.4 · 2026-10-04
+
+Nothing to install with the plugin.
+- `package.json` and `package-lock.json` moved from the plugin root to `dev/`. The Claude directory held 0.6.3 for content policy review because Claude Code would install from a root lockfile when a user installs the plugin; the only dependency was the dev dependency three, used by the tests. Run `npm install` and `npm test` in `dev/`.
+- `tw` (CDN serving, `tw new` asset generation, `tw deprecations`), the browser tests and `evals/headless/run.py` find three in `dev/node_modules` as well as `node_modules`, and still fall back to the tw cache or `npm pack`.
+
 ## 0.6.3 · 2026-10-03
 
 Prepared for the Claude plugin directory, which takes no binary files except images and no files over 256 KiB.

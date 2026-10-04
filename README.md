@@ -72,11 +72,11 @@ Needs Node 22+ and Chrome or Chromium (Playwright and Puppeteer browsers are fou
 
 ## Tested where
 
-Windows 11 with Chrome 153 on an RTX 5060 Ti, where the WebGPU pages run on the real WebGPU backend, and a Linux container with Chromium 141 on SwiftShader, where three r186's WebGPU backend fails and the same pages run on the WebGL 2 fallback. Run `npm test`: unit tests, plus browser tests that check every template. Templates with a build step (vite-ts, r3f, game-starter) are built and their `dist` checked when their own `node_modules` exists (`npm ci` in the template folder).
+Windows 11 with Chrome 153 on an RTX 5060 Ti, where the WebGPU pages run on the real WebGPU backend, and a Linux container with Chromium 141 on SwiftShader, where three r186's WebGPU backend fails and the same pages run on the WebGL 2 fallback. Run `npm install` and `npm test` in `dev/`: unit tests, plus browser tests that check every template. The development `package.json` lives in `dev/` so that installing the plugin installs nothing. Templates with a build step (vite-ts, r3f, game-starter) are built and their `dist` checked when their own `node_modules` exists (`npm ci` in the template folder).
 
 ## Install
 
-Claude Code: `/plugin marketplace add m4bwav/threewright`, then `/plugin install threewright@threewright`. Other agents: copy `skills/*` into the agent's skill folder, and keep the plugin folder where the skills can find `scripts/`, `kb/` and `templates/` (two levels up from each SKILL.md). Run `npm install` once for the offline CDN serving and the tests.
+Claude Code: `/plugin marketplace add m4bwav/threewright`, then `/plugin install threewright@threewright`. Other agents: copy `skills/*` into the agent's skill folder, and keep the plugin folder where the skills can find `scripts/`, `kb/` and `templates/` (two levels up from each SKILL.md). For the offline CDN serving and the tests, run `npm install` once in `dev/`; without it, `tw` fetches pinned packages with `npm pack` into its cache.
 
 ## Privacy
 
