@@ -39,7 +39,7 @@ npm install globe.gl@2.46.2
 import Globe from 'globe.gl';
 
 const globe = Globe()(document.getElementById('globeViz'))
-  .globeImageUrl('//unpkg.com/three-globe/example/img/earth-blue-marble.jpg')
+  .globeImageUrl('//unpkg.com/three-globe@2.45.3/example/img/earth-blue-marble.jpg')
   .pointsData(data)
   .pointLat('lat').pointLng('lng').pointColor(() => '#ff5533')
   .arcsData(routes)

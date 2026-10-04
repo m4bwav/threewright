@@ -634,7 +634,7 @@
     "Verify",
     "Notes"
    ],
-   "bytes": 4895
+   "bytes": 4894
   },
   {
    "slug": "3d-chart-in-docs",
@@ -1040,7 +1040,7 @@
     "Verify",
     "Notes"
    ],
-   "bytes": 4878
+   "bytes": 4883
   },
   {
    "slug": "3d-tiles-renderer",
@@ -1218,7 +1218,7 @@
     "Pitfalls",
     "Notes"
    ],
-   "bytes": 3006
+   "bytes": 3013
   },
   {
    "slug": "gltf-transform",
@@ -1280,7 +1280,7 @@
     "Pitfalls",
     "Notes"
    ],
-   "bytes": 2436
+   "bytes": 2595
   },
   {
    "slug": "gsap",
@@ -1340,7 +1340,7 @@
     "Pitfalls",
     "Notes"
    ],
-   "bytes": 3372
+   "bytes": 3650
   },
   {
    "slug": "jolt-physics",
@@ -2116,7 +2116,7 @@
     "Verify",
     "Notes"
    ],
-   "bytes": 4011
+   "bytes": 4017
   },
   {
    "slug": "fit-camera-to-object",
@@ -2275,7 +2275,7 @@
     "Verify",
     "Notes"
    ],
-   "bytes": 6626
+   "bytes": 6948
   },
   {
    "slug": "raycast-hover-and-click",

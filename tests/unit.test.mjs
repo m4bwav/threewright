@@ -23,6 +23,7 @@ import { glFlags, sandboxFlags } from '../scripts/lib/cdp.mjs';
 import { pixelWarnings } from '../scripts/lib/png.mjs';
 import { parseActions, keyInfo } from '../scripts/lib/actions.mjs';
 import { importSpecifiers, metaUrlAssets, resolveBare, vendorPage } from '../scripts/lib/vendor.mjs';
+import { generateAssets, listTemplates } from '../scripts/lib/templates.mjs';
 
 const ROOT = resolve(dirname(fileURLToPath(import.meta.url)), '..');
 const tmp = () => mkdtempSync(join(tmpdir(), 'tw-test-'));
@@ -460,5 +461,15 @@ test('vendor: files a module fetches by new URL(..., import.meta.url) are copied
     assert.deepEqual(r.files.map((f) => f.file).sort(), ['vendor/fakelib@1.2.3/libs/dec/dec.wasm', 'vendor/fakelib@1.2.3/libs/dec/wrapper.js', 'vendor/fakelib@1.2.3/loaders/DecLoader.js']);
     assert.deepEqual(r.warnings, []);
     assert.ok(existsSync(join(dir, 'vendor', 'fakelib@1.2.3', 'libs', 'dec', 'dec.wasm')));
+  } finally { rmSync(dir, { recursive: true, force: true }); }
+});
+
+test('generateAssets writes a template asset the repository does not hold, once', async () => {
+  const dir = mkdtempSync(join(tmpdir(), 'tw-gen-test-'));
+  try {
+    const t = listTemplates(ROOT).find((x) => x.name === 'splats');
+    assert.deepEqual(await generateAssets(t, dir, ROOT), ['scene.splat']);
+    assert.equal(readFileSync(join(dir, 'scene.splat')).length, 24000 * 32);
+    assert.deepEqual(await generateAssets(t, dir, ROOT), []);
   } finally { rmSync(dir, { recursive: true, force: true }); }
 });

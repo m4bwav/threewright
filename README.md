@@ -38,9 +38,9 @@ Each one passes `tw check`; `node scripts/tw.mjs templates` lists where and how 
 | `game-starter` | Vite, TypeScript, Rapier; deterministic simulation with Node tests and `window.__game` hooks |
 | `surface` | 3D surface chart for documents: colour map, contours, axes, hover readout |
 | `globe` | Globe with great-circle routes, city labels that hide on the far side, no map downloads |
-| `product-viewer` | GLB viewer: environment light, soft shadow, fit to model, colour variants, loading and error states; `tw new` vendors three and the Draco and KTX2 decoders |
+| `product-viewer` | GLB viewer: environment light, soft shadow, fit to model, colour variants, loading and error states; `tw new` writes its sample model with make-model.mjs and vendors three and the Draco and KTX2 decoders |
 | `scroll-hero` | Scroll-driven hero with GSAP ScrollTrigger and Lenis, poster first; reduced motion holds the final view; `tw new` vendors its libraries |
-| `splats` | Gaussian splat viewer on r186 `GaussianSplat` (WebGPU, WebGL 2 fallback) |
+| `splats` | Gaussian splat viewer on r186 `GaussianSplat` (WebGPU, WebGL 2 fallback); `tw new` writes its sample scene with make-splat.mjs |
 
 ## CLI
 
@@ -77,6 +77,12 @@ Windows 11 with Chrome 153 on an RTX 5060 Ti, where the WebGPU pages run on the 
 ## Install
 
 Claude Code: `/plugin marketplace add m4bwav/threewright`, then `/plugin install threewright@threewright`. Other agents: copy `skills/*` into the agent's skill folder, and keep the plugin folder where the skills can find `scripts/`, `kb/` and `templates/` (two levels up from each SKILL.md). Run `npm install` once for the offline CDN serving and the tests.
+
+## Privacy
+
+threewright has no server and collects nothing. The skills are text files. `tw` runs on your machine: it serves your page from 127.0.0.1 to a headless Chrome it starts with a throwaway profile in the temp folder, and reads the results back. It sends no telemetry and reads no credentials. The environment variables it reads are its own settings (`TW_CACHE`, `TW_CHROME`, `TW_FFMPEG`, `TW_CDN` and similar), browser locations (`CHROME_PATH`, `PLAYWRIGHT_BROWSERS_PATH`), the cache folders and `npm_config_registry`.
+
+These are the routes that use the network. The page under test makes its own requests. With the default `--cdn auto`, pinned jsDelivr and unpkg modules come from `node_modules` or the tw cache when they are there, and from the CDN otherwise. `tw` runs `npm pack` for an exact pinned version in four cases: a module is missing locally and the CDN fails, `--cdn offline` is set, `tw vendor` runs, or `tw new` copies a template that vendors its libraries or generates a model. `tw versions` asks the npm registry for the latest release numbers, and `tw doctor` checks from the browser whether jsDelivr is reachable. Every npm call goes to the registry your npm is set up for, with npm's own settings; `tw` never reads them. Downloaded packages are kept in the tw cache (`%LOCALAPPDATA%\threewright\cache` on Windows, `~/.cache/threewright` elsewhere) until you delete it. Pages made from the templates load three.js from jsDelivr when they are opened in a browser, unless they were vendored.
 
 ## Layout
 

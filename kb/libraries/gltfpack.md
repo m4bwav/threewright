@@ -29,15 +29,15 @@ version_checked: "1.3.0"
 
 ## Setup
 
-Versions checked 2026-09-26: `gltfpack` 1.3.0 (2026-09-25). `-gt` (tangents) landed in 1.2, `-gn` (normal generation) in 1.3.
+Versions checked 2026-09-26: `gltfpack` 1.3.0 (2026-09-25). `-gt` (tangents) landed in 1.2, `-gn` (normal generation) in 1.3. The `npx` lines name the version so they run 1.3.0 with or without the local install (checked 2026-10-03: `-ce khr` packed a 245 KB GLB to 57 KB).
 
 ```sh
 npm install -D gltfpack@1.3.0
 ```
 
 ```sh
-npx gltfpack -i model.glb -o model.packed.glb -ce khr   # Meshopt compression, three r186 reads it natively
-npx gltfpack -i model.glb -o model.packed.glb -ce khr -gt -gn   # also generate tangents and normals
+npx gltfpack@1.3.0 -i model.glb -o model.packed.glb -ce khr   # Meshopt compression, three r186 reads it natively
+npx gltfpack@1.3.0 -i model.glb -o model.packed.glb -ce khr -gt -gn   # also generate tangents and normals
 ```
 
 ## Pitfalls

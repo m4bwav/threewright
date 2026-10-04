@@ -10,7 +10,7 @@ import { tmpdir } from 'node:os';
 import { dirname, join, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { findChrome } from '../scripts/lib/cdp.mjs';
-import { listTemplates } from '../scripts/lib/templates.mjs';
+import { generateAssets, listTemplates } from '../scripts/lib/templates.mjs';
 import { cmdSpec } from '../scripts/lib/proc.mjs';
 import { decodePng, pixelStats } from '../scripts/lib/png.mjs';
 
@@ -29,6 +29,8 @@ function tw(...args) {
 
 // Templates with a build step (package.json) are checked by their own tests.
 const pageTemplates = listTemplates(ROOT).filter((t) => existsSync(join(ROOT, t.path, 'index.html')) && !existsSync(join(ROOT, t.path, 'package.json')));
+// Generated assets (model.glb, scene.splat) are not in git; write them in place, as tw new does in a copy.
+if (!skip) for (const t of pageTemplates) await generateAssets(t, join(ROOT, t.path), ROOT);
 
 for (const t of pageTemplates) {
   test(`template ${t.name} passes tw check`, { skip, timeout: 300000 }, () => {

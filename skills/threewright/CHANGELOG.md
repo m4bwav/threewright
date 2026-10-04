@@ -4,6 +4,11 @@ Every change to [SKILL.md](SKILL.md) and its companions, newest first, each with
 
 Entry shape: `### C-YYYYMMDD-n · date · one-line summary`, then `because:` (IDs or "user request"), `files:` (file and section), and a sentence on what changed. Cite section headings, not line numbers.
 
+### C-20261003-1 · 2026-10-03 · Launcher commands pinned for the Claude plugin directory
+- because: user request (directory submission: every package a launcher runs names an exact version)
+- files: LEARNINGS.md (L-20260929-4 rule), ../../kb/recipes/optimize-gltf.md, ../../kb/recipes/export-glb.md, ../../kb/libraries/gltfpack.md, ../../kb/libraries/iwsdk.md, ../../kb/libraries/globe-gl.md, ../../kb/scenarios/xr-experiences.md, ../../kb/topics/webxr.md
+- `npx` and `npm create` lines name exact versions checked with `npm view` on 2026-10-03 (`@gltf-transform/cli` 4.5.1, `gltfpack` 1.3.0, `@iwsdk/cli` and `@iwsdk/create` 1.0.1), and the pinned gltf-transform, gltfpack and iwsdk commands were run. The showroom rule says to serve with the project's own Vite instead of `npx vite`.
+
 ### C-20260930-1 · 2026-09-30 · Lessons from the vapor3d old man: a controllable figure on a scrolling floor, headless checks of controls
 - because: L-20260930-1, L-20260930-2, L-20260929-8 (confirmed again) (user request: update the skills used)
 - files: LEARNINGS.md (Active)

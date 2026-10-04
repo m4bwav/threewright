@@ -2,6 +2,13 @@
 
 Plugin versions. Skill-level changes are in each `skills/*/CHANGELOG.md`; the session record is `ai-docs/log.md`.
 
+## 0.6.3 · 2026-10-03
+
+Prepared for the Claude plugin directory, which takes no binary files except images and no files over 256 KiB.
+- The product-viewer model.glb and the splats scene.splat are no longer in the repository. `tw new` writes them in the new folder from the template's own script (make-model.mjs, make-splat.mjs), listed under `generate` in template.json; the model's three 0.186.1 comes from node_modules, the tw cache or `npm pack`. Both come out byte for byte the same as the files they replace. The browser tests and `evals/headless/make-inputs.mjs` generate them the same way.
+- Every `npx` and `npm create` command in the knowledge base names an exact version: `@gltf-transform/cli@4.5.1`, `gltfpack@1.3.0`, `@iwsdk/cli@1.0.1`, `npm create @iwsdk@1.0.1`. The globe-gl texture URL names three-globe 2.45.3.
+- plugin.json gains homepage, documentationUrl, supportUrl and privacyPolicyUrl; the README gains a Privacy section listing every network route.
+
 ## 0.6.2 · 2026-09-26
 
 Less to run, one trigger gap closed.

@@ -99,3 +99,10 @@
 - Used threewright (WebGLRenderer, lines only, lazy-loaded chunk in a Vite React island) to build the opt-in 3D version of Mark's synthwave hero. Verified with `tw check` and `tw shot` through a scratch root and a harness page carrying the site's CSP; not committed here.
 - Added L-20260927-1 (fade floor-grid rows early and columns late to avoid horizon moire), L-20260927-2 (scratch-root harness for bundled islands behind a backend) and L-20260927-3 (reading reduced motion and teardown from `render calls` and the renderer line; the detached-canvas problem after switching off) to skills/threewright/LEARNINGS.md. evergreen.json counts.learnings 0 -> 3.
 - Candidate tw change from L-20260927-3: report a detached canvas whose renderer has 0 programs and 0 geometries as information, not a problem.
+
+## 2026-10-03: v0.6.3, prepared for the Claude plugin directory
+
+- Checked the directory's pre-submission list. Two files failed it: templates/splats/scene.splat (768 KB) and templates/product-viewer/model.glb (a non-image binary). Both are now gitignored and written by `tw new` from the template's own script (template.json `generate`; three for the model comes from node_modules, the tw cache or `npm pack`). The output is byte for byte the old files; tested with three from the repo and from a fresh cache via npm pack.
+- Pinned every launcher command in kb/ (gltf-transform 4.5.1, gltfpack 1.3.0, iwsdk 1.0.1) and ran the pinned commands.
+- plugin.json: homepage, documentationUrl, supportUrl, privacyPolicyUrl. README: Privacy section (no telemetry, no credentials read; network only through the page under test, the CDN, npm pack, npm registry lookups and the doctor probe). `.gitignore` lets `.claude-plugin/icon.png` through for the icon another session adds.
+- `npm test`: 62 of 62, browser tests included. `claude plugin validate .` passes.

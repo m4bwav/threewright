@@ -34,7 +34,7 @@ template: html-importmap
 
 ## Build
 
-- No dedicated WebXR-starter template exists yet (`webxr-starter` is planned but not built). Start from `tw new html-importmap <dir>` and add `WebXRManager`/`XRButton` by hand, or evaluate IWSDK directly (`npm create @iwsdk@latest`) for a Quest-first project.
+- No dedicated WebXR-starter template exists yet (`webxr-starter` is planned but not built). Start from `tw new html-importmap <dir>` and add `WebXRManager`/`XRButton` by hand, or evaluate IWSDK directly (`npm create @iwsdk@1.0.1`) for a Quest-first project.
 - Design for no controllers: Vision Pro uses gaze and pinch (transient pointer), not handheld controllers. Do not assume every target has a controller model to render.
 - Always add `optionalFeatures: ['hand-tracking']` explicitly when hand tracking matters; it is easy to forget and silently get no hands on a device that supports them.
 - Performance: Quest apps are usually fill-rate bound. Use fixed foveated rendering (`renderer.xr.setFoveation`), multiview where supported, one directional or point light with PBR, KTX2 textures, and little to no heavy post-processing.
@@ -51,7 +51,7 @@ template: html-importmap
 
 - `tw check <page>` is `result: OK` for the non-XR desktop fallback path at minimum; a full XR session needs on-device testing that headless `tw check` cannot substitute for.
 - Confirm the session request lists every needed optional feature (`hand-tracking`, `hit-test`, `anchors`) explicitly and check the console for a rejected-feature warning rather than a silent no-op.
-- For IWSDK projects, use its MCP runtime's agent mode (`npx @iwsdk/cli dev up --ai-mode agent`) for headless, deterministic checks of ECS state and XR input emulation before an on-device pass.
+- For IWSDK projects, use its MCP runtime's agent mode (`npx @iwsdk/cli@1.0.1 dev up --ai-mode agent`) for headless, deterministic checks of ECS state and XR input emulation before an on-device pass.
 
 ## Notes
 

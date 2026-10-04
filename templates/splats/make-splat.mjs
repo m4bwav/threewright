@@ -1,5 +1,6 @@
 // Writes scene.splat: a small procedural Gaussian splat scene (our own data, CC0),
-// so the template needs no downloaded capture. Run: node make-splat.mjs [count]
+// so the template needs no downloaded capture. Run: node make-splat.mjs [count] [out]
+// (out defaults to scene.splat next to this script; tw new runs it for a new copy).
 // Format (.splat, 32 bytes per splat, little endian): position float32 x3,
 // scale float32 x3 (linear), colour RGBA uint8 x4 (A = opacity),
 // rotation quaternion uint8 x4 stored as w, x, y, z with q = (byte - 128) / 128.
@@ -62,6 +63,6 @@ for (let k = 0; k < nGround; k++, i++) {
     [40 * g, 95 * g, 55 * g, 60 + 190 * edge], alignZ(0, 1, 0));
 }
 
-const out = join(dirname(fileURLToPath(import.meta.url)), 'scene.splat');
+const out = process.argv[3] || join(dirname(fileURLToPath(import.meta.url)), 'scene.splat');
 writeFileSync(out, buf);
 console.log(`wrote ${out}: ${COUNT} splats, ${buf.length} bytes`);

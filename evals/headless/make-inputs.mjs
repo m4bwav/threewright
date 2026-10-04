@@ -1,12 +1,16 @@
 // Inputs the threewright action and outcome evals refer to: models/duck.glb (the product-viewer model),
 // models/big.glb (heavy on purpose) and data.csv. Usage: node make-inputs.mjs <out-dir>
-import { copyFileSync, mkdirSync, writeFileSync } from 'node:fs';
-import { join } from 'node:path';
+import { mkdirSync, writeFileSync } from 'node:fs';
+import { join, resolve } from 'node:path';
+import { fileURLToPath } from 'node:url';
+import { generateAssets, listTemplates } from '../../scripts/lib/templates.mjs';
 import { encodePng } from '../../scripts/lib/png.mjs';
 
 const out = process.argv[2];
 mkdirSync(join(out, 'models'), { recursive: true });
-copyFileSync(new URL('../../templates/product-viewer/model.glb', import.meta.url), join(out, 'models/duck.glb'));
+const ROOT = resolve(fileURLToPath(new URL('../..', import.meta.url)));
+const pv = listTemplates(ROOT).find((t) => t.name === 'product-viewer');
+await generateAssets({ ...pv, generate: pv.generate.map((g) => ({ ...g, file: 'duck.glb' })) }, join(out, 'models'), ROOT);
 
 // big.glb: a 300x300 grid (180k triangles) with an uncompressed 4096 px colour texture.
 const N = 300, W = 4096;

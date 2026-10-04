@@ -19,7 +19,7 @@ version_checked: "1.0.0-rc.2"
 ## Use it for
 
 - Quest-first WebXR games and apps: ECS (elics), XR input with hands, locomotion, grabbing, spatial audio, Havok physics in a worker, scene understanding, spatial UI (uikit-based), and the IWER emulator to run XR in a desktop browser.
-- Agent-driven development specifically: IWSDK ships an MCP runtime (`dist/mcp`) with tools for scene, ECS and UI debugging, screenshots, console capture, and a headless deterministic "agent" mode (`npx @iwsdk/cli dev up --ai-mode agent`).
+- Agent-driven development specifically: IWSDK ships an MCP runtime (`dist/mcp`) with tools for scene, ECS and UI debugging, screenshots, console capture, and a headless deterministic "agent" mode (`npx @iwsdk/cli@1.0.1 dev up --ai-mode agent`).
 
 ## Avoid it when
 
@@ -31,15 +31,17 @@ version_checked: "1.0.0-rc.2"
 
 Versions checked 2026-09-26: dist-tag `latest` is 1.0.0-rc.2 (2026-09-24); dist-tag `next` is 1.0.0 (also 2026-09-24). `npm i @iwsdk/core` resolves to the release candidate, not the 1.0.0 tagged `next`.
 
+The commands below are pinned to an exact version so a launcher never fetches an unreviewed release: `@iwsdk/cli` and `@iwsdk/create` 1.0.1 (checked 2026-10-03 with `npm view`; `npx @iwsdk/cli@1.0.1 --help` runs). Raise the pin after checking the new release.
+
 ```sh
-npm create @iwsdk@latest my-xr-app
+npm create @iwsdk@1.0.1 my-xr-app
 ```
 
 Agent mode (headless, deterministic Playwright browser, default 800x800 viewport):
 
 ```sh
-npx @iwsdk/cli dev up --ai-mode agent
-npx @iwsdk/cli adapter sync   # writes MCP configs for Claude Code, Cursor, Copilot, Codex, OpenCode
+npx @iwsdk/cli@1.0.1 dev up --ai-mode agent
+npx @iwsdk/cli@1.0.1 adapter sync   # writes MCP configs for Claude Code, Cursor, Copilot, Codex, OpenCode
 ```
 
 ## Pitfalls
