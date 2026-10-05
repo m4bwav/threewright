@@ -799,6 +799,18 @@
       "sample": "See https://threejs.org/docs/#api/en/objects/Mesh for the full API.",
       "ok": "See https://threejs.org/docs/api/en/objects/Mesh.html for the full API.",
       "source": "threejs.org/docs currently serves plain per-page paths (no # routing); a legacy-docs pitfall for links models still write from training data"
+    },
+    {
+      "id": "typed-buffer-attribute-copies",
+      "pattern": "new (?:Float32|Float16|Uint8|Uint8Clamped|Int8|Uint16|Int16|Uint32|Int32)BufferAttribute\\(\\s*([A-Za-z_$][\\w$]*)\\s*,(?:(?!\\n\\})[\\s\\S]){0,4000}?\\b\\1(?:\\.set\\(|\\.copyWithin\\(|\\[[^\\]\\n]+\\]\\s*=(?!=))",
+      "since": 0,
+      "status": "pitfall",
+      "severity": "info",
+      "message": "this typed BufferAttribute was given an array that is written again later, but the typed subclasses copy the array they are given (new Float32Array(array)), so those writes never reach the GPU, silently",
+      "fix": "for data you update later, write into the attribute's own array (const a = attr.array) or use new BufferAttribute(typedArray, itemSize), which keeps it",
+      "sample": "const positions = new Float32Array(300)\nconst attr = new Float32BufferAttribute(positions, 3)\npositions.set(points)\nattr.needsUpdate = true",
+      "ok": "function grid() {\n  const kinds = [0, 1]\n  return new Float32BufferAttribute(kinds, 1)\n}\nfunction road() {\n  const attr = new Float32BufferAttribute(new Float32Array(300), 1)\n  const kinds = attr.array\n  kinds[0] = 1\n}",
+      "source": "three.js src/core/BufferAttribute.js: Float32BufferAttribute's constructor calls super(new Float32Array(array), ...); markdavidrogers-web PR #37 lost a whole road this way (LEARNINGS L-20261004-1)"
     }
   ],
   "skipped": [

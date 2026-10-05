@@ -2,6 +2,10 @@
 
 Plugin versions. Skill-level changes are in each `skills/*/CHANGELOG.md`; the session record is `ai-docs/log.md`.
 
+## Unreleased
+
+- `tw lint` rule `typed-buffer-attribute-copies` (info): flags a `Float32BufferAttribute` (or another typed subclass) made from a variable that the same function writes again later. Those classes copy the array, so the later writes never reach the GPU, silently (LEARNINGS L-20261004-1; it cost markdavidrogers-web PR #37 its whole road for a round of screenshots).
+
 ## 0.6.4 · 2026-10-04
 
 Nothing to install with the plugin.
