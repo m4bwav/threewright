@@ -1,14 +1,25 @@
 {
+  "$schema": "https://agent-plugins.org/schemas/1.0.0/plugin.schema.json",
   "name": "threewright",
   "version": "0.6.5",
   "description": "Evergreen three.js skills for AI agents: current r186 APIs (WebGL, WebGPU, TSL), a knowledge base of topics, scenarios, libraries, recipes and rules with release ranges so stale advice stays labelled legacy, verified starters (single-file, WebGPU, Vite, React Three Fiber, 3D chart, video turntable, Rapier game), and a zero-dependency Node CLI that checks pages headlessly as text first (errors, scene numbers, pixel evidence), lints stale APIs against the installed release, reports glTF models, and records frame-exact video.",
-  "author": { "name": "Mark Rogers" },
-  "license": "MIT",
-  "keywords": ["three.js", "threejs", "webgl", "webgpu", "tsl", "react-three-fiber", "gltf", "3d", "games", "video", "data-visualization", "evergreen", "knowledge-base"],
-  "skills": "./skills",
-  "repository": "https://github.com/m4bwav/threewright",
+  "author": {
+    "name": "Mark Rogers",
+    "url": "https://github.com/m4bwav"
+  },
   "homepage": "https://github.com/m4bwav/threewright",
-  "documentationUrl": "https://github.com/m4bwav/threewright#readme",
-  "supportUrl": "https://github.com/m4bwav/threewright/issues",
-  "privacyPolicyUrl": "https://github.com/m4bwav/threewright#privacy"
+  "repository": "https://github.com/m4bwav/threewright",
+  "license": "MIT",
+  "keywords": [
+    "threejs",
+    "webgl",
+    "webgpu",
+    "tsl",
+    "react-three-fiber",
+    "gltf",
+    "3d",
+    "games",
+    "video",
+    "data-visualization"
+  ]
 }

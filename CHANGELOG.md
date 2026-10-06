@@ -2,7 +2,9 @@
 
 Plugin versions. Skill-level changes are in each `skills/*/CHANGELOG.md`; the session record is `ai-docs/log.md`.
 
-## Unreleased
+## 0.6.5 · 2026-10-05
+
+- Copilot-ready: a root `plugin.json` (Agent Plugins 1.0 shape: `$schema`, at most 10 lowercase-hyphenated keywords, author URL) so GitHub Copilot CLI and the awesome-copilot marketplace find the plugin; the awesome-copilot intake gates look only at `.github/plugin/`, `.plugin/` or the root, never `.claude-plugin/`. Claude Code still reads `.claude-plugin/plugin.json`; keep both versions equal. Installed with Copilot CLI 1.0.92 and `vally lint` (0.17.0) passes. The release tag v0.6.5 is the ref awesome-copilot pins.
 
 - `tw lint` rule `typed-buffer-attribute-copies` (info): flags a `Float32BufferAttribute` (or another typed subclass) made from a variable that the same function writes again later. Those classes copy the array, so the later writes never reach the GPU, silently (LEARNINGS L-20261004-1; it cost markdavidrogers-web PR #37 its whole road for a round of screenshots).
 

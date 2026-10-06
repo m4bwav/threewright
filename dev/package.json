@@ -1,6 +1,6 @@
 {
   "name": "threewright",
-  "version": "0.6.4",
+  "version": "0.6.5",
   "private": true,
   "description": "Development setup for threewright's tests: three for the browser tests and offline CDN serving. Kept out of the plugin root so installing the plugin installs nothing.",
   "type": "module",
