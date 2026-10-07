@@ -1,5 +1,7 @@
 # threewright
 
+![A blacksmith forging glowing wireframe geometric shapes, an icosahedron and a torus, on an anvil, sparks, a blue 3D grid floor](https://raw.githubusercontent.com/m4bwav/threewright/main/.github/images/banner.jpg)
+
 Evergreen three.js skills for AI coding agents. It teaches the current release (r186, three 0.186.1) and where three.js is heading (WebGPU, TSL). Old APIs stay available but labelled legacy, with the release that changed them. It ships a knowledge base, verified starters and a zero-dependency Node CLI. The CLI lets an agent prove a page works, as text first, before it claims anything.
 
 ## Skills
