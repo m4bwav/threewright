@@ -8,6 +8,12 @@ Entry shape: `### T-YYYYMMDD-n · date · harness · env · passed/total`, then 
 
 ## Runs
 
+### T-20261011-1 · 2026-10-11 · claude plugin eval 2.1.281 `--ablation none` (trigger, decoy) · owner-pc Windows 11 · 4/4
+- Regression run after the plugin's 2026-10-11 refresh, from a worktree of origin/main with the existing `evals/threewright-r3f/` case folders, three runs per case, with-plugin arm only (no baseline arm, to hold cost).
+- trigger-1, trigger-2: invoked 6/6 ($0.60). decoy-1, decoy-2: invoked 0/6 ($0.40).
+- Action and outcome cases not rerun: the refresh did not change this SKILL.md.
+- led to: none
+
 ### T-20260926-4 · 2026-09-26 · claude -p --plugin-dir (evals/headless) · owner-pc Windows 11, Chrome 153, RTX 5060 Ti · 7/7
 - outcome-1 rerun 3 times after C-20260926-2: the Skill tool fired threewright-r3f in 3 of 3, build and tw check passed. outcome-1 is now marked redundant (the baseline passes it too) and is skipped by default.
 - led to: none
