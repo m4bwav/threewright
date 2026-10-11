@@ -48,6 +48,13 @@ Best sources: the mrdoob/three.js releases and Migration Guide, the installed pa
 
 Newest first.
 
+### R-20261011-1 · 2026-10-11 · Testing: the Linux headless WebGPU flags lose the device; WorldBench; quiet releases
+- Summary: two independent repositories (niivue/mono #253, moritzbrantner/maps #198) report that on Chromium 149 headless shell under Linux, WebGPU on SwiftShader with `--enable-unsafe-webgpu --enable-features=Vulkan` loses its device about 0.5 s after the first frame; it works once `--use-vulkan=swiftshader` (and `--use-angle=swiftshader`) is added, and agent-browser's preset adds `--use-webgpu-adapter=swiftshader --disable-vulkan-surface`. `scripts/lib/cdp.mjs` passed exactly the failing set, so `--gl swiftshader --webgpu` on Linux now adds the Vulkan SwiftShader flags (unit-tested; not yet run on a Linux machine). The maps repository also found its WebGPU tests read the backend only at load, so pixel checks measured the fallback: `tw check` should read the backend and device-lost state after frames (open question). agent-browser says headless WebGPU canvas screenshots come out black on Windows and Linux, which conflicts with this project's own 2026-09-26 Windows run. WebGPU texture swizzle shipped in Chrome 143 (why r186 fails on Chromium 141). WorldBench (arXiv 2610.10622) judges three.js worlds by driving the scene and reading the code: screenshot and code judging disagree on 32% of required items, and code-only judging credited 4 of 5 removed features, which backs pairing `tw check` with a targeted look. Releases: three.js still 0.186.1 (r187 expected November or December), no new MCP servers; dgreenheck's TSL skill (most installed, aligned to r183) looks abandoned after its author's 2026-09-22 post; openai/plugins has `three-webgl-game` (about 42 installs, no versions, no verification step).
+- Track: testing, subject, tooling
+- Sources: https://github.com/niivue/mono/issues/253, https://github.com/moritzbrantner/maps/issues/198, https://agent-browser.dev/webgpu, https://developer.chrome.com/docs/web-platform/webgpu/news, https://arxiv.org/abs/2610.10622, https://github.com/dgreenheck/webgpu-claude-skill/commits/main, https://www.skills.sh/openai/plugins/three-webgl-game
+- Magnitude: 0.45 (the skill's own headless flags were the failing set)
+- Applied: C-20261011-1 (scripts/lib/cdp.mjs `glFlags`; tests/unit.test.mjs; kb/topics/headless-and-ci.md)
+
 ### R-20260926-1 · 2026-09-26 · Initial research
 - Summary: Initial research: nine research notes (dataviz and docs, scenarios and testing, AI skills and docs, MCP and AI tools, core r160 to r186, ecosystem libraries, video, games, direction). Distilled into the knowledge base under `kb/` and this skill's SKILL.md.
 - Track: subject

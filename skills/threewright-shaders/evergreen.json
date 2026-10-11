@@ -13,9 +13,9 @@
   "source": null,
   "topic": "TSL, node materials, compute and node post-processing in three.js, the WebGL shader path, and shader tooling",
   "tier": "fast",
-  "interval_days": 14,
-  "last_checked": "2026-09-26",
-  "next_due": "2026-10-10",
+  "interval_days": 9.33,
+  "last_checked": "2026-10-11",
+  "next_due": "2026-10-20",
   "verify_at_use": false,
   "volatile_claims": [],
   "contradiction": null,
@@ -32,12 +32,18 @@
       "m": null,
       "interval_after": 14,
       "note": "created"
+    },
+    {
+      "date": "2026-10-11",
+      "m": 0.3,
+      "interval_after": 9.33,
+      "note": "refresh 2026-10-11: DirectRenderPipeline no MSAA on WebGL2, gpuTest pattern, range() hash in r187; cost: searches 2 · fetches 7 · tool calls 14"
     }
   ],
   "counts": {
     "learnings": 0,
     "changes": 1,
-    "research": 1,
+    "research": 2,
     "tests": 3
   },
   "consolidate_every": 25,
