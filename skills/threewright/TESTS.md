@@ -8,6 +8,12 @@ Entry shape: `### T-YYYYMMDD-n · date · harness · env · passed/total`, then 
 
 ## Runs
 
+### T-20261011-1 · 2026-10-11 · claude plugin eval 2.1.281 `--ablation none` (trigger, decoy) · owner-pc Windows 11 · 5/5
+- Regression run after the plugin's 2026-10-11 refresh, from a worktree of origin/main with the existing `evals/threewright/` case folders, three runs per case, with-plugin arm only (no baseline arm, to hold cost).
+- trigger-1 to trigger-3: invoked 9/9 ($0.96). decoy-1, decoy-2: invoked 0/6 ($0.40).
+- Action and outcome cases not rerun: the refresh did not change this SKILL.md.
+- led to: none
+
 ### T-20260926-3 · 2026-09-26 · claude -p --plugin-dir (evals/headless) · owner-pc Windows 11, Chrome 153, RTX 5060 Ti · 7/7
 - action-1 and outcome-1 3/3 each through the Skill tool, graded on disk and trace by evals/headless/grade.py. Triggers and decoys: T-20260926-2.
 - baseline: the no-plugin baseline passed outcome-1 too, so that case is redundant: the plugin shows in action-1 (the tw call) rather than in the end state.
