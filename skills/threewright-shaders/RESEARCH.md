@@ -47,6 +47,13 @@ Best sources: threejs.org/tsl and docs pages, the three.js webgpu examples sourc
 
 Newest first.
 
+### R-20261011-1 · 2026-10-11 · Subject and testing: DirectRenderPipeline has no MSAA on WebGL 2; three.js tests TSL by numbers; `range()` changes in r187
+- Summary: three.js #34947 (r186, Chrome 155): DirectRenderPipeline on the WebGL 2 fallback gives aliased edges even with `antialias: true`; closed as not planned, documented for r187 (PR #34954), and called a pipeline for special cases, mainly XR. PR #34331 (shipped in r186) adds `gpuTest` and `gpuFuzzTest`: assertions write actual and expected values to storage buffers, read them back and compare on the CPU with tolerances, on WebGPU and the WebGL 2 fallback under headless Puppeteer, skipping a backend that fails to start; a way to check TSL math by its numbers rather than an image (point; an eval asserting compute output read back with `getArrayBufferAsync` is a candidate). Dev (r187): RangeNode now uses `hash()` (#34897, #34920), so scenes using TSL `range()` will look different after the upgrade and a before/after diff will show it. The Linux headless WebGPU flag fix (threewright R-20261011-1) applies to Step 3's backend check. Tooling: the dgreenheck TSL skill stalled; no TSL MCP server.
+- Track: subject, testing, tooling
+- Sources: https://github.com/mrdoob/three.js/issues/34947, https://github.com/mrdoob/three.js/pull/34954, https://github.com/mrdoob/three.js/pull/34331, https://github.com/mrdoob/three.js/commits/dev
+- Magnitude: 0.3
+- Applied: threewright:C-20261011-1 (kb/topics/post-processing.md)
+
 ### R-20260926-1 · 2026-09-26 · Initial research
 - Summary: Initial research: TSL direction, post-processing split, renames. Distilled into the knowledge base under `kb/` and this skill's SKILL.md.
 - Track: subject

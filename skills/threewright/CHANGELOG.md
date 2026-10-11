@@ -4,6 +4,11 @@ Every change to [SKILL.md](SKILL.md) and its companions, newest first, each with
 
 Entry shape: `### C-YYYYMMDD-n · date · one-line summary`, then `because:` (IDs or "user request"), `files:` (file and section), and a sentence on what changed. Cite section headings, not line numbers.
 
+### C-20261011-1 · 2026-10-11 · Linux headless WebGPU runs Vulkan on SwiftShader; kb notes
+- because: R-20261011-1
+- files: scripts/lib/cdp.mjs (`glFlags`: `--use-vulkan=swiftshader`, `--use-webgpu-adapter=swiftshader`, `--disable-vulkan-surface` for `--gl swiftshader --webgpu` on Linux; a `platform` parameter for tests), tests/unit.test.mjs (three assertions), kb/topics/headless-and-ci.md (device loss, backend read after frames, Chrome 143), kb/topics/post-processing.md (DirectRenderPipeline without MSAA on WebGL 2), RESEARCH.md (one finding)
+- The CPU path for WebGPU on Linux no longer loses its device after the first frame, per two outside reports; not yet run on a Linux machine.
+
 ### C-20261003-1 · 2026-10-03 · Launcher commands pinned for the Claude plugin directory
 - because: user request (directory submission: every package a launcher runs names an exact version)
 - files: LEARNINGS.md (L-20260929-4 rule), ../../kb/recipes/optimize-gltf.md, ../../kb/recipes/export-glb.md, ../../kb/libraries/gltfpack.md, ../../kb/libraries/iwsdk.md, ../../kb/libraries/globe-gl.md, ../../kb/scenarios/xr-experiences.md, ../../kb/topics/webxr.md

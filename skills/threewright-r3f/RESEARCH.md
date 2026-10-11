@@ -47,6 +47,13 @@ Best sources: pmndrs GitHub releases, r3f.docs.pmnd.rs, drei docs, the pmndrs do
 
 Newest first.
 
+### R-20261011-1 · 2026-10-11 · Quiet: no R3F or drei release; v10 docs at /next
+- Summary: no release since the last check. npm dist-tags: fiber 9.8.1 (alpha 10.0.0-alpha.5), drei 10.7.9 (alpha 11.0.0-alpha.7, which converts BlurPass to TSL and adds a WebGPU Inspector), react 19.3.0, rapier 2.2.0, test-renderer 9.1.1, postprocessing 3.2.0. Master has unreleased fixes (a frame request on remove with `frameloop="demand"`, pointer capture across instance reconstruction, intrinsic-element types limited to three constructors); the v10 docs moved under /next. Tooling: EnzeD/r3f-skills unchanged since 2026-08-31; openai/plugins `react-three-fiber-game` (about 32 installs, no versions or WebGPU guidance). Testing: nothing R3F-specific; the Linux headless WebGPU flag fix in threewright R-20261011-1 applies to WebGPU canvases here too. Practice: nothing new.
+- Track: subject, tooling, testing, practice
+- Sources: https://github.com/pmndrs/react-three-fiber/commits/master, https://registry.npmjs.org/-/package/@react-three/fiber/dist-tags, https://github.com/EnzeD/r3f-skills/commits/main
+- Magnitude: 0.1
+- Applied: none (RESEARCH.md only)
+
 ### R-20260926-1 · 2026-09-26 · Initial research
 - Summary: Initial research: versions, peer ranges, WebGPU status of the pmndrs stack. Distilled into the knowledge base under `kb/` and this skill's SKILL.md.
 - Track: tooling

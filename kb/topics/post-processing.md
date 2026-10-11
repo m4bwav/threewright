@@ -30,6 +30,7 @@ template: html-importmap
 - Importing an effect function straight from `three/tsl` or `three/webgpu` (`import { bloom } from 'three/tsl'`): effect nodes left core in r170. Import each one from its file under `three/addons/tsl/display/`.
 - Constructing `new EffectComposer(webgpuRenderer)`: it will hit the `NodeBuilder` incompatibility the same way a bare `ShaderMaterial` does, because `EffectComposer`'s passes are built from `ShaderMaterial` internally.
 - Assuming `renderAsync()` is still how you drive `RenderPipeline`: it is deprecated since r181 in favor of `render()` after `await renderer.init()`, or letting `setAnimationLoop` initialize the renderer for you.
+- Using `DirectRenderPipeline` on the WebGL 2 fallback backend and expecting MSAA: edges stay aliased even with `antialias: true` (three.js #34947, closed as not planned; the limit is documented for r187). The maintainers call it a pipeline for special cases, mainly XR, not for wide use.
 - Using `DirectRenderPipeline` on a scene with any transmissive material (glass, `MeshPhysicalMaterial` with `transmission > 0`): it is explicitly incompatible; use the regular `RenderPipeline` there.
 
 ## Verify

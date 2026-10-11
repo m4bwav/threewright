@@ -13,9 +13,9 @@
   "source": null,
   "topic": "React Three Fiber, drei and the pmndrs ecosystem, their versions, WebGPU support and pitfalls",
   "tier": "fast",
-  "interval_days": 14,
-  "last_checked": "2026-09-26",
-  "next_due": "2026-10-10",
+  "interval_days": 14.0,
+  "last_checked": "2026-10-11",
+  "next_due": "2026-10-23",
   "verify_at_use": false,
   "volatile_claims": [],
   "contradiction": null,
@@ -32,12 +32,18 @@
       "m": null,
       "interval_after": 14,
       "note": "created"
+    },
+    {
+      "date": "2026-10-11",
+      "m": 0.1,
+      "interval_after": 14.0,
+      "note": "refresh 2026-10-11: quiet, fiber 9.8.1 still latest; cost: searches 3 · fetches 14 · tool calls 21"
     }
   ],
   "counts": {
     "learnings": 0,
     "changes": 1,
-    "research": 1,
+    "research": 2,
     "tests": 4
   },
   "consolidate_every": 25,

@@ -13,9 +13,9 @@
   "source": null,
   "topic": "current three.js APIs and releases, WebGPU and TSL status, the verification tooling and how agents build and check three.js work",
   "tier": "fast",
-  "interval_days": 14,
-  "last_checked": "2026-09-26",
-  "next_due": "2026-10-10",
+  "interval_days": 9.33,
+  "last_checked": "2026-10-11",
+  "next_due": "2026-10-19",
   "verify_at_use": false,
   "volatile_claims": [],
   "contradiction": null,
@@ -32,12 +32,18 @@
       "m": null,
       "interval_after": 14,
       "note": "created"
+    },
+    {
+      "date": "2026-10-11",
+      "m": 0.45,
+      "interval_after": 9.33,
+      "note": "refresh 2026-10-11: Linux headless WebGPU flags fixed in cdp.mjs, WorldBench, r186 still latest; cost: searches 10 · fetches 19 · tool calls 41"
     }
   ],
   "counts": {
     "learnings": 5,
     "changes": 1,
-    "research": 1,
+    "research": 2,
     "tests": 3
   },
   "consolidate_every": 25,

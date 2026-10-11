@@ -74,6 +74,9 @@ test('cdp: flags for sandbox and GL modes', () => {
   assert.ok(glFlags('auto').includes('--enable-unsafe-swiftshader'));
   assert.ok(glFlags('swiftshader').includes('--use-angle=swiftshader'));
   assert.ok(glFlags('auto', true).includes('--enable-unsafe-webgpu'));
+  assert.ok(glFlags('swiftshader', true, 'linux').includes('--use-vulkan=swiftshader'));
+  assert.ok(!glFlags('gpu', true, 'linux').includes('--use-vulkan=swiftshader'));
+  assert.ok(!glFlags('swiftshader', true, 'win32').includes('--use-vulkan=swiftshader'));
   assert.ok(Array.isArray(sandboxFlags()));
 });
 

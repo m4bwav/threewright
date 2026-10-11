@@ -54,14 +54,17 @@ export function findChrome() {
 // GL modes. "auto" lets Chrome pick the GPU and still allows the software
 // fallback, which Chrome no longer enables by itself (so GPU-less CI still gets WebGL).
 // "swiftshader" forces the deterministic CPU path used for pixel tests.
-export function glFlags(mode = 'auto', webgpu = false) {
+export function glFlags(mode = 'auto', webgpu = false, platform = process.platform) {
   const f = [];
   if (mode === 'swiftshader') f.push('--use-angle=swiftshader', '--enable-unsafe-swiftshader');
   else if (mode === 'gpu') f.push('--enable-gpu', '--ignore-gpu-blocklist');
   else f.push('--enable-unsafe-swiftshader');
   if (webgpu) {
     f.push('--enable-unsafe-webgpu', '--ignore-gpu-blocklist');
-    if (process.platform === 'linux') f.push('--enable-features=Vulkan');
+    if (platform === 'linux') f.push('--enable-features=Vulkan');
+    // Linux without a GPU: WebGPU on SwiftShader loses its device about 0.5 s after the first
+    // frame unless Vulkan itself runs on SwiftShader (Chromium 149 headless shell, 2026-10).
+    if (platform === 'linux' && mode === 'swiftshader') f.push('--use-vulkan=swiftshader', '--use-webgpu-adapter=swiftshader', '--disable-vulkan-surface');
   }
   return f;
 }
