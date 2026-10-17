@@ -23,6 +23,7 @@ Read `evergreen.json` next to this file. If `verify_at_use` is true, re-check th
 2. Other licences (Sketchfab CC-BY and friends): check the licence per model and credit as it requires.
 3. Generation: AI generators (their CLIs or MCP servers) and Blender (with an MCP bridge) are options the user must approve; always run `TW glb` and a validator on what they produce. Mixamo is unmaintained; prefer rigs and animations that ship with the model.
 4. Conversion: FBX, OBJ and STL become glTF in Blender or with a converter; never ship FBX to the web.
+5. With the polywright plugin installed, a model that must be made, found, captured or fixed comes from polywright: ask for it through its asset folder ([contract](https://github.com/m4bwav/polywright/blob/main/skills/polywright/references/contract.md)) with the `web-threejs` target, then load the files in `out/` that `manifest.json` lists. Without polywright, use the steps above.
 
 ## Step 3: optimize to budget
 
