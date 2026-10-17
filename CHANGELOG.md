@@ -2,6 +2,10 @@
 
 Plugin versions. Skill-level changes are in each `skills/*/CHANGELOG.md`; the session record is `ai-docs/log.md`.
 
+## Unreleased
+
+- threewright-assets: with the polywright plugin installed, models to make, find, capture or fix come from polywright's asset folder (`web-threejs` target, files from `out/` per `manifest.json`).
+
 ## 0.6.5 · 2026-10-05
 
 - Copilot-ready: a root `plugin.json` (Agent Plugins 1.0 shape: `$schema`, at most 10 lowercase-hyphenated keywords, author URL) so GitHub Copilot CLI and the awesome-copilot marketplace find the plugin; the awesome-copilot intake gates look only at `.github/plugin/`, `.plugin/` or the root, never `.claude-plugin/`. Claude Code still reads `.claude-plugin/plugin.json`; keep both versions equal. Installed with Copilot CLI 1.0.92 and `vally lint` (0.17.0) passes. The release tag v0.6.5 is the ref awesome-copilot pins.

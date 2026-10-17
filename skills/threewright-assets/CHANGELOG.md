@@ -4,6 +4,11 @@ Every change to [SKILL.md](SKILL.md) and its companions, newest first, each with
 
 Entry shape: `### C-YYYYMMDD-n · date · one-line summary`, then `because:` (IDs or "user request"), `files:` (file and section), and a sentence on what changed. Cite section headings, not line numbers.
 
+### C-20261017-1 · 2026-10-17 · Step 2 hands model requests to polywright when it is installed
+- because: user request (polywright HANDOFF owed item 6: siblings call polywright through the folder contract)
+- files: SKILL.md (Step 2)
+- Step 2 gains item 5: with polywright installed, a model to make, find, capture or fix is asked for through polywright's asset folder contract with the `web-threejs` target, and the files in `out/` listed by `manifest.json` are loaded. Without polywright the existing steps stand.
+
 ### C-20260926-4 · 2026-09-26 · Decoder paths are optional in r186: recipe, topic and tw hints agree
 - because: ai-docs/HANDOFF.md (Not done, item 2); the recipe's own 2026-09-26 note found `setTranscoderPath` optional, while the topic still said it was needed
 - files: kb/recipes/load-gltf-with-decoders.md (Code, Notes); kb/topics/loaders-and-assets.md (Essentials); scripts/lib/glb.mjs and hints.mjs (needs lines and fix hints)
