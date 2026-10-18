@@ -122,3 +122,7 @@
 ## 2026-10-17: polywright pointer in threewright-assets
 
 - threewright-assets Step 2 item 5: with polywright installed, ask it for models through its asset folder contract (`web-threejs` target) and load `out/` per `manifest.json`; user request (polywright HANDOFF owed item 6). CHANGELOG C-20261017-1, root CHANGELOG Unreleased line, no version bump.
+
+## 2026-10-17: models-for-the-web kb topic
+
+- New kb topic `models-for-the-web` (the model as a three.js developer needs it) from research note ai-docs/research/2026-10-17-models-for-the-web.md, checked against three 0.186.1 source and gltfpack 1.3.0 / gltf-transform 4.5.1 help. threewright-assets Step 2 item 6 links it; R-20261017-1, C-20261017-2; root CHANGELOG Unreleased, no version bump. User request: each plugin carries 3D modelling knowledge for its topic and points to polywright (its artist-side page is polywright-finish/references/web-threejs.md). `kb validate --strict` 0 errors, 0 warnings.
