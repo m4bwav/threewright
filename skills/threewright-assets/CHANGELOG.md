@@ -4,6 +4,11 @@ Every change to [SKILL.md](SKILL.md) and its companions, newest first, each with
 
 Entry shape: `### C-YYYYMMDD-n · date · one-line summary`, then `because:` (IDs or "user request"), `files:` (file and section), and a sentence on what changed. Cite section headings, not line numbers.
 
+### C-20261017-2 · 2026-10-17 · Knowledge of the models themselves: kb topic models-for-the-web
+- because: user request: each plugin carries 3D modelling knowledge for its topic and points to polywright; R-20261017-1
+- files: kb/topics/models-for-the-web.md (new); ai-docs/research/2026-10-17-models-for-the-web.md (new); SKILL.md (Step 2, item 6)
+- A new kb topic covers what a glTF model must be for three.js (format and axes, PBR and ORM, KTX2, meshopt or Draco and quantization, draw calls, instancing, LODs, lightmaps on `uv1`, vertex colours, styles, animation, pivots, budgets, failure modes, how to verify) and links to polywright's contract and its web page for making and fixing models. Step 2 points to it in one line.
+
 ### C-20261017-1 · 2026-10-17 · Step 2 hands model requests to polywright when it is installed
 - because: user request (polywright HANDOFF owed item 6: siblings call polywright through the folder contract)
 - files: SKILL.md (Step 2)

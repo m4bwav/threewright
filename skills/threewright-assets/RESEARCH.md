@@ -47,6 +47,13 @@ Best sources: glTF Transform docs, meshoptimizer repo, Khronos glTF extensions a
 
 Newest first.
 
+### R-20261017-1 · 2026-10-17 · Subject: 3D models for three.js, the developer's side
+- Summary: What a model must be for three.js: glTF 2.0 GLB in metres, +Y up; ORM packing matches three's channels (AO red, roughness green, metalness blue); lightmaps on TEXCOORD_1 load as `uv1` with `texture.channel = 1`; KTX2 ETC1S for colour, UASTC for normals and ORM (Khronos KTX Artist Guide); meshopt versus Draco and quantization (gltfpack 1.3.0 defaults 14/12/8 bits); KHR_meshopt_compression is a release candidate that GLTFLoader already reads; `gltf-transform optimize` 4.5.1 joins named meshes and flattens by default; styles and what each asks of the model. Distilled into kb topic `models-for-the-web`; polywright keeps the artist's side.
+- Track: subject
+- Sources: ai-docs/research/2026-10-17-models-for-the-web.md, https://github.com/KhronosGroup/3D-Formats-Guidelines/blob/main/KTXArtistGuide.md, https://meshoptimizer.org/gltf/, https://gltf-transform.dev/cli, https://github.com/KhronosGroup/glTF/blob/main/extensions/2.0/Khronos/KHR_meshopt_compression/README.md, three 0.186.1 source (MeshStandardMaterial.js, Texture.js, GLTFLoader.js, ToonOutlinePassNode.js)
+- Magnitude: minor (new kb entry)
+- Applied: C-20261017-2
+
 ### R-20260926-1 · 2026-09-26 · Initial research
 - Summary: Initial research: asset tools, sources, generation, registry scan. Distilled into the knowledge base under `kb/` and this skill's SKILL.md.
 - Track: tooling

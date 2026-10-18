@@ -209,14 +209,14 @@
    "applies_to": "any",
    "status": "current",
    "renderer": "both",
-   "last_verified": "2026-09-26",
+   "last_verified": "2026-10-11",
    "sections": [
     "Essentials",
     "Pitfalls",
     "Verify",
     "Notes"
    ],
-   "bytes": 5122
+   "bytes": 5959
   },
   {
    "slug": "import-maps-and-builds",
@@ -390,6 +390,37 @@
    "bytes": 4619
   },
   {
+   "slug": "models-for-the-web",
+   "kind": "topic",
+   "path": "topics/models-for-the-web.md",
+   "title": "3D models for the web",
+   "summary": "What a glTF model must be for three.js: PBR and ORM maps, KTX2 and meshopt or Draco, budgets, LODs, lightmaps, styles, scale and pivots, and how a bad model shows up.",
+   "tags": [
+    "model",
+    "gltf",
+    "glb",
+    "pbr",
+    "orm",
+    "lightmap",
+    "low-poly",
+    "toon",
+    "lod",
+    "texture atlas"
+   ],
+   "applies_to": ">=r180",
+   "status": "current",
+   "renderer": "both",
+   "last_verified": "2026-10-17",
+   "sections": [
+    "Essentials",
+    "Budgets",
+    "Pitfalls",
+    "Verify",
+    "Notes"
+   ],
+   "bytes": 10642
+  },
+  {
    "slug": "performance",
    "kind": "topic",
    "path": "topics/performance.md",
@@ -442,7 +473,7 @@
     "Verify",
     "Notes"
    ],
-   "bytes": 4875
+   "bytes": 5164
   },
   {
    "slug": "raycasting-and-picking",

@@ -4,6 +4,7 @@ Plugin versions. Skill-level changes are in each `skills/*/CHANGELOG.md`; the se
 
 ## Unreleased
 
+- kb topic `models-for-the-web`: what a glTF model must be for three.js (PBR and ORM, KTX2, meshopt or Draco, budgets, LODs, lightmaps on `uv1`, styles, pivots, failure modes), pointing to polywright for making and fixing models; threewright-assets Step 2 links it.
 - threewright-assets: with the polywright plugin installed, models to make, find, capture or fix come from polywright's asset folder (`web-threejs` target, files from `out/` per `manifest.json`).
 
 ## 0.6.5 · 2026-10-05
