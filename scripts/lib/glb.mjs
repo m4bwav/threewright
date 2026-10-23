@@ -115,8 +115,9 @@ export function report(model) {
   const used = json.extensionsUsed || [], required = json.extensionsRequired || [];
   const meshes = json.meshes || [], nodes = json.nodes || [];
 
-  // Instances per mesh and world bounds by walking the default scene.
-  const inst = new Map();
+  // Instances per mesh, node uses per mesh (three draws each node; an EXT_mesh_gpu_instancing node once)
+  // and world bounds by walking the default scene.
+  const inst = new Map(), uses = new Map();
   let min = [Infinity, Infinity, Infinity], max = [-Infinity, -Infinity, -Infinity];
   const sceneIdx = json.scene ?? 0;
   const roots = (json.scenes && json.scenes[sceneIdx] && json.scenes[sceneIdx].nodes) || nodes.map((_, i) => i);
@@ -128,6 +129,7 @@ export function report(model) {
       const gpu = n.extensions && n.extensions.EXT_mesh_gpu_instancing;
       const count = gpu && gpu.attributes && gpu.attributes.TRANSLATION !== undefined ? (acc[gpu.attributes.TRANSLATION] || {}).count || 1 : 1;
       inst.set(n.mesh, (inst.get(n.mesh) || 0) + count);
+      uses.set(n.mesh, (uses.get(n.mesh) || 0) + 1);
       for (const p of (meshes[n.mesh] || {}).primitives || []) {
         const a = acc[p.attributes && p.attributes.POSITION];
         if (!a || !a.min || !a.max) continue;
@@ -154,7 +156,7 @@ export function report(model) {
     const k = inst.get(mi) || 0;
     for (const p of mesh.primitives || []) {
       primitives++;
-      drawCalls += k ? 1 : 0;
+      drawCalls += uses.get(mi) || 0;
       const pos = acc[p.attributes && p.attributes.POSITION];
       const n = pos ? pos.count : 0;
       const idx = p.indices !== undefined ? acc[p.indices] : null;
@@ -204,6 +206,8 @@ export function report(model) {
   else if (mb > 5) warn.push(`${mb.toFixed(1)} MB: heavy for a hero model on mobile (aim for under 5 MB)`);
   if (tris > 2e6) warn.push(`${(tris / 1e6).toFixed(1)}M triangles: simplify (gltf-transform simplify) or use LODs`);
   else if (tris > 5e5) warn.push(`${Math.round(tris / 1e3)}k triangles: heavy for mobile`);
+  const repeats = meshes.reduce((s, _, mi) => s + Math.max(0, (uses.get(mi) || 0) - 1), 0);
+  if (repeats >= 50) warn.push(`${repeats} nodes repeat a mesh another node already draws: instance them (gltf-transform instance, gltfpack -mi, or Blender's glTF export with GPU instances)`);
   if (drawCalls > 200) warn.push(`${drawCalls} draw calls: join meshes that share a material (gltf-transform join) or instance repeats`);
   const big = images.filter((i) => Math.max(i.width || 0, i.height || 0) > 2048).length;
   if (big) warn.push(`${big} texture(s) over 2048 px: resize for the web (gltf-transform resize --width 2048 --height 2048)`);

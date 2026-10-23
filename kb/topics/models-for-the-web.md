@@ -7,7 +7,7 @@ tags: [model, gltf, glb, pbr, orm, lightmap, low-poly, toon, lod, texture atlas]
 applies_to: ">=r180"
 status: current
 renderer: both
-last_verified: 2026-10-17
+last_verified: 2026-10-22
 sources: [ai-docs/research/2026-10-17-models-for-the-web.md, https://github.com/KhronosGroup/3D-Formats-Guidelines/blob/main/KTXArtistGuide.md, https://meshoptimizer.org/gltf/, https://gltf-transform.dev/cli, https://registry.khronos.org/glTF/specs/2.0/glTF-2.0.html]
 related: [loaders-and-assets, optimize-gltf, load-gltf-with-decoders, performance, color-management, materials, gaussian-splats, product-viewer]
 ---
@@ -65,6 +65,9 @@ polywright's `web-threejs` check target warns above 150k triangles, 2048 px imag
 - Too many materials: an AI-generated or CAD model with hundreds of materials or parts is hundreds of draw calls. Merge and atlas in the source, or `optimize --join` when nothing needs its own name.
 - Missing decoders: a meshopt, Draco or KTX2 file fails to load until the loader has the decoder (`load-gltf-with-decoders`).
 - Unlit by accident: an exporter wrote `KHR_materials_unlit` and the model ignores every light.
+- Repeats exported one node each: a Blender Geometry Nodes scatter (trees, rocks, a crowd) exported with `export_gn_mesh=True` alone becomes one node per copy. three draws each one. Without `export_gn_mesh` the scatter is dropped. Add `export_gpu_instances=True`: the GLB carries `EXT_mesh_gpu_instancing` and GLTFLoader builds one `InstancedMesh` per variant. `tw glb` warns when many nodes repeat a mesh.
+- Hard edges smoothed over: in Blender 4.1 and later, Smooth by Angle is a Geometry Nodes modifier, and an export without `export_apply=True` drops it, so the whole model shades smooth. Export with modifiers applied, or write sharp edges into the mesh first.
+- Holes from flipped faces: three culls back faces (`side: FrontSide`), so a face wound the wrong way shows as a hole, while Blender's viewport draws both sides and hides it. Image-to-3D output often has some; polywright's `pw.py inspect --topology` counts them and `pw.py convert --fix-winding` flips them back. `DoubleSide` only hides the fault and doubles fragment work.
 
 ## Verify
 
@@ -75,4 +78,5 @@ polywright's `web-threejs` check target warns above 150k triangles, 2048 px imag
 
 ## Notes
 
+- 2026-10-22: Blender 5.2.1 export checks: a 150-copy Geometry Nodes scatter of three variants on a ground plane was 14 KB with `export_gpu_instances`, 38 KB with one node per copy, and 2 KB (the scatter dropped) with neither. The instanced file loaded in three 0.186.1 as 3 `InstancedMesh` objects holding 150 instances at 22 draw calls a frame; one node per copy cost 463. Smooth by Angle unapplied: a 32-sided cylinder came back with 64 distinct position and normal pairs instead of 128 (glTF, FBX and OBJ alike). `tw glb` now counts a draw call per node that uses a mesh (it counted one per mesh). Book idea behind the flipped-face pitfall: Conlan, *The Blender Python API*, ch. 4.
 - 2026-10-17: written from the 2026-10-17 research (ai-docs/research/2026-10-17-models-for-the-web.md): texture channels, `uv1` and loader behaviour checked in three 0.186.1 source; gltfpack 1.3.0 and @gltf-transform/cli 4.5.1 help output read on the day. User request: each plugin carries 3D modelling knowledge for its topic and points to polywright. The per-model budgets are threewright's own guidance, not an industry figure.

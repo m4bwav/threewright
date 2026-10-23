@@ -4,6 +4,11 @@ Every change to [SKILL.md](SKILL.md) and its companions, newest first, each with
 
 Entry shape: `### C-YYYYMMDD-n · date · one-line summary`, then `because:` (IDs or "user request"), `files:` (file and section), and a sentence on what changed. Cite section headings, not line numbers.
 
+### C-20261022-1 · 2026-10-22 · Blender export pitfalls in models-for-the-web; tw glb counts draw calls per node
+- because: books track 7 (Blender books, Conlan ch. 4 on flipped faces; the Geometry Nodes book on instances), checked on Blender 5.2.1 and three 0.186.1
+- files: kb/topics/models-for-the-web.md (Pitfalls, Notes); scripts/lib/glb.mjs (report); tests/unit.test.mjs
+- Three pitfalls: a Geometry Nodes scatter needs `export_gpu_instances=True` (loaded as 3 InstancedMesh, 22 draw calls, against 463 for one node per copy), Smooth by Angle is dropped unless modifiers are applied, flipped faces show as holes (polywright counts and fixes them). `tw glb` counted one draw call per mesh even when many nodes reused it; it now counts per node and warns when 50 or more nodes repeat a mesh.
+
 ### C-20261017-2 · 2026-10-17 · Knowledge of the models themselves: kb topic models-for-the-web
 - because: user request: each plugin carries 3D modelling knowledge for its topic and points to polywright; R-20261017-1
 - files: kb/topics/models-for-the-web.md (new); ai-docs/research/2026-10-17-models-for-the-web.md (new); SKILL.md (Step 2, item 6)
