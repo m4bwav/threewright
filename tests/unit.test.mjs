@@ -250,6 +250,25 @@ test('glb: parses chunks, counts, texture pixels, bounds with node transforms, d
   assert.deepEqual(imageSize(Buffer.from('89504e470d0a1a0a0000000d49484452000000400000002008060000', 'hex')), { type: 'image/png', width: 64, height: 32 });
 });
 
+test('glb: a mesh reused by plain nodes costs a draw call per node, an instanced node one', () => {
+  const dir = tmp();
+  try {
+    const f = join(dir, 'r.gltf');
+    const plain = Array.from({ length: 60 }, (_, i) => ({ mesh: 0, translation: [i, 0, 0] }));
+    writeFileSync(f, JSON.stringify({
+      asset: { version: '2.0' }, extensionsUsed: ['EXT_mesh_gpu_instancing'],
+      scene: 0, scenes: [{ nodes: plain.map((_, i) => i).concat([60]) }],
+      nodes: plain.concat([{ mesh: 1, extensions: { EXT_mesh_gpu_instancing: { attributes: { TRANSLATION: 1 } } } }]),
+      meshes: [{ primitives: [{ attributes: { POSITION: 0 } }] }, { primitives: [{ attributes: { POSITION: 0 } }] }],
+      accessors: [{ componentType: 5126, type: 'VEC3', count: 3, min: [0, 0, 0], max: [1, 1, 0] }, { componentType: 5126, type: 'VEC3', count: 40 }],
+    }));
+    const r = report(loadModel(f));
+    assert.equal(r.drawCalls, 61);
+    assert.equal(r.triangles, 100);
+    assert.ok(r.warn.some((w) => w.startsWith('59 nodes repeat a mesh')), r.warn.join('; '));
+  } finally { rmSync(dir, { recursive: true, force: true }); }
+});
+
 test('glb: bounds dequantize normalized KHR_mesh_quantization positions', () => {
   const dir = tmp();
   try {
