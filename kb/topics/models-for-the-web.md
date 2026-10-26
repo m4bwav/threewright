@@ -7,7 +7,7 @@ tags: [model, gltf, glb, pbr, orm, lightmap, low-poly, toon, lod, texture atlas]
 applies_to: ">=r180"
 status: current
 renderer: both
-last_verified: 2026-10-22
+last_verified: 2026-10-25
 sources: [ai-docs/research/2026-10-17-models-for-the-web.md, https://github.com/KhronosGroup/3D-Formats-Guidelines/blob/main/KTXArtistGuide.md, https://meshoptimizer.org/gltf/, https://gltf-transform.dev/cli, https://registry.khronos.org/glTF/specs/2.0/glTF-2.0.html]
 related: [loaders-and-assets, optimize-gltf, load-gltf-with-decoders, performance, color-management, materials, gaussian-splats, product-viewer]
 ---
@@ -59,6 +59,10 @@ polywright's `web-threejs` check target warns above 150k triangles, 2048 px imag
 - Unapplied transforms: a model scaled 0.01 or rotated -90 degrees on X at the root (an FBX habit) loads at the wrong size or lies on its side, and any code that sets `scale` or `rotation` on that node overwrites the fix. Apply transforms in the source and re-export.
 - Wrong units: a model in centimetres arrives 100 times too big; one in inches 39 times. `tw glb` prints world bounds in metres; compare with the real object.
 - Non-power-of-two or not-multiple-of-4 sizes: KTX2 encoding fails or the texture is padded; WebGL 2 handles NPOT textures, but mipmaps and compression behave best with powers of two.
+- Pixel-art and palette textures turned to mush: the default `LinearFilter` and mipmaps blend neighbouring texels and palette cells (a `gltf-transform palette` texture included). Set `magFilter` and `minFilter` to `THREE.NearestFilter` and `generateMipmaps = false`.
+- Floors, roads and ground planes shimmering into moire toward the horizon: raise `texture.anisotropy` to `renderer.capabilities.getMaxAnisotropy()` on those textures.
+- Distant glossy surfaces with a fine normal map sparkle and crawl, and MSAA does not fix it (it samples geometry edges, not shading). Raise roughness or blur the normal map on far LOD levels.
+- LOD switches at distances chosen by eye: switch by projected size with the 2-pixel rule in `performance`.
 - sRGB versus linear: a normal or ORM map tagged sRGB gives wrong lighting and washed roughness; a colour map left linear looks dark and flat. Hand-loaded textures are the usual culprit.
 - Normal maps in DirectX convention (Y down, from Unreal or some generators): bumps look inverted under light. glTF and three use OpenGL (Y up); invert the green channel in the source.
 - `gltf-transform optimize` defaults (4.5.1) flatten the hierarchy and join named meshes. A model whose parts are picked, hidden or animated by name loses them; pass `--join-named false` (or `--flatten false --join false`), or `gltfpack -kn`.
@@ -80,3 +84,4 @@ polywright's `web-threejs` check target warns above 150k triangles, 2048 px imag
 
 - 2026-10-22: Blender 5.2.1 export checks: a 150-copy Geometry Nodes scatter of three variants on a ground plane was 14 KB with `export_gpu_instances`, 38 KB with one node per copy, and 2 KB (the scatter dropped) with neither. The instanced file loaded in three 0.186.1 as 3 `InstancedMesh` objects holding 150 instances at 22 draw calls a frame; one node per copy cost 463. Smooth by Angle unapplied: a 32-sided cylinder came back with 64 distinct position and normal pairs instead of 128 (glTF, FBX and OBJ alike). `tw glb` now counts a draw call per node that uses a mesh (it counted one per mesh). Book idea behind the flipped-face pitfall: Conlan, *The Blender Python API*, ch. 4.
 - 2026-10-17: written from the 2026-10-17 research (ai-docs/research/2026-10-17-models-for-the-web.md): texture channels, `uv1` and loader behaviour checked in three 0.186.1 source; gltfpack 1.3.0 and @gltf-transform/cli 4.5.1 help output read on the day. User request: each plugin carries 3D modelling knowledge for its topic and points to polywright. The per-model budgets are threewright's own guidance, not an industry figure.
+- 2026-10-25: pitfalls for pixel-art and palette texture filtering, anisotropy on grazing ground, far normal-map sparkle, LOD switching (CGPP 3e §20.7, §25.4, §36.9.1, round 2 books track). `tw glb` now also warns on BLEND double-sided materials and texture sides not a multiple of 4.

@@ -282,6 +282,29 @@ test('glb: bounds dequantize normalized KHR_mesh_quantization positions', () => 
   } finally { rmSync(dir, { recursive: true, force: true }); }
 });
 
+test('glb: warns on blended double-sided cards and texture sides that are not multiples of 4', () => {
+  const dir = tmp();
+  const png = (w, h) => { const b = Buffer.from('89504e470d0a1a0a0000000d494844520000000000000000080600000000000000', 'hex'); b.writeUInt32BE(w, 16); b.writeUInt32BE(h, 20); return b; };
+  const model = (alphaMode, uri) => JSON.stringify({
+    asset: { version: '2.0' }, scene: 0, scenes: [{ nodes: [0] }], nodes: [{ mesh: 0 }],
+    meshes: [{ primitives: [{ attributes: { POSITION: 0 }, material: 0 }] }],
+    materials: [{ alphaMode, doubleSided: true, pbrMetallicRoughness: { baseColorTexture: { index: 0 } } }],
+    textures: [{ source: 0 }], images: [{ uri }],
+    accessors: [{ componentType: 5126, type: 'VEC3', count: 3, min: [0, 0, 0], max: [1, 1, 0] }],
+  });
+  try {
+    writeFileSync(join(dir, 'odd.png'), png(1002, 600));
+    writeFileSync(join(dir, 'ok.png'), png(64, 32));
+    writeFileSync(join(dir, 'cards.gltf'), model('BLEND', 'odd.png'));
+    writeFileSync(join(dir, 'clean.gltf'), model('MASK', 'ok.png'));
+    const bad = report(loadModel(join(dir, 'cards.gltf'))).warn;
+    assert.ok(bad.some((w) => w.startsWith('1 material(s) are alphaMode BLEND and double-sided')), bad.join('; '));
+    assert.ok(bad.some((w) => w.startsWith('1 texture(s) with a side that is not a multiple of 4')), bad.join('; '));
+    const good = report(loadModel(join(dir, 'clean.gltf'))).warn;
+    assert.ok(!good.some((w) => w.includes('BLEND') || w.includes('multiple of 4')), good.join('; '));
+  } finally { rmSync(dir, { recursive: true, force: true }); }
+});
+
 test('pixels: a flat-shaded object on a background is not a blank canvas', () => {
   const base = { background: '#000000', meanLuma: 0.5 };
   assert.ok(pixelWarnings({ ...base, colours: 1, coverage: 0 })[0].includes('one flat colour'));

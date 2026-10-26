@@ -22,6 +22,10 @@ Done and verified:
 - Templates (12, all verified): html-importmap, html-webgpu, vite-ts, r3f, chart-3d-scatter, video-turntable, game-starter, surface, globe, product-viewer, scroll-hero, splats. The light palettes of surface and globe are now shot too.
 - Lint: 67 rules; `tw deprecations` 0 pending for r186.
 
+## Round 2 books track (2026-10-25)
+
+- kb topic `transparency-and-blending`, rendering pitfalls (LOD by projected size, filtering, composer MSAA, depth precision, shadow bias), lint note `composer-without-aa`, `tw glb` card and texture-size warnings. Under root CHANGELOG Unreleased; no version bump or tag (owner's go-ahead needed). The transparency topic was not run in a page; its Notes say so.
+
 ## Not done
 
 Nothing is open. XR (a webxr-starter template, `tw --xr` through IWER) was considered and dropped on 2026-09-26: not coming. The IWER notes are in ai-docs/log.md if that changes.

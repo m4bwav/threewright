@@ -125,7 +125,7 @@
    "applies_to": ">=r175",
    "status": "current",
    "renderer": "both",
-   "last_verified": "2026-09-26",
+   "last_verified": "2026-10-25",
    "template": "html-importmap",
    "sections": [
     "Essentials",
@@ -133,7 +133,7 @@
     "Verify",
     "Notes"
    ],
-   "bytes": 5001
+   "bytes": 5698
   },
   {
    "slug": "color-management",
@@ -269,7 +269,7 @@
    "applies_to": ">=r165",
    "status": "current",
    "renderer": "both",
-   "last_verified": "2026-09-26",
+   "last_verified": "2026-10-25",
    "template": "html-importmap",
    "sections": [
     "Essentials",
@@ -277,7 +277,7 @@
     "Verify",
     "Notes"
    ],
-   "bytes": 5416
+   "bytes": 6210
   },
   {
    "slug": "llm-mistakes",
@@ -410,7 +410,7 @@
    "applies_to": ">=r180",
    "status": "current",
    "renderer": "both",
-   "last_verified": "2026-10-22",
+   "last_verified": "2026-10-25",
    "sections": [
     "Essentials",
     "Budgets",
@@ -418,7 +418,7 @@
     "Verify",
     "Notes"
    ],
-   "bytes": 12368
+   "bytes": 13392
   },
   {
    "slug": "performance",
@@ -438,7 +438,7 @@
    "applies_to": ">=r183",
    "status": "current",
    "renderer": "both",
-   "last_verified": "2026-09-26",
+   "last_verified": "2026-10-25",
    "template": "html-importmap",
    "sections": [
     "Essentials",
@@ -446,7 +446,7 @@
     "Verify",
     "Notes"
    ],
-   "bytes": 5897
+   "bytes": 6814
   },
   {
    "slug": "post-processing",
@@ -465,7 +465,7 @@
    "applies_to": ">=r183",
    "status": "current",
    "renderer": "both",
-   "last_verified": "2026-09-26",
+   "last_verified": "2026-10-25",
    "template": "html-importmap",
    "sections": [
     "Essentials",
@@ -473,7 +473,7 @@
     "Verify",
     "Notes"
    ],
-   "bytes": 5164
+   "bytes": 5845
   },
   {
    "slug": "raycasting-and-picking",
@@ -582,6 +582,38 @@
     "Notes"
    ],
    "bytes": 4684
+  },
+  {
+   "slug": "transparency-and-blending",
+   "kind": "topic",
+   "path": "topics/transparency-and-blending.md",
+   "title": "Transparency and blending",
+   "summary": "Pick the transparency by its cause (coverage, transmission, glow) before touching transparent: alphaTest, alphaHash, alphaToCoverage, transmission, additive blending, and the sorting traps.",
+   "tags": [
+    "transparency",
+    "alpha",
+    "alphatest",
+    "alphahash",
+    "alphatocoverage",
+    "transmission",
+    "blending",
+    "sorting",
+    "depthwrite",
+    "foliage",
+    "glass",
+    "particles"
+   ],
+   "applies_to": ">=r162",
+   "status": "current",
+   "renderer": "both",
+   "last_verified": "2026-10-25",
+   "sections": [
+    "Essentials",
+    "Pitfalls",
+    "Verify",
+    "Notes"
+   ],
+   "bytes": 5109
   },
   {
    "slug": "tsl",
@@ -1978,7 +2010,7 @@
    "applies_to": ">=r155",
    "status": "current",
    "renderer": "webgl",
-   "last_verified": "2026-09-26",
+   "last_verified": "2026-10-25",
    "template": "html-importmap",
    "sections": [
     "Goal",
@@ -1986,7 +2018,7 @@
     "Verify",
     "Notes"
    ],
-   "bytes": 5312
+   "bytes": 6179
   },
   {
    "slug": "bloom-webgpu",
