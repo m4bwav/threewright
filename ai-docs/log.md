@@ -143,3 +143,7 @@
 ## 2026-10-26: 0.6.6 released
 
 - Version bump only, on the owner's go-ahead: the Unreleased entries (books tracks 7 and 16, the models-for-the-web topic, the polywright hand-off in threewright-assets) become 0.6.6. Both plugin.json files, dev/package.json and its lockfile say 0.6.6.
+
+## 2026-10-26: GitHub wiki for 0.6.6
+
+- The wiki was only GitHub's placeholder, so wikiwright's new-wiki route wrote eleven pages (wiki 3349c7a, e999a1c; live: 11 pages, 0 failures). Every example ran against the v0.6.6 tag archive (and v0.6.5 for the upgrade section) through ai-docs/notes/2026-10-26-wiki-verify.py; outputs 44 checked, 0 missing. Repository tests at the tag: 61 pass, 3 skipped, 0 fail (a first run under load failed the perf/--against test once). Findings, README inaccuracies and the update procedure: ai-docs/notes/2026-10-26-github-wiki.md.
