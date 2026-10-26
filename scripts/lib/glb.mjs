@@ -175,11 +175,12 @@ export function report(model) {
 
   const mats = json.materials || [];
   const alpha = {};
-  let doubleSided = 0, unlit = 0;
+  let doubleSided = 0, unlit = 0, blendCards = 0;
   for (const m of mats) {
     const a = m.alphaMode || 'OPAQUE';
     alpha[a] = (alpha[a] || 0) + 1;
     if (m.doubleSided) doubleSided++;
+    if (m.doubleSided && a === 'BLEND') blendCards++;
     if (m.extensions && m.extensions.KHR_materials_unlit) unlit++;
   }
 
@@ -212,6 +213,9 @@ export function report(model) {
   const big = images.filter((i) => Math.max(i.width || 0, i.height || 0) > 2048).length;
   if (big) warn.push(`${big} texture(s) over 2048 px: resize for the web (gltf-transform resize --width 2048 --height 2048)`);
   if (images.length >= 3 && !used.includes('KHR_texture_basisu') && gpuBytes > 32 * 1048576) warn.push(`textures need about ${Math.round(gpuBytes / 1048576)} MB of GPU memory uncompressed: KTX2 (gltf-transform etc1s or uastc) cuts it several times`);
+  if (blendCards) warn.push(`${blendCards} material(s) are alphaMode BLEND and double-sided: if they are leaf, grass, fence or hair cards, use MASK (alphaTest, or alphaToCoverage with MSAA); blended cards sort per object and swap order as the camera moves`);
+  const odd = images.filter((i) => i.width && i.height && i.mimeType !== 'image/ktx2' && (i.width % 4 || i.height % 4)).length;
+  if (odd) warn.push(`${odd} texture(s) with a side that is not a multiple of 4: KTX2 encoding needs multiples of 4, and powers of two (512, 1024, 2048) suit mipmaps and compression best`);
   if (noNormals) warn.push(`${noNormals} primitive(s) without normals: GLTFLoader renders them flat shaded`);
   if (size) {
     const span = Math.max(...size);

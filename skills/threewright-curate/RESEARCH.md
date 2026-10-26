@@ -45,6 +45,13 @@ Best sources: npm registry, mrdoob/three.js releases and Migration Guide, the in
 
 Newest first.
 
+### R-20261025-1 · 2026-10-25 · Rendering books (CGPP 3e, Gambetta)
+- Summary: transparency by cause, LOD by projected size, texture filtering, composer MSAA, depth precision, shadow bias, glb card and texture-size checks; every three.js name checked in 0.186.1.
+- Track: subject
+- Sources: ai-docs/research/2026-10-25-books-graphics.md
+- Magnitude: minor (new topic and pitfalls)
+- Applied: C-20261025-1
+
 ### R-20260926-1 · 2026-09-26 · Initial research
 - Summary: Initial research: the schema and the verification sources used to build the first knowledge base. Distilled into the knowledge base under `kb/` and this skill's SKILL.md.
 - Track: subject

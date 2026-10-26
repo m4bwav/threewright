@@ -725,6 +725,20 @@
       "source": "three.js manual, EffectComposer / OutputPass pages; behaviour change verified against three 0.186.1's src/renderers/webgl/WebGLRenderer.js (render-to-screen check) and examples/jsm/postprocessing/OutputPass.js"
     },
     {
+      "id": "composer-without-aa",
+      "pattern": "\\bnew\\s+EffectComposer\\s*\\(",
+      "requires": "from\\s+['\"]three/(?:addons|examples/jsm)/postprocessing/EffectComposer\\.js['\"]",
+      "unless": "\\bsamples\\s*:|\\bSMAAPass\\b|\\bFXAAPass\\b|\\bTAARenderPass\\b|\\bSSAARenderPass\\b",
+      "since": 0,
+      "status": "pitfall",
+      "severity": "info",
+      "message": "antialias: true only multisamples the canvas; three.js's EffectComposer renders into its own render targets, created without samples, so edges come out aliased (and alphaToCoverage does nothing) unless the composer gets a multisampled target or an AA pass",
+      "fix": "new EffectComposer(renderer, new WebGLRenderTarget(w, h, { type: HalfFloatType, samples: 4 })), or add SMAAPass or FXAAPass before OutputPass",
+      "sample": "import { EffectComposer } from 'three/addons/postprocessing/EffectComposer.js'; const composer = new EffectComposer(renderer); composer.addPass(new RenderPass(scene, camera)); composer.addPass(new OutputPass());",
+      "ok": "import { EffectComposer } from 'three/addons/postprocessing/EffectComposer.js'; const target = new WebGLRenderTarget(w, h, { type: HalfFloatType, samples: 4 }); const composer = new EffectComposer(renderer, target);",
+      "source": "three 0.186.1 examples/jsm/postprocessing/EffectComposer.js (default WebGLRenderTarget has no samples); CGPP 3e section 36.9.1 on multisampling"
+    },
+    {
       "id": "webgl-cube-render-target-on-webgpu",
       "pattern": "\\bnew\\s+(?:THREE\\.)?WebGLCubeRenderTarget\\s*\\(",
       "requires": "three/webgpu",

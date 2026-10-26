@@ -15,3 +15,11 @@ Write an entry the moment a real signal happens: a user correction, the same err
 - Scope: skill | repo:<slug> | env:<name> | global
 - Status: active · helpful 1 · harmful 0 · last_confirmed date
 -->
+
+### L-20261025-1 · 2026-10-25 · A new lint rule runs over the knowledge base's own code first; a verified recipe can still carry the fault
+- Trigger: 2026-10-25, the new `composer-without-aa` note fired on kb/recipes/bloom-webgl.md during `kb validate`. The recipe had passed `tw check` in 2026-09 because a lost MSAA throws nothing and `result: OK` says nothing about edges.
+- Hypothesis: `tw check` proves the page runs, not that each setting reaches the screen; quality settings that silently stop working (antialias inside a composer) need a lint rule or a measured shot.
+- Rule: after adding a lint rule, read every hit `kb validate` reports in the knowledge base, fix the entry (not the rule) when the hit is real, and prove the fix with a before-and-after `tw shot` measured on an edge.
+- Evidence: C-20261025-1; edge pixel step 32 before, an in-between value after.
+- Scope: repo:threewright
+- Status: active · helpful 1 · harmful 0 · last_confirmed 2026-10-25

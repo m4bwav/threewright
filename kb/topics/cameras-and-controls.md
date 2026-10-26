@@ -7,7 +7,7 @@ tags: [camera, orbitcontrols, perspective, orthographic, controls, keyboard]
 applies_to: ">=r175"
 status: current
 renderer: both
-last_verified: 2026-09-26
+last_verified: 2026-10-25
 sources: [ai-docs/research/2026-09-26-core-r160-r186.md, ai-docs/research/2026-09-26-games.md, ai-docs/research/2026-09-26-3d-dataviz-and-docs.md]
 related: [fit-camera-to-object, keyboard-orbit-and-reduced-motion, resize-and-pixel-ratio]
 template: html-importmap
@@ -31,6 +31,7 @@ template: html-importmap
 - `scene.add(transformControls)`: `TransformControls` has been a `Controls` object, not an `Object3D`, since r169. Add `transformControls.getHelper()` instead, or the console logs `Object3D.add: object not an instance of THREE.Object3D.`
 - `PointerLockControls.getObject()`: removed in r168. Use `controls.object`.
 - Forgetting `controls.update()` in the render loop when `enableDamping` is true: input feels laggy or dead because the inertia never actually integrates.
+- Flickering where two surfaces nearly touch (z-fighting) far from the camera: depth precision is spent mostly near the near plane, so a tiny `camera.near` (0.001 with a far of 10000) starves the distance. Keep `near` as large as the framing allows (the `fit-camera-to-object` recipe's `distance / 100` is a good start), draw decals and coplanar overlays with `material.polygonOffset = true` and a negative `polygonOffsetFactor`, and keep `logarithmicDepthBuffer: true` for planet-scale scenes, where it costs early depth testing.
 - Not resetting `controls.target` after loading a new model: the camera orbits around wherever the target was left, often the origin, even when the model's center is somewhere else.
 
 ## Verify
@@ -42,3 +43,4 @@ template: html-importmap
 ## Notes
 
 - 2026-09-26: written from the core r160-r186 research (sections 1, 3) and checked directly against `node_modules/three/examples/jsm/controls/OrbitControls.js` in the installed 0.186.1 (the `_handleKeyDown` arrow-key-pans-by-default behavior was read from source, not assumed).
+- 2026-10-25: depth precision pitfall (CGPP 3e §36.3.1, round 2 books track); `polygonOffset` and `gl_FragDepth` in `logdepthbuf_fragment` checked in three 0.186.1.

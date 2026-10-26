@@ -7,7 +7,7 @@ tags: [bloom, effectcomposer, unrealbloompass, outputpass, post-processing]
 applies_to: ">=r155"
 status: current
 renderer: webgl
-last_verified: 2026-09-26
+last_verified: 2026-10-25
 sources: [ai-docs/research/2026-09-26-core-r160-r186.md]
 related: [post-processing, bloom-webgpu, materials]
 template: html-importmap
@@ -84,7 +84,10 @@ A glow around bright objects only, using the WebGL post-processing pipeline: `Ef
     dim.position.set(1.4, 0.8, -0.6);
     scene.add(dim);
 
-    const composer = new EffectComposer(renderer);
+    // antialias: true only multisamples the canvas; the composer renders into its own target,
+    // so give that target samples or the edges come out aliased again.
+    const target = new THREE.WebGLRenderTarget(window.innerWidth * renderer.getPixelRatio(), window.innerHeight * renderer.getPixelRatio(), { type: THREE.HalfFloatType, samples: 4 });
+    const composer = new EffectComposer(renderer, target);
     composer.addPass(new RenderPass(scene, camera));
     const bloomPass = new UnrealBloomPass(
       new THREE.Vector2(window.innerWidth, window.innerHeight),
@@ -122,6 +125,9 @@ Drive `knot.rotation.y` from `Timer.getDelta()` in real code, not a per-frame co
 - Removing `OutputPass` and re-running `tw check` should still say `result: OK` (no exception) but the reported mean pixel brightness will drop noticeably, since the composer's output would then be linear and untonemapped; a text-visible symptom of the classic missing-`OutputPass` mistake, without needing to look at a screenshot.
 - `tw lint <dir>` flags an `EffectComposer` chain with no `OutputPass` (`composer-without-output-pass`), which is the static check for the same mistake before ever running the page.
 
+- The composer's target has `samples: 4` so `antialias: true` still holds through the chain; without it `tw lint` gives the `composer-without-aa` note. Checked 2026-10-25 with `tw shot` before and after on three 0.186.1 (RTX 5060 Ti): the dim sphere's left edge went from a hard 32-level step to an in-between pixel.
+
 ## Notes
 
 - 2026-09-26: written from the core r160-r186 research (sections 3, 4, "Composer without OutputPass" and its r155 rule) and checked with `tw check` against this recipe's own page.
+- 2026-10-25: the composer gets a multisampled render target (round 2 books track; the new `composer-without-aa` rule fired on this recipe). Image otherwise unchanged; `tw check` result OK.

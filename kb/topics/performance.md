@@ -7,7 +7,7 @@ tags: [performance, draw calls, instancedmesh, batchedmesh, budget, pixel ratio,
 applies_to: ">=r183"
 status: current
 renderer: both
-last_verified: 2026-09-26
+last_verified: 2026-10-25
 sources: [ai-docs/research/2026-09-26-games.md, ai-docs/research/2026-09-26-scenarios-xr-and-testing.md, ai-docs/research/2026-09-26-direction.md]
 related: [instanced-scatter, memory-and-disposal, bundle-size, renderer-choice]
 template: html-importmap
@@ -39,6 +39,7 @@ Cap `renderer.setPixelRatio` at 2 (1.5 or lower on low-end phones), and drop it 
 - One mesh, one draw call, thousands of times (a particle field, a forest, a crowd) instead of `InstancedMesh`: draw calls dominate CPU time long before triangle count does on most scenes.
 - Skipping `compileAsync` and taking the shader-compile hit on the frame that reveals the scene (a scroll-triggered hero, a level transition): shows up as a visible stall exactly when the user is looking.
 - Reading `renderer.info` without setting `autoReset = false` when you render more than once per frame (a shadow pass, a reflection pass): the counts reset after every `render()` call, so you see only the last pass's numbers.
+- Switching LOD levels at round distances picked by eye: switch on projected size instead. An object of height `h` fills the fraction `s` of the screen height at distance `d = h / (2 * tan(fov / 2) * s)` (fov in radians, the camera's vertical field of view). Drop to the next level where the detail it removes would cover under about 2 pixels, since anything smaller only aliases. As levels shrink, move removed geometry into the normal map, then soften the normal map and raise roughness. Far repeats can become impostors (cards turning about their vertical axis), and a block of houses simplifies better as one cluster than house by house. `lod.addLevel(object, distance, hysteresis)` takes a hysteresis fraction (r186) that stops popping at the boundary.
 - Assuming WebGPURenderer is a free performance upgrade: for CPU-bound scenes with many unique draws it can be several times slower to first render than WebGLRenderer on the same hardware. See `renderer-choice`.
 
 ## Verify
@@ -52,3 +53,4 @@ Cap `renderer.setPixelRatio` at 2 (1.5 or lower on low-end phones), and drop it 
 ## Notes
 
 - 2026-09-26: written from the games research (sections 2.1, 3) and the scenarios research (section B5), with the WebGPU-versus-WebGL performance numbers from the direction research (section 3.5, three.js issues 30560, 31055, 33821).
+- 2026-10-25: LOD switching by projected size with the 2-pixel rule (CGPP 3e §25.4, round 2 books track); `LOD.addLevel` hysteresis checked in three 0.186.1.

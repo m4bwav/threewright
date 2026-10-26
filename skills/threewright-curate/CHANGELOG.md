@@ -4,6 +4,11 @@ Every change to [SKILL.md](SKILL.md) and its companions, newest first, each with
 
 Entry shape: `### C-YYYYMMDD-n · date · one-line summary`, then `because:` (IDs or "user request"), `files:` (file and section), and a sentence on what changed. Cite section headings, not line numbers.
 
+### C-20261025-1 · 2026-10-25 · Rendering books: transparency topic, LOD, filtering, composer MSAA, glb warnings
+- because: R-20261025-1 (ai-docs/research/2026-10-25-books-graphics.md), L-20261025-1
+- files: kb/topics/transparency-and-blending.md (new); Pitfalls in kb/topics/performance.md, models-for-the-web.md, post-processing.md, cameras-and-controls.md, lighting-and-shadows.md; kb/recipes/bloom-webgl.md (Code, Verify); kb/rules/lint-rules.json (`composer-without-aa`); scripts/lib/glb.mjs (two warnings) and tests/unit.test.mjs
+- Every three.js name was checked in the installed 0.186.1 source before it was written. The new lint note fired on the bloom-webgl recipe, which lost its MSAA in the composer; the recipe now passes a multisampled target, checked with `tw shot` before and after.
+
 ### C-20260926-3 · 2026-09-26 · Edit a checkout of the knowledge base, never the installed plugin
 - because: T-20260926-3 (action-1 runs noted into the loaded plugin copy, which Claude Code refuses, and which a plugin update would overwrite)
 - files: SKILL.md (opening lines)

@@ -4,6 +4,7 @@ Plugin versions. Skill-level changes are in each `skills/*/CHANGELOG.md`; the se
 
 ## Unreleased
 
+- Round 2 books track (CGPP 3e, Gambetta): kb topic `transparency-and-blending` (coverage, transmission, glow, sorting); pitfalls for LOD switching by projected size, pixel-art texture filtering and anisotropy, composer MSAA, depth precision and shadow acne; `tw lint` note `composer-without-aa` (it fired on the bloom-webgl recipe, now fixed with a multisampled target); `tw glb` warns on BLEND double-sided materials and texture sides not a multiple of 4.
 - `tw glb`: draw calls are counted per node that draws a mesh (a mesh reused by 150 plain nodes is 150 calls, an `EXT_mesh_gpu_instancing` node is one); it counted one per mesh before. A warning names 50 or more nodes that repeat a mesh and how to instance them.
 - kb `models-for-the-web` Pitfalls: Blender Geometry Nodes scatters need `export_gpu_instances`, Smooth by Angle needs modifiers applied, flipped faces show as holes. Checked on Blender 5.2.1 and three 0.186.1.
 - kb topic `models-for-the-web`: what a glTF model must be for three.js (PBR and ORM, KTX2, meshopt or Draco, budgets, LODs, lightmaps on `uv1`, styles, pivots, failure modes), pointing to polywright for making and fixing models; threewright-assets Step 2 links it.

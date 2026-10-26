@@ -7,7 +7,7 @@ tags: [lights, shadows, shadowmap, sunlight, csm, pcf, decay, intensity]
 applies_to: ">=r165"
 status: current
 renderer: both
-last_verified: 2026-09-26
+last_verified: 2026-10-25
 sources: [ai-docs/research/2026-09-26-core-r160-r186.md, ai-docs/research/2026-09-26-direction.md, ai-docs/research/2026-09-26-games.md]
 related: [color-management, materials, environment-lighting, performance]
 template: html-importmap
@@ -30,6 +30,7 @@ template: html-importmap
 - Setting `renderer.shadowMap.type = THREE.PCFSoftShadowMap` and expecting a visibly different (softer) shadow than `PCFShadowMap`: since r182 they render the same way, and r186 logs "PCFSoftShadowMap has been removed. Using PCFShadowMap instead." Use `PCFShadowMap` directly.
 - Forgetting `mesh.receiveShadow` on the floor: the classic "the shadow-casting mesh looks fine but nothing shows the shadow" bug. `tw check`'s runtime warnings flag `a light casts shadows but renderer.shadowMap.enabled is false`, but a missing `receiveShadow` on one mesh is not a message you get in text; check the scene graph or a screenshot.
 - An undersized or misaligned shadow camera: shadows disappear past its bounds, or look pixelated because the box is too large for the map size. Compute the box from the scene's `Box3` rather than guessing numbers.
+- Striped self-shadowing on lit surfaces (shadow acne), or shadows that start a gap away from the object that casts them (peter-panning): the shadow map's texels are too coarse for the surface's angle. Shrink the shadow camera box first (shadow texel size is the box width divided by `shadow.mapSize`), then try a small negative `light.shadow.bias` (around -0.0001 to -0.001) or a small `light.shadow.normalBias` (around 0.01 to 0.05, helps large terrain at grazing light; both default 0 in r186). Too much bias produces the peter-panning gap; the numbers are starting points, tune per scene.
 - Adding `SunLight` to `WebGPURenderer` without registering `SunLightNode` first: the light exists but casts no shadow and may not render at all on that backend.
 
 ## Verify
@@ -41,3 +42,4 @@ template: html-importmap
 ## Notes
 
 - 2026-09-26: written from the core r160-r186 research (sections 1, 3, 4, 6) and the direction research (section 4.2), checked against `node_modules/three/src/renderers/webgl/WebGLShadowMap.js`, `WebGLLights.js` and `examples/jsm/lights/SunLight.js` in the installed 0.186.1.
+- 2026-10-25: shadow acne and peter-panning pitfall (Gambetta, round 2 books track); `bias` and `normalBias` checked in three 0.186.1 `LightShadow.js` (both default 0); the ranges are starting points.
