@@ -26,6 +26,10 @@ Done and verified:
 
 - kb topic `transparency-and-blending`, rendering pitfalls (LOD by projected size, filtering, composer MSAA, depth precision, shadow bias), lint note `composer-without-aa`, `tw glb` card and texture-size warnings. Under root CHANGELOG Unreleased; no version bump or tag (owner's go-ahead needed). The transparency topic was not run in a page; its Notes say so.
 
+## GitHub wiki (2026-10-26, v0.6.6)
+
+- The wiki exists since 2026-10-26: eleven pages for 0.6.6, written with the wikiwright skill (wiki commits 3349c7a, e999a1c; working copy `D:\m4bwa\Claude\Projects\Ai\threewright.wiki`). How to update it at the next release, the verification program, its saved output, the page sources and the builder: `ai-docs/notes/2026-10-26-github-wiki.md`. That note also lists README inaccuracies (kb counts 89/23 topics and "67 stale-API rules" are stale) and two flaky behaviours (`tw scene` once printed an empty scene; the perf/--against browser test is load-sensitive), none fixed.
+
 ## Not done
 
 Nothing is open. XR (a webxr-starter template, `tw --xr` through IWER) was considered and dropped on 2026-09-26: not coming. The IWER notes are in ai-docs/log.md if that changes.
