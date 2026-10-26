@@ -139,3 +139,7 @@
 - From Ai/books/plugin-learnings, round 2 (CGPP 3e and Gambetta). Research note ai-docs/research/2026-10-25-books-graphics.md. New topic `transparency-and-blending`; pitfalls in performance (LOD by projected size, 2 px rule), models-for-the-web (filtering, anisotropy, far sparkle), post-processing (composer MSAA), cameras-and-controls (depth precision), lighting-and-shadows (acne, bias). Every API name checked in three 0.186.1's source.
 - `tw lint` rule `composer-without-aa` (info). It fired on kb/recipes/bloom-webgl.md: the composer's default target has no samples, so the recipe lost its antialiasing. Fixed with a multisampled target; `tw shot` before and after on the RTX 5060 Ti showed the dim sphere's edge go from a hard step to an in-between pixel. L-20261025-1 (curate).
 - `tw glb`: warnings for BLEND double-sided materials (cards that should be MASK) and texture sides not a multiple of 4; unit test with a .gltf fixture pair. `kb validate --strict` 0 errors; unit tests pass. Root CHANGELOG Unreleased, no version bump (releases wait for the owner).
+
+## 2026-10-26: 0.6.6 released
+
+- Version bump only, on the owner's go-ahead: the Unreleased entries (books tracks 7 and 16, the models-for-the-web topic, the polywright hand-off in threewright-assets) become 0.6.6. Both plugin.json files, dev/package.json and its lockfile say 0.6.6.
