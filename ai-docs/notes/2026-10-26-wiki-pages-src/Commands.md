@@ -351,19 +351,10 @@ tw deprecations
 tw versions --check
 ```
 
-On 2026-10-26 it printed (the list changes as packages release; first and last lines):
+On 2026-10-26 it printed (the list changes as packages release):
 
 ```text
-@gltf-transform/cli            latest 4.5.1        BEHIND  (4.5.0 in 1 place)
-@google/model-viewer           latest 4.4.0        BEHIND  (4.3.1 in 1 place)
-```
-
-```text
-three                          latest 0.186.1      ok  (0.186.1 in 14 places)
-```
-
-```text
-15 package(s) behind: refresh those kb entries and templates (threewright-curate), then tw kb validate
+{{versions check|noexit}}
 ```
 
 Exit code 1 when anything is behind.

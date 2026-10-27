@@ -1,12 +1,15 @@
 # Log
 
-## 2026-10-26: round 2 follow-up, v0.6.7 preparation
+## 2026-10-26: round 2 follow-up, v0.6.7 released and wiki published
 
 - Fixed confirmed help and README omissions; separated perf timing from the static `--against` assertion. Added a help regression test.
 - Corrected HANDOFF and added `INDEX.md`; investigation and execution evidence are in `notes/2026-10-26-round2-followup.md`.
 - Parent ran `npm ci` then `npm test` in `dev/`: 66 tests, 63 pass, 3 existing build-template skips, 0 fail. Scene selection remains unchanged because the one empty-tree observation has no proven cause.
 - Corrected the glTF Transform CLI pin to 4.5.1 after parent verified npm registry metadata. The entry distinguishes that version check from the older 4.5.0 source/API review.
-- Prepared wiki sources for 0.6.7 and made the tag-archive verifier use a project-local `.wiki-verify` folder. Tag verification, publishing and final records remain pending.
+- Updated wiki sources for 0.6.7 and made the tag-archive verifier use a project-local `.wiki-verify` folder. The released-tag run completed with exit 0 and empty stderr, including its v0.6.5 historical comparison. The scene tree was complete; the comparison printed no changes.
+- [PR #15](https://github.com/m4bwav/threewright/pull/15) was squash merged as `5f56603`; [GitHub Release v0.6.7](https://github.com/m4bwav/threewright/releases/tag/v0.6.7) and the [wiki](https://github.com/m4bwav/threewright/wiki) are published. Wiki commit: `8c9e5a818e12bb8ec8c9c45591e6b541f1379de5`.
+- Final wiki gates: 11 pages, 0 errors; outputs 42 checked, 0 missing, 3 skipped; snippets 3 blocks and 44 commands, 0 missing; prose 0 strong and 10 weak; live 11 pages, 0 failures, 16 anchors, 0 broken. The initial stale versions excerpt was replaced with a recording placeholder in the persistent source.
+- The exact existing scene-tree browser assertion passed in 20 separate runs, one selected test each. The earlier root-only output could not be reproduced. No `mainScene()` or fallback changes were made. Publication records proceed through a docs-only follow-up PR.
 
 ## 2026-09-26: started
 
@@ -155,4 +158,8 @@
 ## 2026-10-26: GitHub wiki for 0.6.6
 
 - The wiki was only GitHub's placeholder, so wikiwright's new-wiki route wrote eleven pages (wiki 3349c7a, e999a1c; live: 11 pages, 0 failures). Every example ran against the v0.6.6 tag archive (and v0.6.5 for the upgrade section) through ai-docs/notes/2026-10-26-wiki-verify.py; outputs 44 checked, 0 missing. Repository tests at the tag: 61 pass, 3 skipped, 0 fail (a first run under load failed the perf/--against test once). Findings, README inaccuracies and the update procedure: ai-docs/notes/2026-10-26-github-wiki.md.
+## [2026-10-26] index | rebuilt (3 entries)
+## [2026-10-26] index | rebuilt (3 entries)
+## [2026-10-26] index | rebuilt (3 entries)
+## [2026-10-26] index | rebuilt (3 entries)
 ## [2026-10-26] index | rebuilt (3 entries)
