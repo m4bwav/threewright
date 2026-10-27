@@ -1,6 +1,6 @@
 # HANDOFF
 
-Updated 2026-10-26 (v0.6.7 follow-up, development tests passed). Start at `ai-docs/INDEX.md`, then this file and the matching notes.
+Updated 2026-10-26 (v0.6.7 released, wiki published, scene revalidation complete). Start at `ai-docs/INDEX.md`, then this file and the matching notes.
 
 ## Goal (from the owner)
 
@@ -8,7 +8,7 @@ An expansive evergreen three.js plugin: skills plus a knowledge base plus token-
 
 ## State (2026-10-26)
 
-Version 0.6.7 follow-up: development tests passed in the isolated `fix/round2-followup-20261026` worktree. The release handoff and confirmed publication URLs belong in `ai-docs/notes/2026-10-26-round2-followup.md`; check that note before assuming a tag or wiki update is published.
+Version 0.6.7 is released: [PR #15](https://github.com/m4bwav/threewright/pull/15), squash merge `5f56603`, [GitHub Release](https://github.com/m4bwav/threewright/releases/tag/v0.6.7). Development tests passed in the isolated `fix/round2-followup-20261026` worktree. The [wiki](https://github.com/m4bwav/threewright/wiki) is published at `8c9e5a818e12bb8ec8c9c45591e6b541f1379de5`, verified against the released tag archive. Details are in `ai-docs/notes/2026-10-26-round2-followup.md`.
 
 Done and verified:
 - 2026-10-04, v0.6.4: the development `package.json` and lockfile live in `dev/` (a root lockfile held the Claude directory submission). Run `npm install` and `npm test` there; `npm test` passed 62/62 on 2026-10-04.
@@ -22,18 +22,20 @@ Done and verified:
 - Templates (12, all verified): html-importmap, html-webgpu, vite-ts, r3f, chart-3d-scatter, video-turntable, game-starter, surface, globe, product-viewer, scroll-hero, splats. The light palettes of surface and globe are now shot too.
 - Lint: 69 rules; `tw deprecations` 0 pending for r186 at v0.6.6.
 - v0.6.7 follow-up: `npm ci` then `npm test` in `dev/` passed 66 tests total, 63 passed, 3 existing build-template skips, 0 failed on 2026-10-26. Help lists `glb --strict`; the `--against` test uses a static fixture. The glTF Transform CLI pin is 4.5.1, verified from npm metadata; the entry labels its older source/API review separately.
+- Scene revalidation: the existing `scene prints a compact tree of the main scene` browser assertion passed in 20 separate runs, one selected test each. The earlier root-only observation was not reproduced. `mainScene()` and its fallback are unchanged.
 
 ## Round 2 books track (2026-10-25)
 
 - Shipped in v0.6.6: kb topic `transparency-and-blending`, rendering pitfalls (LOD by projected size, filtering, composer MSAA, depth precision, shadow bias), lint note `composer-without-aa`, `tw glb` card and texture-size warnings. The transparency topic was not run in a page; its Notes say so.
 
-## GitHub wiki (2026-10-26, v0.6.6)
+## GitHub wiki (2026-10-26, v0.6.7)
 
 - The wiki exists since 2026-10-26: eleven pages initially verified for 0.6.6 (wiki commits 3349c7a, e999a1c; working copy `D:\m4bwa\Claude\Projects\Ai\threewright.wiki`). The verification program, output, page sources and builder are documented in `ai-docs/notes/2026-10-26-github-wiki.md`. The v0.6.7 follow-up fixes the README counts and uses a static fixture for the `--against` browser assertion. The one root-only `tw scene` observation remains unproven; do not change scene selection without a reproduction.
+- Updated wiki commit: `8c9e5a818e12bb8ec8c9c45591e6b541f1379de5`. Final gates: 11 pages, 0 errors; 42 output blocks checked, 0 missing, 3 skipped; 3 snippet blocks and 44 commands, 0 missing; prose 0 strong and 10 weak findings; live 11 pages, 0 failures, 16 anchors, 0 broken.
 
 ## Not done
 
-Finish the v0.6.7 KB validation/index generation, squash merge, GitHub Release and wiki verification; record URLs in the follow-up note. No registry publishing is authorized. The root-only scene observation has no proven cause; the scene-tree test passes, and no speculative selection fix was made. XR (a webxr-starter template, `tw --xr` through IWER) was considered and dropped on 2026-09-26: not coming. The IWER notes are in ai-docs/log.md if that changes.
+The source fixes, GitHub Release, wiki publication and scene revalidation are complete. Merge the docs-only publication record. No registry publishing is authorized. The root-only scene observation has no proven cause after 20 passing reruns; no speculative selection fix was made. `versions --check` reports 14 packages behind; refreshing those ecosystem entries is separate work. XR (a webxr-starter template, `tw --xr` through IWER) was considered and dropped on 2026-09-26: not coming. The IWER notes are in ai-docs/log.md if that changes.
 
 The owner's direction (2026-09-26): nobody else uses this library; keep it cheap to maintain. Rerun evals only after a skill changes: `python evals/headless/run.py --filter <skill>` then `python evals/headless/grade.py` (about $0.50 a run; a full pass is 37 runs, cases marked `redundant` need `--all`; runs inherit your home, and the runner warns if the repo changed).
 

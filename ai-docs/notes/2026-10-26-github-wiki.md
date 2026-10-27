@@ -1,29 +1,48 @@
 ---
-title: GitHub wiki written and published for 0.6.6
+title: GitHub wiki provenance for 0.6.6 and 0.6.7
 kind: note
 date: 2026-10-26
 verified: 2026-10-26
 stale_after: 2027-04-26
-tags: [wiki, docs, 0.6.6, github]
-summary: "the wiki's eleven pages, where their working copy is, how every example was run against the v0.6.6 tag archive (and 0.6.5 for the upgrade section), the facts and inaccuracies found, the bugs seen, and how to update the wiki at the next release"
+tags: [wiki, docs, 0.6.6, 0.6.7, github]
+summary: "the published 0.6.7 wiki commit and passing gates, original 0.6.6 evidence, released-tag archive verification, sources and rebuild procedure, and unresolved findings"
 ---
 
-# GitHub wiki for 0.6.6
+# GitHub wiki for 0.6.6 and 0.6.7
 
-## 0.6.7 update in preparation
+## 0.6.7 verification
 
 The original 0.6.6 recording and findings below remain historical evidence. The 0.6.7 source changes correct the README counts and help omission, refresh HANDOFF and use a static browser comparison fixture. `2026-10-26-round2-followup.md` records the execution results and unresolved scene observation.
 
-The same verification program now defaults to 0.6.7. It still downloads 0.6.5 to verify the historical draw-call and strict-warning comparison. Scratch files now stay in `.wiki-verify/v<version>-<pid>` below the working directory rather than the system temp folder. The 0.6.7 recording must be saved separately as `2026-10-26-wiki-verify-067.out.txt`; do not overwrite the 0.6.6 recording.
+Parent ran the verifier against the released v0.6.7 and historical v0.6.5 source archives. It completed with exit 0 and empty stderr. The recording identifies `threewright 0.6.7 (tag v0.6.7 archive)` and Node 24.18.0. Its help includes `glb --strict` and the warning exit code. The scene case printed the root, directional light, knot mesh and ground mesh; the root-only observation did not recur. The saved-run comparison printed `no changes`.
 
-After v0.6.7 exists on GitHub, run from the repository root:
+This run does not resolve the earlier intermittent empty-tree observation. `versions --check` reports 14 packages behind and exits 1 as expected for that command; an ecosystem refresh was outside this follow-up. Individual negative fixtures also deliberately return nonzero exits, which the recording preserves.
+
+The original recording is in the parent session at `files/threewright-067-wiki.out.txt`. Preserve it in this folder as `2026-10-26-wiki-verify-067.out.txt` before committing the publication record. The original 0.6.6 recording stays separate.
+
+The verification program defaults to 0.6.7 and still downloads 0.6.5 for the historical comparison. Scratch files stay in `.wiki-verify/v<version>-<pid>` below the working directory. Reproduce from the repository root:
 
 ```powershell
 python ai-docs\notes\2026-10-26-wiki-verify.py 0.6.7 > ai-docs\notes\2026-10-26-wiki-verify-067.out.txt
 python ai-docs\notes\2026-10-26-wiki-build-pages.py ai-docs\notes\2026-10-26-wiki-verify-067.out.txt ai-docs\notes\2026-10-26-wiki-pages-src D:\m4bwa\Claude\Projects\Ai\threewright.wiki ai-docs\notes\2026-10-26-wiki-verify.py
 ```
 
-The archive input is `https://github.com/m4bwav/threewright/archive/refs/tags/v0.6.7.tar.gz`, fetched by the verifier itself. Use a UTF-8 output redirection method. `Home.md` and `_Footer.md` are edited directly; built pages must come from the sources and the new recording. Run wikiwright `diffout`, `check --version 0.6.7`, `outputs`, `snippets` and `live`, then record the actual results and wiki commit here.
+The archive input is `https://github.com/m4bwav/threewright/archive/refs/tags/v0.6.7.tar.gz`, fetched by the verifier itself. Use a UTF-8 output redirection method. `Home.md` and `_Footer.md` name and link v0.6.7. Current-release references in the page sources name 0.6.7; 0.6.6 references describe introductions or historical comparisons.
+
+The eight generated pages were rebuilt from the released-tag recording. No built pages were edited by hand during the rebuild. The [wiki](https://github.com/m4bwav/threewright/wiki) is published at commit `8c9e5a818e12bb8ec8c9c45591e6b541f1379de5`.
+
+Final gates:
+
+- Build succeeded; version check: 11 pages, 0 errors.
+- Output coverage: 42 checked, 0 missing, 3 skipped.
+- Snippet coverage: 3 blocks, 44 commands, 0 missing.
+- Prose: 0 strong, 10 weak findings.
+- Live: 11 pages, 0 failures, 16 anchors, 0 broken.
+- `diffout`: 61 sections, 58 unchanged, 3 changed.
+
+The first output gate checked 44 blocks and found two stale lines in Commands' hardcoded `versions --check` excerpt: glTF Transform was shown behind at 4.5.0, and the total was 15 behind. The source now uses `{{versions check|noexit}}`, so the builder inserts that entire labeled section from the current recording. It reports glTF Transform 4.5.1 as current and 14 packages behind. The rebuilt page passed the output gate; this first failure is retained as provenance.
+
+After publication, the exact existing scene-tree browser assertion passed in 20 separate targeted runs. The transient root-only output was not reproduced, and scene selection code remains unchanged.
 
 ## Summary
 
@@ -44,11 +63,11 @@ Preflight state `placeholder`; pages committed on top of the cloned placeholder,
 ## Updating the wiki later
 
 1. `git -C D:\m4bwa\Claude\Projects\Ai\threewright.wiki pull --ff-only`.
-2. Copy [2026-10-26-wiki-verify.py](2026-10-26-wiki-verify.py) to a new dated name, set `VERSION` and `OLD` (the previous release, used by the "From X to Y" section), run it from the repository root (`python ai-docs/notes/<date>-wiki-verify.py > <scratch>/new.txt`); it downloads the tag archives from GitHub into a temp folder and needs Node 22+, Chrome, ffmpeg and the network. Then `python <wikiwright>/scripts/wikiwright.py diffout ai-docs/notes/2026-10-26-wiki-verify.out.txt <scratch>/new.txt`: every difference is a page to fix. `kb show` output contains `## ` lines, so diffout reports them as sections of their own (`## Essentials`, `## Budgets`); read those as part of the `kb show` case before them. Save the new output with LF only (`tr -d '\r'`).
+2. Copy [2026-10-26-wiki-verify.py](2026-10-26-wiki-verify.py) to a new dated name and set `VERSION`. Keep `OLD = "0.6.5"` while the pages show that historical comparison; change it only with the corresponding case labels and page sources. Run from the repository root (`python ai-docs/notes/<date>-wiki-verify.py > <project-local-scratch>/new.txt`); it downloads tag archives from GitHub below `.wiki-verify` and needs Node 22+, Chrome, ffmpeg and the network. Then run wikiwright `diffout` between the latest saved verification output and the new output: every difference is a page to fix. `kb show` output contains `## ` lines, so diffout reports them as sections of their own; read those as part of the `kb show` case before them. Save UTF-8 output with LF line endings.
 3. Rebuild: `python ai-docs/notes/<date>-wiki-build-pages.py <new output> ai-docs/notes/<date>-wiki-pages-src <wiki dir> ai-docs/notes/<date>-wiki-verify.py`.
 4. `wikiwright.py check <wiki> --version <new>`, `outputs <wiki> <new output> --address ''`, `snippets <wiki> <program>`, everwrite `tells.py`; commit, push, `wikiwright.py live m4bwav/threewright <wiki>`.
 
-Pages that name the version or the release's numbers: _Footer, Home (current release line, "91 entries"), Commands (first paragraph: 0.6.6, Node, Chrome), Getting-Started (doctor output), Knowledge-Base ("At 0.6.6", 69 rules, "New in 0.6.6"), Versions-and-Upgrading (table row, "From 0.6.5 to 0.6.6", the count table), The-Skills (polywright since 0.6.6), Development (test counts at v0.6.6), Errors-and-Edge-Cases (glb meaning change).
+Pages that name the current release: _Footer, Home, Commands, Knowledge-Base, Versions-and-Upgrading and Development. Getting-Started contains machine-specific doctor output to compare on every run. Keep historical introduction versions in Knowledge-Base, The-Skills, FAQ, Errors-and-Edge-Cases and Versions-and-Upgrading unchanged unless the history itself was wrong.
 
 ## How the examples were verified
 
