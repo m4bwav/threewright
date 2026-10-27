@@ -1,7 +1,8 @@
-threewright is installed from the repository, so a version is a git tag (`v0.6.6`) with a GitHub Release; nothing is published to npm. `.claude-plugin/plugin.json`, the root `plugin.json` and `dev/package.json` carry the same version. In Claude Code, update the `threewright` marketplace and then the plugin from the `/plugin` menu (not run for this page).
+threewright is installed from the repository, so a version is a git tag (`v0.6.7`) with a GitHub Release; nothing is published to npm. `.claude-plugin/plugin.json`, the root `plugin.json` and `dev/package.json` carry the same version. In Claude Code, update the `threewright` marketplace and then the plugin from the `/plugin` menu (not run for this page).
 
 | Version | Date | What changed |
 |---|---|---|
+| 0.6.7 | 2026-10-26 | `glb --strict` added to help; static comparison fixture for the browser test; README counts, handoff and glTF Transform CLI pin corrected |
 | 0.6.6 | 2026-10-26 | kb topics `transparency-and-blending` and `models-for-the-web`; rendering pitfalls; `tw lint` note `composer-without-aa`; `tw glb` counts draw calls per node, warns on repeated meshes, BLEND double-sided materials and texture sides not a multiple of 4; threewright-assets asks polywright for models |
 | 0.6.5 | 2026-10-05 | root `plugin.json` for Copilot CLI and awesome-copilot; `tw lint` note `typed-buffer-attribute-copies` |
 | 0.6.4 | 2026-10-04 | `package.json` and lockfile moved to `dev/`; nothing to install with the plugin |
@@ -17,6 +18,12 @@ threewright is installed from the repository, so a version is a git tag (`v0.6.6
 | 0.1.0 | 2026-09-26 | first release |
 
 Dates are the CHANGELOG's. The details of every release are in the [CHANGELOG](https://github.com/m4bwav/threewright/blob/main/CHANGELOG.md).
+
+## From 0.6.6 to 0.6.7
+
+No page or script changes are needed. `tw --help` now lists `glb --strict` and says it exits 1 on any warning; that behavior already existed. The browser comparison test now uses a static fixture, with no change to production comparison thresholds. The README counts are corrected to 91 entries, 25 topics and 69 lint rules.
+
+The glTF Transform library entry now pins CLI 4.5.1, matching the existing recipes. The version was confirmed from npm metadata; the entry's source/API findings remain scoped to its earlier 4.5.0 review.
 
 ## From 0.6.5 to 0.6.6
 
@@ -45,6 +52,7 @@ The knowledge base grew from 89 to 91 entries and the lint rules from 68 to 69, 
 |---|---|---|
 | v0.6.5 | {{kb counts 0.6.5}} | {{lint rule count 0.6.5}} |
 | v0.6.6 | {{kb counts}} | {{lint rule count}} |
+| v0.6.7 | {{kb counts}} | {{lint rule count}} |
 
 ## From 0.6.3 or older
 

@@ -1303,9 +1303,9 @@
    "applies_to": "any",
    "status": "current",
    "renderer": "none",
-   "last_verified": "2026-09-26",
+   "last_verified": "2026-10-26",
    "package": "@gltf-transform/cli",
-   "version_checked": "4.5.0",
+   "version_checked": "4.5.1",
    "sections": [
     "Use it for",
     "Avoid it when",
@@ -1313,7 +1313,7 @@
     "Pitfalls",
     "Notes"
    ],
-   "bytes": 3554
+   "bytes": 4134
   },
   {
    "slug": "gltfpack",

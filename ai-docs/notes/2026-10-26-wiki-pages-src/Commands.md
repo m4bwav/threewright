@@ -1,4 +1,4 @@
-Every output on this page was printed by threewright 0.6.6 on Windows 11 (Node 24.18.0, Chrome 155, RTX 5060 Ti), from a scratch folder, with `tw` standing for `node <plugin>/scripts/tw.mjs`. Paths of the scratch folder are shown as `<work>`, the local server's port as `<port>`, and numbers that change from run to run with timing as `<n>`, `<h>`, `<s>` and the like. The verification program is `ai-docs/notes/2026-10-26-wiki-verify.py` in the repository.
+Every output on this page is filled from the threewright 0.6.7 tag-archive verification on Windows, with `tw` standing for `node <plugin>/scripts/tw.mjs`. Paths of the scratch folder are shown as `<work>`, the local server's port as `<port>`, and numbers that change from run to run with timing as `<n>`, `<h>`, `<s>` and the like. The verification program is `ai-docs/notes/2026-10-26-wiki-verify.py` in the repository.
 
 Add `--json` to any command for machine-readable output.
 

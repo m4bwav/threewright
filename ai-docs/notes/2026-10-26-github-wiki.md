@@ -10,6 +10,21 @@ summary: "the wiki's eleven pages, where their working copy is, how every exampl
 
 # GitHub wiki for 0.6.6
 
+## 0.6.7 update in preparation
+
+The original 0.6.6 recording and findings below remain historical evidence. The 0.6.7 source changes correct the README counts and help omission, refresh HANDOFF and use a static browser comparison fixture. `2026-10-26-round2-followup.md` records the execution results and unresolved scene observation.
+
+The same verification program now defaults to 0.6.7. It still downloads 0.6.5 to verify the historical draw-call and strict-warning comparison. Scratch files now stay in `.wiki-verify/v<version>-<pid>` below the working directory rather than the system temp folder. The 0.6.7 recording must be saved separately as `2026-10-26-wiki-verify-067.out.txt`; do not overwrite the 0.6.6 recording.
+
+After v0.6.7 exists on GitHub, run from the repository root:
+
+```powershell
+python ai-docs\notes\2026-10-26-wiki-verify.py 0.6.7 > ai-docs\notes\2026-10-26-wiki-verify-067.out.txt
+python ai-docs\notes\2026-10-26-wiki-build-pages.py ai-docs\notes\2026-10-26-wiki-verify-067.out.txt ai-docs\notes\2026-10-26-wiki-pages-src D:\m4bwa\Claude\Projects\Ai\threewright.wiki ai-docs\notes\2026-10-26-wiki-verify.py
+```
+
+The archive input is `https://github.com/m4bwav/threewright/archive/refs/tags/v0.6.7.tar.gz`, fetched by the verifier itself. Use a UTF-8 output redirection method. `Home.md` and `_Footer.md` are edited directly; built pages must come from the sources and the new recording. Run wikiwright `diffout`, `check --version 0.6.7`, `outputs`, `snippets` and `live`, then record the actual results and wiki commit here.
+
 ## Summary
 
 Asked: bring the wiki up to v0.6.6 with the wikiwright skill. The kickoff assumed a 0.6.5 wiki, but there was none: `wikiwright.py preflight` found GitHub's placeholder (one `Home.md`, "Welcome to the threewright wiki!", 2026-10-09), so the run took wikiwright's new-wiki route (Steps 1 to 8) and wrote the whole set. Pages written from the README, CHANGELOG, AGENTS.md, HANDOFF, `tw --help`, `scripts/lib/*.mjs`, `kb/`, `templates/`, the skills' SKILL.md files, `evals/results/` and the PR history (no issues exist). Wiki commits 3349c7a (the pages) and e999a1c (a wording fix). `live`: 11 pages, 0 failures, sidebar and footer render, anchors 16 links, 0 broken. everwrite `tells.py`: 0 strong, 12 weak (long sentences, "seamless", "harness").

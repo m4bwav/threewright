@@ -4,6 +4,11 @@ Every change to [SKILL.md](SKILL.md) and its companions, newest first, each with
 
 Entry shape: `### C-YYYYMMDD-n · date · one-line summary`, then `because:` (IDs or "user request"), `files:` (file and section), and a sentence on what changed. Cite section headings, not line numbers.
 
+### C-20261026-1 · 2026-10-26 · Align the glTF Transform CLI pin
+- because: the 0.6.6 wiki found 4.5.0 in the library entry while recipes and CHANGELOG 0.6.3 already pinned 4.5.1
+- files: kb/libraries/gltf-transform.md (frontmatter, Setup, Notes)
+- npm registry metadata confirms CLI 4.5.1 and its tarball. The entry now pins that release and keeps its older source/API findings scoped to the reviewed 4.5.0 bundle; extension support in 4.5.1 is not claimed.
+
 ### C-20261025-1 · 2026-10-25 · Rendering books: transparency topic, LOD, filtering, composer MSAA, glb warnings
 - because: R-20261025-1 (ai-docs/research/2026-10-25-books-graphics.md), L-20261025-1
 - files: kb/topics/transparency-and-blending.md (new); Pitfalls in kb/topics/performance.md, models-for-the-web.md, post-processing.md, cameras-and-controls.md, lighting-and-shadows.md; kb/recipes/bloom-webgl.md (Code, Verify); kb/rules/lint-rules.json (`composer-without-aa`); scripts/lib/glb.mjs (two warnings) and tests/unit.test.mjs

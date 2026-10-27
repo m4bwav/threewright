@@ -181,15 +181,22 @@ test('check --eval binds renderer from the page even when it is module scoped', 
   assert.equal(r.json.eval, true);
 });
 
-test('perf prints frame percentiles; --save then --against reports no changes on the same page', { skip, timeout: 300000 }, () => {
+test('perf prints frame percentiles', { skip, timeout: 300000 }, () => {
   const p = tw('perf', join(ROOT, 'templates/html-importmap'), '--seconds', '1', '--json', '--size', '480x270');
   assert.equal(p.code, 0, p.err || p.out);
   assert.ok(p.json.frames > 10 && p.json.p95 > 0, p.out);
+});
+
+test('--save then --against reports no changes on a static page', { skip, timeout: 300000 }, () => {
   const dir = mkdtempSync(join(tmpdir(), 'tw-run-'));
   try {
     const file = join(dir, 'run.json');
-    assert.equal(tw('check', join(ROOT, 'templates/html-importmap'), '--save', file, '--size', '480x270').code, 0);
-    const r = tw('check', join(ROOT, 'templates/html-importmap'), '--against', file, '--json', '--size', '480x270');
+    const page = join(ROOT, 'tests/fixtures/pages/input');
+    const saved = tw('check', page, '--save', file, '--size', '480x270');
+    assert.equal(saved.code, 0, saved.err || saved.out);
+    const r = tw('check', page, '--against', file, '--json', '--size', '480x270');
+    assert.equal(r.code, 0, r.err || r.out);
+    assert.ok(r.json, r.err || r.out);
     assert.deepEqual(r.json.against.changes, []);
   } finally { rmSync(dir, { recursive: true, force: true }); }
 });

@@ -1,4 +1,4 @@
-The knowledge base in `kb/` is what the skills read. At 0.6.6 it holds 91 entries, counted with `tw kb list --kind <kind>`:
+The knowledge base in `kb/` is what the skills read. At 0.6.7 it holds 91 entries, counted with `tw kb list --kind <kind>`:
 
 ```text
 {{kb counts}}
@@ -46,7 +46,7 @@ tw kb show transparency-and-blending --section Essentials
 
 ## Lint rules
 
-`kb/rules/lint-rules.json` holds the rules `tw lint` applies: 69 at 0.6.6, each with the release that changed the API, a message, a fix, a sample that must fire and an `ok` sample that must not. Rules come from three's own `@deprecated` markers (`tw deprecations` lists markers no rule covers yet) and from pitfalls found in real projects (`typed-buffer-attribute-copies` in 0.6.5, `composer-without-aa` in 0.6.6). Release numbers in rules were checked against npm tarballs.
+`kb/rules/lint-rules.json` holds the rules `tw lint` applies: 69 at 0.6.7, each with the release that changed the API, a message, a fix, a sample that must fire and an `ok` sample that must not. Rules come from three's own `@deprecated` markers (`tw deprecations` lists markers no rule covers yet) and from pitfalls found in real projects (`typed-buffer-attribute-copies` in 0.6.5, `composer-without-aa` in 0.6.6). Release numbers in rules were checked against npm tarballs.
 
 ## Changing it
 
