@@ -50,8 +50,9 @@ Static tools (no browser):
   diff <a.png> <b.png> [--threshold 0.1] [--max 0.001] [--out d.png]   pixel comparison, PASS/FAIL
   lint <files|dirs> [--target r186] [--md] [--strict]   stale or risky three.js API use, with the
                         release that changed it and the fix (rules: kb/rules/lint-rules.json)
-  glb <file.glb|.gltf>  model report: size, draw calls, triangles, textures in px, extensions and the
-                        decoders they need, animations, world bounds, web-budget warnings
+  glb <file.glb|.gltf> [--strict]   model report: size, draw calls, triangles, textures in px,
+                        extensions and their decoders, animations, world bounds, web-budget warnings
+                        --strict exits 1 on any warning
   kb search <words>     find knowledge-base entries (top 8, one line each)
   kb show <slug> [--section name ...]   print an entry or only some sections
   kb list [--kind topic|scenario|library|recipe|rule] ; kb index ; kb validate [--strict]

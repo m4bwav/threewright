@@ -9,19 +9,19 @@ npm ci
 npm test
 ```
 
-Run both in `dev/`. `npm test` runs `node --test ../tests/*.test.mjs`: unit tests and browser tests that check every template. At v0.6.6 on the Windows test machine it gave 64 tests, 61 passed, 3 skipped, 0 failed:
+Run both in `dev/`. `npm test` runs `node --test ../tests/*.test.mjs`: unit tests and browser tests that check every template. The v0.6.7 follow-up run on Windows gave 66 tests, 63 passed, 3 skipped, 0 failed:
 
-<!-- outputs: skip (node --test summary with timings; recorded in ai-docs/notes/2026-10-26-github-wiki.md) -->
+<!-- outputs: skip (node --test summary with timings; recorded in ai-docs/notes/2026-10-26-round2-followup.md) -->
 ```text
-ℹ tests 64
-ℹ pass 61
+ℹ tests 66
+ℹ pass 63
 ℹ fail 0
 ℹ skipped 3
 ```
 
 The three skips are the templates with a build step (vite-ts, r3f, game-starter): they are built and their `dist` checked only when the template's own `node_modules` exists (`npm ci` in the template folder). Browser tests skip when no Chrome is found. The repository has no CI workflow; run the tests before committing.
 
-The animated starter makes one browser test timing-sensitive: `perf prints frame percentiles; --save then --against reports no changes` failed once while another Chrome workload ran on the same machine and passed on three reruns alone.
+Since 0.6.7, the `--save`/`--against` assertion uses a static fixture. Comparing two independently animated starter runs could report a real pixel change on a busy machine. The separate perf test still measures the animated starter.
 
 Every CLI change has a test in `tests/`. `scripts/tw.mjs` stays dependency-free and runs on Windows, macOS and Linux.
 

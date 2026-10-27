@@ -1,5 +1,13 @@
 # Log
 
+## 2026-10-26: round 2 follow-up, v0.6.7 preparation
+
+- Fixed confirmed help and README omissions; separated perf timing from the static `--against` assertion. Added a help regression test.
+- Corrected HANDOFF and added `INDEX.md`; investigation and execution evidence are in `notes/2026-10-26-round2-followup.md`.
+- Parent ran `npm ci` then `npm test` in `dev/`: 66 tests, 63 pass, 3 existing build-template skips, 0 fail. Scene selection remains unchanged because the one empty-tree observation has no proven cause.
+- Corrected the glTF Transform CLI pin to 4.5.1 after parent verified npm registry metadata. The entry distinguishes that version check from the older 4.5.0 source/API review.
+- Prepared wiki sources for 0.6.7 and made the tag-archive verifier use a project-local `.wiki-verify` folder. Tag verification, publishing and final records remain pending.
+
 ## 2026-09-26: started
 
 - Built the CDP-based CLI (check, scene, shot, sheet, doctor verified; video untested), first template, research passes. See HANDOFF.md.
@@ -147,3 +155,4 @@
 ## 2026-10-26: GitHub wiki for 0.6.6
 
 - The wiki was only GitHub's placeholder, so wikiwright's new-wiki route wrote eleven pages (wiki 3349c7a, e999a1c; live: 11 pages, 0 failures). Every example ran against the v0.6.6 tag archive (and v0.6.5 for the upgrade section) through ai-docs/notes/2026-10-26-wiki-verify.py; outputs 44 checked, 0 missing. Repository tests at the tag: 61 pass, 3 skipped, 0 fail (a first run under load failed the perf/--against test once). Findings, README inaccuracies and the update procedure: ai-docs/notes/2026-10-26-github-wiki.md.
+## [2026-10-26] index | rebuilt (3 entries)

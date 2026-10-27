@@ -4,6 +4,13 @@ Plugin versions. Skill-level changes are in each `skills/*/CHANGELOG.md`; the se
 
 ## Unreleased
 
+## 0.6.7 · 2026-10-26
+
+- `tw --help` lists `glb --strict` and its warning exit code, covered by a CLI test.
+- Browser tests check `--save`/`--against` on a static fixture. The animated starter could change its pixel coverage between two launches on a busy machine; the separate perf test still measures that starter.
+- README knowledge-base and lint counts now match 0.6.6: 91 entries, 25 topics, 69 lint rules. The handoff records the current release and the unresolved scene observation.
+- The glTF Transform library entry now pins CLI 4.5.1, confirmed from npm registry metadata, matching the existing recipe pins. Its source/API review and extension caveats remain explicitly scoped to 4.5.0.
+
 ## 0.6.6 · 2026-10-26
 
 - Round 2 books track (CGPP 3e, Gambetta): kb topic `transparency-and-blending` (coverage, transmission, glow, sorting); pitfalls for LOD switching by projected size, pixel-art texture filtering and anisotropy, composer MSAA, depth precision and shadow acne; `tw lint` note `composer-without-aa` (it fired on the bloom-webgl recipe, now fixed with a multisampled target); `tw glb` warns on BLEND double-sided materials and texture sides not a multiple of 4.

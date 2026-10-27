@@ -23,7 +23,7 @@ Each skill is an evergreen unit under the [evergreen protocol](https://github.co
 
 ## Knowledge base
 
-89 entries in `kb/`: 23 topics, 13 scenarios, 30 libraries, 20 recipes and 3 rules. Each carries an `applies_to` release range and a `status` of current or legacy. Recipes that are one page were run through `tw check`. `kb/rules/lint-rules.json` holds 67 stale-API rules, with release numbers checked against npm tarballs. Start at [kb/INDEX.md](kb/INDEX.md) (generated) and read [kb/SCHEMA.md](kb/SCHEMA.md) before editing.
+91 entries in `kb/`: 25 topics, 13 scenarios, 30 libraries, 20 recipes and 3 rules. Each carries an `applies_to` release range and a `status` of current or legacy. Recipes that are one page were run through `tw check`. `kb/rules/lint-rules.json` holds 69 rules for stale APIs and rendering pitfalls, with release numbers checked against npm tarballs. Start at [kb/INDEX.md](kb/INDEX.md) (generated) and read [kb/SCHEMA.md](kb/SCHEMA.md) before editing.
 
 ## Templates
 

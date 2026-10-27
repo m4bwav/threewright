@@ -28,14 +28,14 @@ import struct
 import subprocess
 import sys
 import tarfile
-import tempfile
 import urllib.request
 import zlib
 
 sys.stdout.reconfigure(encoding="utf-8", newline="\n")
-VERSION = sys.argv[1] if len(sys.argv) > 1 else "0.6.6"
+VERSION = sys.argv[1] if len(sys.argv) > 1 else "0.6.7"
 OLD = "0.6.5"
-WORK = tempfile.mkdtemp(prefix="twwiki_")
+WORK = os.path.abspath(os.path.join(".wiki-verify", "v%s-%d" % (VERSION, os.getpid())))
+os.makedirs(WORK)
 NODE = shutil.which("node")
 NPM = shutil.which("npm") or "npm"
 

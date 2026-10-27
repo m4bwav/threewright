@@ -7,11 +7,11 @@ tags: [gltf, glb, optimize, meshopt, draco, ktx2, pipeline, cli, agent tooling]
 applies_to: any
 status: current
 renderer: none
-last_verified: 2026-09-26
-sources: [https://gltf-transform.dev/, https://github.com/donmccurdy/glTF-Transform, ai-docs/research/2026-09-26-ecosystem-libraries.md, ai-docs/research/2026-09-26-games.md]
+last_verified: 2026-10-26
+sources: [https://gltf-transform.dev/, https://github.com/donmccurdy/glTF-Transform, https://registry.npmjs.org/@gltf-transform/cli/-/cli-4.5.1.tgz, ai-docs/research/2026-09-26-ecosystem-libraries.md, ai-docs/research/2026-09-26-games.md]
 related: [loaders-and-assets, optimize-gltf, export-glb, gltfpack, product-viewer, games]
 package: "@gltf-transform/cli"
-version_checked: "4.5.0"
+version_checked: "4.5.1"
 ---
 
 # glTF Transform
@@ -29,10 +29,10 @@ version_checked: "4.5.0"
 
 ## Setup
 
-Versions checked 2026-09-26: `@gltf-transform/core`, `/functions`, `/extensions` and `/cli` all 4.5.0 (2026-09-01). KTX2 output needs the `ktx` binary from KTX-Software 4.4.0 or later on `PATH`.
+CLI pin: `@gltf-transform/cli` 4.5.1, confirmed from npm registry metadata on 2026-10-26. The source/API review was on 2026-09-26, with `@gltf-transform/core`, `/functions`, `/extensions` and `/cli` at 4.5.0 (2026-09-01). The extension caveats below describe that reviewed bundle; support in 4.5.1 has not been rechecked. KTX2 output needs the `ktx` binary from KTX-Software 4.4.0 or later on `PATH`.
 
 ```sh
-npm install -D @gltf-transform/cli@4.5.0
+npm install -D @gltf-transform/cli@4.5.1
 ```
 
 ```sh
@@ -64,4 +64,5 @@ gltf-transform optimize model.glb model.opt.glb --texture-compress webp
 
 ## Notes
 
+- 2026-10-26: corrected the CLI pin and version metadata to 4.5.1 to match the other recipes and CHANGELOG 0.6.3. Verified with `npm view @gltf-transform/cli@4.5.1 version dist.tarball repository.url --json`: version 4.5.1 and the tarball in Sources. No optimization pass or extension round-trip test was run.
 - 2026-09-26: written from the 2026-09-26 research (ecosystem-libraries, games).

@@ -5,6 +5,7 @@ import { existsSync, mkdtempSync, mkdirSync, readFileSync, rmSync, writeFileSync
 import { tmpdir } from 'node:os';
 import { dirname, join, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
+import { spawnSync } from 'node:child_process';
 
 import { parseArgs, list, parseSweep } from '../scripts/lib/args.mjs';
 import { imageFit, parseSize, evalWithTarget, digestLogs, resolveTarget } from '../scripts/lib/page.mjs';
@@ -27,6 +28,13 @@ import { generateAssets, listTemplates } from '../scripts/lib/templates.mjs';
 
 const ROOT = resolve(dirname(fileURLToPath(import.meta.url)), '..');
 const tmp = () => mkdtempSync(join(tmpdir(), 'tw-test-'));
+
+test('help lists glb --strict and its warning exit code', () => {
+  const r = spawnSync(process.execPath, [join(ROOT, 'scripts/tw.mjs'), '--help'], { encoding: 'utf8' });
+  assert.equal(r.status, 0, r.stderr);
+  assert.match(r.stdout, /glb <file\.glb\|\.gltf> \[--strict\]/);
+  assert.match(r.stdout, /--strict exits 1 on any warning/);
+});
 
 test('args: flags, values, repeats, camelCase', () => {
   const a = parseArgs(['check', 'page', '--size', '640x360', '--json', '--views=front,top', '--section', 'a', '--section', 'b', '--reduced-motion'], { booleans: ['json', 'reduced-motion'] });
