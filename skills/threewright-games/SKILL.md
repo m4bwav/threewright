@@ -19,7 +19,7 @@ New game: `TW new game-starter <dir>`, then `npm install`. It pins three 0.186.1
 
 ## Step 2: rules that keep a game correct
 
-1. The simulation runs in fixed ticks (1/60 s, at most 4 per frame, render interpolated); nothing moves by a per-frame constant. `THREE.Timer` with `connect(document)`, never `THREE.Clock`.
+1. The simulation runs in fixed ticks (1/60 s, at most 4 per frame, render interpolated); nothing moves by a per-frame constant. `THREE.Timer` with `connect(document)`, never `THREE.Clock`. `Clock.getDelta()` returns the whole time a hidden tab was away, while a connected `Timer` resets when the page shows again (checked in three 0.186.1 source). Clamp the delta anyway (the starter's `MAX_FRAME`; about 0.1 s suits most games) and draw at `alpha` between the last two ticks. Gregory, Game Engine Architecture 2e (2014), sec. 7.5.2 and 7.5.5.
 2. All input goes through the action map (`event.code` for keys, polled gamepads, touch controls on coarse pointers); pointer lock only on a click, and losing it pauses.
 3. The player uses Rapier's kinematic character controller; props use dynamic bodies; colliders come from simple shapes or simplified meshes; gameplay collisions use contact events and scene queries.
 4. Seeded randomness only; no `Math.random()` or `Date.now()` in the simulation code.
