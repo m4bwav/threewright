@@ -4,6 +4,11 @@ Every change to [SKILL.md](SKILL.md) and its companions, newest first, each with
 
 Entry shape: `### C-YYYYMMDD-n · date · one-line summary`, then `because:` (IDs or "user request"), `files:` (file and section), and a sentence on what changed. Cite section headings, not line numbers.
 
+### C-20261101-1 · 2026-11-01 · Step 2 rule 1: why Timer over Clock, delta clamp, interpolation
+- because: user request (book learnings, Gregory, Game Engine Architecture 2e, 2014; owner-approved row)
+- files: SKILL.md (Step 2, rule 1)
+- Rule 1 now says why: `Clock.getDelta()` jumps after a hidden tab, a connected `Timer` resets on visibility (checked in three 0.186.1 `src/core/Timer.js`); clamp the delta and render at `alpha`. No trigger or description changed, so the evals were not re-run.
+
 ### C-20260926-2 · 2026-09-26 · Input bursts and the text snapshot in the smoke test
 - because: ai-docs/research/2026-09-26-mcp-and-ai-tools.md (tw features to add, item 5)
 - files: SKILL.md (Step 3: verify); templates/game-starter/src/debug/hooks.ts, src/env.d.ts
