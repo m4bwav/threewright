@@ -167,3 +167,4 @@
 ## 2026-11-01 · Gregory book note in threewright-games
 
 Added the Clock vs Timer hidden-tab reason, delta clamp and interpolation to threewright-games Step 2 rule 1 (Mark-approved learnings row from Game Engine Architecture 2e). Verified Timer.connect resets on visibilitychange in three 0.186.1. Released 0.6.8.
+## [2026-11-06] skill | threewright-games: sfxwright note
