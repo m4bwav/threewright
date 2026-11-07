@@ -4,6 +4,11 @@ Every change to [SKILL.md](SKILL.md) and its companions, newest first, each with
 
 Entry shape: `### C-YYYYMMDD-n · date · one-line summary`, then `because:` (IDs or "user request"), `files:` (file and section), and a sentence on what changed. Cite section headings, not line numbers.
 
+### C-20261106-1 · 2026-11-06 · Sfxwright, when installed
+- because: user request
+- files: SKILL.md (sfxwright note)
+- Hand sound effects to sfxwright when present and read its sounds.json; this plugin's own steps stay as the fallback.
+
 ### C-20261101-1 · 2026-11-01 · Step 2 rule 1: why Timer over Clock, delta clamp, interpolation
 - because: user request (book learnings, Gregory, Game Engine Architecture 2e, 2014; owner-approved row)
 - files: SKILL.md (Step 2, rule 1)
