@@ -168,3 +168,5 @@
 
 Added the Clock vs Timer hidden-tab reason, delta clamp and interpolation to threewright-games Step 2 rule 1 (Mark-approved learnings row from Game Engine Architecture 2e). Verified Timer.connect resets on visibilitychange in three 0.186.1. Released 0.6.8.
 ## [2026-11-06] skill | threewright-games: sfxwright note
+
+## [2026-11-09] release | 1.0.0: first stable release at the owner's request; version bump and changelog only, no behaviour change; suites passed before tagging

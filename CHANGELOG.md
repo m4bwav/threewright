@@ -4,6 +4,10 @@ Plugin versions. Skill-level changes are in each `skills/*/CHANGELOG.md`; the se
 
 ## Unreleased
 
+## 1.0.0 · 2026-11-09
+
+- First stable release. No change in behaviour from 0.6.8; the `tw` CLI, templates and knowledge base layout are now treated as stable, so breaking changes will need a 2.0.
+
 ## 0.6.8 · 2026-11-01
 
 - threewright-games Step 2 rule 1 explains the hidden-tab delta jump that `THREE.Clock` has and a connected `THREE.Timer` avoids, the delta clamp and render interpolation (Gregory, Game Engine Architecture 2e, 2014).
