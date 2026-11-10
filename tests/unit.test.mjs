@@ -21,7 +21,7 @@ import { compareVersions } from '../scripts/lib/versions.mjs';
 import { cycleGrowth } from '../scripts/lib/runs.mjs';
 import { errorContext, formatShaders } from '../scripts/lib/shaders.mjs';
 import { glFlags, sandboxFlags } from '../scripts/lib/cdp.mjs';
-import { pixelWarnings } from '../scripts/lib/png.mjs';
+import { pixelWarnings, encodePng } from '../scripts/lib/png.mjs';
 import { parseActions, keyInfo } from '../scripts/lib/actions.mjs';
 import { importSpecifiers, metaUrlAssets, resolveBare, vendorPage } from '../scripts/lib/vendor.mjs';
 import { generateAssets, listTemplates } from '../scripts/lib/templates.mjs';
@@ -525,4 +525,50 @@ test('generateAssets writes a template asset the repository does not hold, once'
     assert.equal(readFileSync(join(dir, 'scene.splat')).length, 24000 * 32);
     assert.deepEqual(await generateAssets(t, dir, ROOT), []);
   } finally { rmSync(dir, { recursive: true, force: true }); }
+});
+
+// tw look: graded copies of a render must score in order, and a fitted LUT must win back 15+ points.
+test('look score ranks graded renders and the fitted LUT raises the score', async () => {
+  const { lookScore, fitTransfer, buildLut, applyLut, rgbToOklab, oklabToRgb, lutToCube } = await import('../scripts/lib/look.mjs');
+  // A synthetic "scene": dark blue sky gradient, an orange ball, light speckles; render and reference differ in layout.
+  const scene = (shift) => {
+    const width = 160, height = 100, data = Buffer.alloc(width * height * 4);
+    for (let y = 0; y < height; y++) for (let x = 0; x < width; x++) {
+      const o = (y * width + x) * 4, dx = x - 60 - shift, dy = y - 50;
+      let c = [10 + y / 4, 14 + y / 4, 30 + y / 3];
+      if (dx * dx + dy * dy < 600) c = [230 - dy, 110 - dy, 50];
+      if ((x * 7 + y * 13 + shift) % 97 === 0) c = [240, 235, 225];
+      data[o] = c[0]; data[o + 1] = c[1]; data[o + 2] = c[2]; data[o + 3] = 255;
+    }
+    return { width, height, data };
+  };
+  const grade = (im, t) => {
+    const d = Buffer.from(im.data);
+    for (let o = 0; o < d.length; o += 4) {
+      const [L, a, b] = rgbToOklab(d[o] / 255, d[o + 1] / 255, d[o + 2] / 255);
+      const v = oklabToRgb(0.5 + (L - 0.5) * (1 - 0.5 * t) + 0.12 * t, a * (1 - 0.6 * t) + 0.04 * t, b * (1 - 0.6 * t) - 0.06 * t);
+      d[o] = v[0] * 255; d[o + 1] = v[1] * 255; d[o + 2] = v[2] * 255;
+    }
+    return { ...im, data: d };
+  };
+  const ref = scene(0), ren = scene(30);
+  const scores = [0, 0.25, 0.5, 0.75, 1].map((t) => lookScore(grade(ren, t), ref).score);
+  for (let i = 1; i < scores.length; i++) assert.ok(scores[i] < scores[i - 1], `scores not in order: ${scores}`);
+  assert.ok(scores[0] > 80, `same grade, other layout should score high: ${scores[0]}`);
+  const bad = grade(ren, 0.8), lut = buildLut(fitTransfer(bad, ref), 17);
+  const after = lookScore(applyLut(bad, lut), ref).score, before = lookScore(bad, ref).score;
+  assert.ok(after - before >= 15, `LUT gain ${before} -> ${after}`);
+  assert.match(lutToCube(lut), /^TITLE .*\nLUT_3D_SIZE 17\n/);
+});
+
+test('tw look CLI prints a score, writes the sheet and LUT, and fails below --min', () => {
+  const dir = mkdtempSync(join(tmpdir(), 'tw-look-'));
+  const img = (r, g, b) => { const data = Buffer.alloc(32 * 32 * 4); for (let i = 0; i < data.length; i += 4) { data[i] = r + (i % 50); data[i + 1] = g; data[i + 2] = b; data[i + 3] = 255; } return encodePng({ width: 32, height: 32, data }); };
+  writeFileSync(join(dir, 'a.png'), img(40, 60, 120)); writeFileSync(join(dir, 'b.png'), img(200, 120, 40));
+  const tw = resolve(dirname(fileURLToPath(import.meta.url)), '../scripts/tw.mjs');
+  const r = spawnSync(process.execPath, [tw, 'look', join(dir, 'a.png'), join(dir, 'b.png'), '--min', '90', '--sheet', join(dir, 's.png'), '--fit', join(dir, 'f.cube')], { encoding: 'utf8' });
+  assert.equal(r.status, 1, r.stderr);
+  assert.match(r.stdout, /look score [\d.]+\/100 \(min 90\) FAIL/);
+  assert.ok(existsSync(join(dir, 's.png')) && existsSync(join(dir, 'f.cube')));
+  rmSync(dir, { recursive: true, force: true });
 });

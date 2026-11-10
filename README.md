@@ -23,7 +23,7 @@ Each skill is an evergreen unit under the [evergreen protocol](https://github.co
 
 ## Knowledge base
 
-91 entries in `kb/`: 25 topics, 13 scenarios, 30 libraries, 20 recipes and 3 rules. Each carries an `applies_to` release range and a `status` of current or legacy. Recipes that are one page were run through `tw check`. `kb/rules/lint-rules.json` holds 69 rules for stale APIs and rendering pitfalls, with release numbers checked against npm tarballs. Start at [kb/INDEX.md](kb/INDEX.md) (generated) and read [kb/SCHEMA.md](kb/SCHEMA.md) before editing.
+92 entries in `kb/`: 25 topics, 13 scenarios, 30 libraries, 21 recipes and 3 rules. Each carries an `applies_to` release range and a `status` of current or legacy. Recipes that are one page were run through `tw check`. `kb/rules/lint-rules.json` holds 69 rules for stale APIs and rendering pitfalls, with release numbers checked against npm tarballs. Start at [kb/INDEX.md](kb/INDEX.md) (generated) and read [kb/SCHEMA.md](kb/SCHEMA.md) before editing.
 
 ## Templates
 
@@ -60,6 +60,7 @@ node scripts/tw.mjs sheet page/ --sweep "find('knot').material.roughness=0,0.5,1
 node scripts/tw.mjs shot "page/?model=a.glb" --color-scheme light --out l.png   # query strings and light/dark palettes
 node scripts/tw.mjs video page/ --out turn.mp4 --seconds 3 --fps 30
 node scripts/tw.mjs lint src/                # stale APIs, with the release that changed them and the fix
+node scripts/tw.mjs look render.png ref.png --fit look.cube   # colour-grade match 0-100 (OKLab), sheet, LUT
 node scripts/tw.mjs glb model.glb            # size, triangles, textures, decoders needed
 node scripts/tw.mjs kb search "bloom webgpu" # then: kb show <slug> --section <name>
 node scripts/tw.mjs new game-starter my-game

@@ -50,6 +50,9 @@ Static tools (no browser):
   diff <a.png> <b.png> [--threshold 0.1] [--max 0.001] [--out d.png]   pixel comparison, PASS/FAIL
   lint <files|dirs> [--target r186] [--md] [--strict]   stale or risky three.js API use, with the
                         release that changed it and the fix (rules: kb/rules/lint-rules.json)
+  look <render.png> <reference.png> [--min 70] [--sheet s.png] [--fit look.cube]   colour-grade match
+                        0-100 from OKLab statistics (brightness, tint, chroma, hue, contrast, detail);
+                        camera need not match; --fit writes a .cube LUT for LUTPass and re-scores
   glb <file.glb|.gltf> [--strict]   model report: size, draw calls, triangles, textures in px,
                         extensions and their decoders, animations, world bounds, web-budget warnings
                         --strict exits 1 on any warning
@@ -441,6 +444,7 @@ const commands = {
   },
 
   async lint(a) { const m = await import('./lib/lint.mjs'); return m.cmdLint(a, print); },
+  async look(a) { const m = await import('./lib/look.mjs'); return m.cmdLook(a, print); },
   async glb(a) { const m = await import('./lib/glb.mjs'); return m.cmdGlb(a, print); },
   async kb(a) { const m = await import('./lib/kb.mjs'); return m.cmdKb(a, print, ROOT); },
   async vendor(a) { const m = await import('./lib/vendor.mjs'); return m.cmdVendor(a, print); },
