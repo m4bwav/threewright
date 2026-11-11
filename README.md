@@ -73,6 +73,16 @@ node scripts/tw.mjs doctor
 
 Needs Node 22+ and Chrome or Chromium (Playwright and Puppeteer browsers are found automatically). `video` also needs ffmpeg (set `TW_FFMPEG`). CDN import maps still work offline: pinned jsDelivr and unpkg files are served from `node_modules` or the npm cache. Image costs use Claude's formula, ceil(w/28) * ceil(h/28).
 
+## Works with
+
+Each of these plugins works on its own. Together:
+
+- **[polywright](https://github.com/m4bwav/polywright)**: polywright makes and checks the models (GLB with meshopt or Draco, KTX2 textures, real size) for its `web-threejs` target. threewright loads them, budgets draw calls and ships the page.
+- **[sfxwright](https://github.com/m4bwav/sfxwright)**: threewright-games hands its game events to sfxwright, finishes with `--dest web`, and reads `sounds.json` for files, `randomize` values and licences to credit.
+- **[askwright](https://github.com/m4bwav/askwright)**: Look-and-feel calls (camera, lighting, material) go on an askwright page with screenshots side by side.
+
+More on each pairing, with an example flow: [Works with](https://github.com/m4bwav/threewright/wiki/Works-with) on the wiki.
+
 ## Tested where
 
 Windows 11 with Chrome 153 on an RTX 5060 Ti, where the WebGPU pages run on the real WebGPU backend, and a Linux container with Chromium 141 on SwiftShader, where three r186's WebGPU backend fails and the same pages run on the WebGL 2 fallback. Run `npm install` and `npm test` in `dev/`: unit tests, plus browser tests that check every template. The development `package.json` lives in `dev/` so that installing the plugin installs nothing. Templates with a build step (vite-ts, r3f, game-starter) are built and their `dist` checked when their own `node_modules` exists (`npm ci` in the template folder).
