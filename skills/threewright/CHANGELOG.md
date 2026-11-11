@@ -4,6 +4,11 @@ Every change to [SKILL.md](SKILL.md) and its companions, newest first, each with
 
 Entry shape: `### C-YYYYMMDD-n · date · one-line summary`, then `because:` (IDs or "user request"), `files:` (file and section), and a sentence on what changed. Cite section headings, not line numbers.
 
+### C-20261110-1 · 2026-11-10 · harvest.json: technique-harvest targets for this unit
+- because: user request 2026-11-10: plugins store their own technique-harvest targets (evergreen 1.1.0 harvest.json)
+- files: harvest.json (new)
+- Data file only; no skill text or version changed.
+
 ### C-20261011-1 · 2026-10-11 · Linux headless WebGPU runs Vulkan on SwiftShader; kb notes
 - because: R-20261011-1
 - files: scripts/lib/cdp.mjs (`glFlags`: `--use-vulkan=swiftshader`, `--use-webgpu-adapter=swiftshader`, `--disable-vulkan-surface` for `--gl swiftshader --webgpu` on Linux; a `platform` parameter for tests), tests/unit.test.mjs (three assertions), kb/topics/headless-and-ci.md (device loss, backend read after frames, Chrome 143), kb/topics/post-processing.md (DirectRenderPipeline without MSAA on WebGL 2), RESEARCH.md (one finding)

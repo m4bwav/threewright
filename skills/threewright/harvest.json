@@ -1,0 +1,11 @@
+{
+  "version": 1,
+  "targets": [
+    {
+      "kind": "reddit",
+      "sub": "aigamedev",
+      "weight": "low",
+      "keep": "three.js and web 3D game techniques"
+    }
+  ]
+}
