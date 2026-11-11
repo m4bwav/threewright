@@ -174,3 +174,7 @@ Added the Clock vs Timer hidden-tab reason, delta clamp and interpolation to thr
 ## [2026-11-10] release | 1.1.0: tw look + kb recipe tsl-loom-warp
 
 Technique harvest (posts 1wvv7p9, 1wqawdv). `tw look` scores a render against a reference by OKLab colour statistics (idea from pittasavors7/RedditReferenceTest, MIT/Apache-2.0, re-implemented; its code was not run). Validation on real renders (banner halves, scroll-hero poster vs poster-end, poster halves) graded progressively worse: combined grade ordered on 3 of 3 pairs; single-axis sweeps ordered on 7 of 8 sweeps from well-matched pairs (desaturation on the banner pair rose 66.0 to 66.5 at the first step), less reliable when the pair already scores ~20. Fitted LUT raised a t=0.8 grade from 6-11 to 61-75 (+54 to +68). The fit blends per-band a/b fits by L to avoid seams. Loom warp recipe verified on WebGPU (tw check OK, shots on/off looked at; 400 m tower ~2.5x taller). Yaw sweep not measured.
+
+## 2026-11-11: Works with section
+
+Added a README "Works with" section and a wiki Works-with page covering polywright, sfxwright, askwright, taken from the real handoffs in both plugins' skills (askwright and tokenwright added where they fit). Part of a cross-plugin pass on Mark's request that each pairing be described from both sides.
