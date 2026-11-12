@@ -2182,6 +2182,35 @@
    "bytes": 4017
   },
   {
+   "slug": "fft-ocean",
+   "kind": "recipe",
+   "path": "recipes/fft-ocean.md",
+   "title": "FFT ocean with foam, buoyancy and quality tiers",
+   "summary": "A Tessendorf FFT ocean patch (choppy displacement, Jacobian foam) driving a TSL positionNode, a boat floated from 4 hull samples, and quality tiers that step down when frames run long.",
+   "tags": [
+    "tsl",
+    "positionNode",
+    "water",
+    "ocean",
+    "fft",
+    "buoyancy",
+    "quality-tiers",
+    "games"
+   ],
+   "applies_to": ">=r171",
+   "status": "current",
+   "renderer": "webgpu",
+   "last_verified": "2026-11-11",
+   "template": "html-webgpu",
+   "sections": [
+    "Goal",
+    "Code",
+    "Verify",
+    "Notes"
+   ],
+   "bytes": 15553
+  },
+  {
    "slug": "fit-camera-to-object",
    "kind": "recipe",
    "path": "recipes/fit-camera-to-object.md",

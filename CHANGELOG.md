@@ -4,6 +4,10 @@ Plugin versions. Skill-level changes are in each `skills/*/CHANGELOG.md`; the se
 
 ## Unreleased
 
+## 1.2.0 · 2026-11-11
+
+- kb recipe `fft-ocean`: Tessendorf FFT ocean patch on the CPU (choppy displacement, Jacobian foam) driving a TSL `positionNode`, a boat floated from 4 hull samples, and quality tiers that step down when frames run long; notes on moving the FFT to GPU compute with one-frame-late readback. Ideas from the web-ocean-3d demo (r/aigamedev, 2026-07, no stated licence), code written fresh. 93 entries.
+
 ## 1.1.0 · 2026-11-10
 
 - `tw look <render> <reference>`: colour-grade match 0-100 from OKLab statistics (brightness, tint, chroma, hue, contrast, detail), composition-independent, with `--sheet` side by side, `--min` gate and `--fit look.cube` (a 3D LUT fitted toward the reference, re-scored). Idea from pittasavors7/RedditReferenceTest (MIT / Apache-2.0), re-implemented. Checked on graded pairs from real renders: scores fall in order as the grade worsens, and the fitted LUT raised a badly graded render by 54 to 68 points.
