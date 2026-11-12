@@ -178,3 +178,7 @@ Technique harvest (posts 1wvv7p9, 1wqawdv). `tw look` scores a render against a 
 ## 2026-11-11: Works with section
 
 Added a README "Works with" section and a wiki Works-with page covering polywright, sfxwright, askwright, taken from the real handoffs in both plugins' skills (askwright and tokenwright added where they fit). Part of a cross-plugin pass on Mark's request that each pairing be described from both sides.
+
+## 2026-11-11: fft-ocean recipe (1.2.0)
+
+Technique harvest post 1vic0bw: kb recipe `fft-ocean` (CPU Tessendorf FFT, Jacobian foam, 4-sample buoyancy, tiers that step down). Verified with `tw check --webgpu` (OK, 3 draw calls), `tw lint` clean, one shot looked at. Foam not visible at this sea state and auto-downgrade not exercised; both stated in the entry. Also repaired the threewright-shaders CHANGELOG, where the 1.1.0 entry had landed inside the "Entry shape" line.
