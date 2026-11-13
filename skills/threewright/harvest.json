@@ -6,6 +6,11 @@
       "sub": "aigamedev",
       "weight": "low",
       "keep": "three.js and web 3D game techniques"
+    },
+    {
+      "kind": "reddit",
+      "sub": "ClaudeGameDev",
+      "keep": "three.js and web 3D game techniques built with Claude; drop showcases and how-do-I-start questions"
     }
   ]
 }
