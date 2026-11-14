@@ -80,6 +80,7 @@ Each of these plugins works on its own. Together:
 - **[polywright](https://github.com/m4bwav/polywright)**: polywright makes and checks the models (GLB with meshopt or Draco, KTX2 textures, real size) for its `web-threejs` target. threewright loads them, budgets draw calls and ships the page.
 - **[sfxwright](https://github.com/m4bwav/sfxwright)**: threewright-games hands its game events to sfxwright, finishes with `--dest web`, and reads `sounds.json` for files, `randomize` values and licences to credit.
 - **[askwright](https://github.com/m4bwav/askwright)**: Look-and-feel calls (camera, lighting, material) go on an askwright page with screenshots side by side.
+- **[fractalwright](https://github.com/m4bwav/fractalwright)**: shows fractalwright's fractal fields, distance-estimated 3D fractals and shaders in three.js scenes.
 
 More on each pairing, with an example flow: [Works with](https://github.com/m4bwav/threewright/wiki/Works-with) on the wiki.
 

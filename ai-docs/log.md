@@ -182,3 +182,5 @@ Added a README "Works with" section and a wiki Works-with page covering polywrig
 ## 2026-11-11: fft-ocean recipe (1.2.0)
 
 Technique harvest post 1vic0bw: kb recipe `fft-ocean` (CPU Tessendorf FFT, Jacobian foam, 4-sample buoyancy, tiers that step down). Verified with `tw check --webgpu` (OK, 3 draw calls), `tw lint` clean, one shot looked at. Foam not visible at this sea state and auto-downgrade not exercised; both stated in the entry. Also repaired the threewright-shaders CHANGELOG, where the 1.1.0 entry had landed inside the "Entry shape" line.
+
+## [2026-11-14] update | README Works with: fractalwright (new public plugin), mirroring its own section
