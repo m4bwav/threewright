@@ -4,6 +4,12 @@ Plugin versions. Skill-level changes are in each `skills/*/CHANGELOG.md`; the se
 
 ## Unreleased
 
+## 1.3.0 · 2026-11-14
+
+- `tw perf --fly` (fixed camera path) and `--target-ms` (fail when p95 is over). Test added.
+- threewright-games `references/render-critic.md`: blind screenshot-only critic loop; done-checklist lines 15a and 15b.
+- kb `generative-art`: detail presets, `prompt.txt`, path-based perf; kb `performance`: the new flags. Ideas from the Abyssal Garden thread (r/ClaudeAI, 2026-11).
+
 ## 1.2.0 · 2026-11-11
 
 - kb recipe `fft-ocean`: Tessendorf FFT ocean patch on the CPU (choppy displacement, Jacobian foam) driving a TSL `positionNode`, a boat floated from 4 hull samples, and quality tiers that step down when frames run long; notes on moving the FFT to GPU compute with one-frame-late readback. Ideas from the web-ocean-3d demo (r/aigamedev, 2026-07, no stated licence), code written fresh. 93 entries.

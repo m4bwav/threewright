@@ -30,6 +30,8 @@ Verify a page (file, folder with index.html, or URL); text first, images on requ
                         shader's error lines with source context; --dump writes .vert/.frag files
   perf <page> [--seconds 5] [--cpu-throttle 4]   frame time p50/p95/p99/max, frames over 33 ms,
                         draw calls and triangles per frame, geometry, texture and heap growth
+                        --fly "<js using u>" moves the camera each frame (u runs 0 to 1 over the run);
+                        bare --fly calls the page's window.flyThrough(u); --target-ms 16.7 fails when p95 is over
   shot <page> --out f.png [--canvas] [--alpha]   one screenshot; prints its token cost (.jpg or .webp
                         write that format, --quality 82, e.g. for a poster image)
                         (shot and sheet take --eval "<js>" to set a state first, e.g. scrollTo(0, 2000))
@@ -293,19 +295,26 @@ const commands = {
 
   async perf(a) {
     const seconds = Number(a.seconds || 5), throttle = Number(a.cpuThrottle || 1);
+    // --fly: a fixed camera path, so every run measures the same views.
+    const fly = a.fly === undefined ? 'null'
+      : a.fly === true ? '(u) => { if (typeof window.flyThrough === "function") window.flyThrough(u); }'
+      : `new Function('u', 't', ${JSON.stringify('const camera = t.camera, scene = t.scene; ' + a.fly)})`;
+    const targetMs = a.targetMs ? Number(a.targetMs) : null;
     return withPage(a._[1], a, async (ctx) => {
       await ctx.settle({ wait: Number(a.wait || 1000) });
       if (throttle > 1) await ctx.page.send('Emulation.setCPUThrottlingRate', { rate: throttle });
       // Frame times from requestAnimationFrame, with renderer counters per frame.
       const raw = await ctx.page.eval(`new Promise((done) => {
         const t = window.__tw && window.__tw.target ? window.__tw.target() : {};
+        const fly = ${fly};
         const info = () => { const r = t.renderer && t.renderer.info; return r ? [r.render.drawCalls ?? r.render.calls ?? 0, r.render.triangles ?? 0, r.memory.geometries ?? 0, r.memory.textures ?? 0] : null; };
         const heap = () => (performance.memory ? performance.memory.usedJSHeapSize : null);
         const frames = [], counts = [], start = { info: info(), heap: heap() };
         let last = performance.now();
-        const end = last + ${seconds * 1000};
+        const t0 = last, end = last + ${seconds * 1000};
         const step = (now) => {
           frames.push(now - last); last = now;
+          if (fly) fly(Math.min(1, (now - t0) / ${seconds * 1000}), t);
           const c = info(); if (c) counts.push(c);
           if (now < end) requestAnimationFrame(step);
           else done({ frames: frames.slice(1), counts, start, end: { info: info(), heap: heap() } });
@@ -324,7 +333,10 @@ const commands = {
         textures: raw.start.info && raw.end.info ? [raw.start.info[3], raw.end.info[3]] : null,
         heapMB: raw.start.heap && raw.end.heap ? [raw.start.heap, raw.end.heap].map((v) => Math.round(v / 1e5) / 10) : null,
         problems: (({ exceptions, errors }) => [...exceptions, ...errors])(digestLogs(ctx.logs)).length,
+        fly: a.fly === undefined ? null : a.fly === true ? 'window.flyThrough' : 'inline',
+        targetMs,
       };
+      if (targetMs != null) { r.targetOk = r.p95 <= targetMs; if (!r.targetOk) process.exitCode = 1; }
       const span = (v) => (v ? (v[0] === v[1] ? String(v[0]) : `${v[0]}-${v[1]}`) : '?');
       const grow = (v, unit = '') => (v ? `${v[0]}${unit} -> ${v[1]}${unit}` : 'n/a');
       print(r, a.json, (x) => [
@@ -332,6 +344,8 @@ const commands = {
         `frame ms: p50 ${x.p50} · p95 ${x.p95} · p99 ${x.p99} · max ${x.max} · over 33 ms: ${x.over33}`,
         `per frame: draw calls ${span(x.drawCalls)} · triangles ${span(x.triangles)}`,
         `memory: geometries ${grow(x.geometries)} · textures ${grow(x.textures)} · JS heap ${grow(x.heapMB, ' MB')}`,
+        ...(x.fly ? [`camera path: ${x.fly}`] : []),
+        ...(x.targetMs != null ? [`target p95 <= ${x.targetMs} ms: ${x.targetOk ? 'OK' : 'FAIL'}`] : []),
         ...(x.problems ? [`${x.problems} error(s) during the run: tw check shows them`] : []),
       ].join('\n'));
     });

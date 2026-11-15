@@ -18,6 +18,8 @@ Run each line that applies before calling a game done, and report the evidence (
 | 12 | full loop | title, play, pause, game over, restart; settings persist | every state reachable by input |
 | 13 | embedding | load the build inside an iframe with no login | runs; no top-level navigation |
 | 14 | looks right | one `tw shot dist --size 640x360` | the scene reads at a glance |
+| 15a | blind critic | the loop in [render-critic.md](render-critic.md): a fresh subagent sees only `tw sheet` views | no severity 3 or 2 defects, or 5 rounds reported |
+| 15b | frame time on a path | `tw perf dist --fly "<camera path using u>" --target-ms 16.7` (or a page's `window.flyThrough(u)`) | `target ... OK`; the same path every run |
 | 15 | credits | a credits file lists every asset and its licence | present |
 
 Lines 3 to 6 need the window hooks the starter exposes (`window.__tw.ready`, `window.__game` with `state()`, `pause()`, `step(n)`, input injection, `record()`, `replay()`, `hash()`). A game without them gets them added first; they cost a few dozen lines and make every later check cheap.
