@@ -4,6 +4,12 @@ Every change to [SKILL.md](SKILL.md) and its companions, newest first, each with
 
 Entry shape: `### C-YYYYMMDD-n · date · one-line summary`, then `because:` (IDs or "user request"), `files:` (file and section), and a sentence on what changed. Cite section headings, not line numbers.
 
+### C-20261114-1 · 2026-11-14 · Blind render critic loop and path perf gate
+- because: user request (Abyssal Garden thread harvest)
+- files: references/render-critic.md (new), references/done-checklist.md (15a, 15b)
+
+A fresh subagent judges screenshots only; `tw perf --fly --target-ms` checks frame time on a fixed camera path.
+
 ### C-20261106-1 · 2026-11-06 · Sfxwright, when installed
 - because: user request
 - files: SKILL.md (sfxwright note)

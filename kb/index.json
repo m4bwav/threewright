@@ -446,7 +446,7 @@
     "Verify",
     "Notes"
    ],
-   "bytes": 6814
+   "bytes": 7033
   },
   {
    "slug": "post-processing",
@@ -884,7 +884,7 @@
     "Verify",
     "Notes"
    ],
-   "bytes": 5662
+   "bytes": 6322
   },
   {
    "slug": "geospatial-and-globes",
@@ -2208,7 +2208,7 @@
     "Verify",
     "Notes"
    ],
-   "bytes": 15553
+   "bytes": 15514
   },
   {
    "slug": "fit-camera-to-object",

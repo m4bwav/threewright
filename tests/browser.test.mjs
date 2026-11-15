@@ -187,6 +187,17 @@ test('perf prints frame percentiles', { skip, timeout: 300000 }, () => {
   assert.ok(p.json.frames > 10 && p.json.p95 > 0, p.out);
 });
 
+test('perf --fly moves the camera and --target-ms gates p95', { skip, timeout: 300000 }, () => {
+  const page = join(ROOT, 'templates/html-importmap');
+  const p = tw('perf', page, '--seconds', '1', '--json', '--size', '480x270', '--fly', 'camera.position.x = u * 3', '--target-ms', '1000');
+  assert.equal(p.code, 0, p.err || p.out);
+  assert.equal(p.json.fly, 'inline');
+  assert.equal(p.json.targetOk, true, p.out);
+  const f = tw('perf', page, '--seconds', '1', '--json', '--size', '480x270', '--target-ms', '0.001');
+  assert.equal(f.code, 1, f.out);
+  assert.equal(f.json.targetOk, false);
+});
+
 test('--save then --against reports no changes on a static page', { skip, timeout: 300000 }, () => {
   const dir = mkdtempSync(join(tmpdir(), 'tw-run-'));
   try {

@@ -34,6 +34,9 @@ template: html-webgpu
 - For fxhash-style platforms, use `$fx.rand()` (seeded by the token hash) for the main draw and `$fx.randAt()` for lineage variations; render at a fixed internal resolution and scale only for the platform's preview capture, so the composition itself never depends on viewport size.
 - Keep the composition logic (what to draw, at what parameters) on the CPU and deterministic; GPU floating-point differences across vendors can still shift individual pixels even with an identical seed, so do not rely on pixel-perfect GPU output across devices for anything the piece's identity depends on.
 - `RenderPipeline` with TSL display nodes for post effects (bloom, and other node-based passes) on the WebGPU path; do not reach for pmndrs `postprocessing` or `EffectComposer` here, since they are WebGL only and this scenario's default is WebGPU.
+- Ship Low, Medium and High detail presets (instance counts, terrain resolution, pixel ratio) chosen from a menu or a first-second frame-time probe, so a phone loads Low and still runs (Abyssal Garden thread, r/ClaudeAI 2026-11: about two million kelp leaves on High, playable on a weak phone on Low).
+- Keep the build prompt next to the output as `prompt.txt`, and judge renders with a blind critic that sees only screenshots (skills/threewright-games/references/render-critic.md).
+- Measure on a fixed camera path: `tw perf <page> --fly "camera.position.set(Math.sin(u*6.28)*20, 5, Math.cos(u*6.28)*20); camera.lookAt(0,0,0)" --seconds 60 --target-ms 16.7`.
 
 ## Pitfalls
 
