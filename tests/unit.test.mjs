@@ -587,3 +587,11 @@ test('globe sphereMath: great-circle loops and arc crossings', async () => {
   assert.ok(p && Math.abs(p[0] - 1) < 1e-9 && Math.abs(p[1]) < 1e-9 && Math.abs(p[2]) < 1e-9);
   assert.equal(arcIntersection(ll(0, -10), ll(0, 10), ll(5, 20), ll(10, 20)), null);
 });
+
+test('hit-effects GLSL blocks match the fixture page tw shaders compiles', () => {
+  const md = readFileSync(join(ROOT, 'skills/threewright-shaders/references/hit-effects.md'), 'utf8');
+  const page = readFileSync(join(ROOT, 'tests/fixtures/pages/hit-fx/index.html'), 'utf8');
+  const blocks = [...md.matchAll(/```glsl\n([\s\S]*?)```/g)].map((m) => m[1]);
+  assert.equal(blocks.length, 11);
+  for (const b of blocks) assert.ok(page.includes(b), `fixture is missing or differs from block ${b.split('\n')[0]}`);
+});
