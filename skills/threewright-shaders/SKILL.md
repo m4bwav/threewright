@@ -27,6 +27,7 @@ New effects default to TSL on WebGPURenderer: it compiles to WGSL or GLSL and ru
 - Start from `TW new html-webgpu <dir>` (TSL material plus bloom) or the project's page.
 - Uniforms for anything that changes at runtime (`uniform(value)`, then `.value =`), never a rebuilt material per frame.
 - Porting GLSL or Shadertoy: `three/addons/transpiler/` (`Transpiler`, `GLSLDecoder` or `ShaderToyDecoder`, `TSLEncoder`) gives a TSL starting point; read and tidy its output.
+- Ambient particles moved in the vertex shader, and wind on a planet: [references/particles.md](references/particles.md).
 - Keep the old look reproducible: `TW shot <page> --out before.png --size 640x360` before changing a material.
 
 ## Step 3: verify

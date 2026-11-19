@@ -3,7 +3,7 @@ title: Transparency and blending
 slug: transparency-and-blending
 kind: topic
 summary: Pick the transparency by its cause (coverage, transmission, glow) before touching transparent: alphaTest, alphaHash, alphaToCoverage, transmission, additive blending, and the sorting traps.
-tags: [transparency, alpha, alphatest, alphahash, alphatocoverage, transmission, blending, sorting, depthwrite, foliage, glass, particles]
+tags: [x-ray, greaterdepth, light pools, fake lighting, transparency, alpha, alphatest, alphahash, alphatocoverage, transmission, blending, sorting, depthwrite, foliage, glass, particles]
 applies_to: ">=r162"
 status: current
 renderer: both
@@ -21,6 +21,14 @@ related: [materials, post-processing, models-for-the-web, performance]
   - **Transmission**: light passes through a volume (glass, water, gems, thick plastic). Use `MeshPhysicalMaterial` with `transmission` (keep `opacity` at 1, as the docs ask), `thickness`, and for tinted glass `attenuationColor` with `attenuationDistance`: white light becomes `attenuationColor` after travelling `attenuationDistance` world units, so thicker parts come out deeper and more saturated, thin edges paler. Transmission renders through its own pass and needs no `transparent` flag.
   - **Glow**: light is added, nothing is hidden (sparks, fire, beams, magic). Use `blending: THREE.AdditiveBlending` with `depthWrite: false`; order no longer matters because addition is commutative. Bloom belongs only on the brightest pixels, not on every glowing card.
 - Only real partial cover (smoke, a fading object, a tinted window pane drawn as a flat card) needs `transparent: true` with `opacity` or an alpha map. That path is the one with sorting problems below.
+- **Player behind walls** (x-ray silhouette): add a second mesh that shares the character's geometry, with a flat or fresnel-tinted material set to `depthFunc: THREE.GreaterDepth`, `depthWrite: false`, `transparent: true`. It draws only where something nearer already wrote depth, so it shows exactly the hidden part.
+  - Order matters: give it a `renderOrder` after the opaque world but before the character's own transparent parts (eyes, a face card, a visor). If it draws after them, the body's own depth counts as a wall and the silhouette paints over the character's face.
+  - The opaque body itself must draw first in the same frame (opaque always does), or the silhouette sees no depth to be behind.
+  - For a skinned character, use a `SkinnedMesh` bound to the same skeleton, or the silhouette will not animate.
+  - Verify by moving a wall between camera and player with `--eval` and taking two `tw shot`s: no tint in the open, tint exactly over the hidden part behind the wall.
+- **Fake light pools** (lamp light on the ground without lights): a flat disc just above the ground with a radial falloff (a canvas gradient texture or a few shader lines), `blending: THREE.AdditiveBlending`, `depthTest: false`, `depthWrite: false`, and a `renderOrder` just after the ground. Later objects cover it because they draw on top, so it never shows through a crate standing in the pool.
+  - It only holds when the ground draws first and nothing sits below the disc: with `depthTest` off it would paint over anything drawn before it.
+  - Dozens of pools cost one draw call when instanced, against a real `PointLight` each, which costs every lit material per pixel.
 - On `WebGPURenderer`, r186 has order-independent transparency as a pass (`oitPass` from `three/addons/tsl/display/OITPassNode.js`, see `post-processing`), which removes most sorting faults at a cost per frame.
 
 ## Pitfalls
@@ -39,5 +47,7 @@ related: [materials, post-processing, models-for-the-web, performance]
 - `tw lint <dir>` flags an `EffectComposer` without MSAA or an AA pass (`composer-without-aa`), which also turns `alphaToCoverage` off in effect.
 
 ## Notes
+
+- 2026-11-18: player-behind-walls (GreaterDepth) and fake light pools recipes, ideas from the robinduckett/boo-mas game (no licence, so ideas only, written fresh). `depthFunc` and `GreaterDepth` exist in three 0.186.1; neither recipe has been run in a threewright page yet.
 
 - 2026-10-25: written from Computer Graphics: Principles and Practice 3e (§14.10 on transparency and transmission, §17.4 on compositing and premultiplied alpha, §14.7.3 on sorting) through the round 2 books track; every API name checked in the installed three 0.186.1 source (`Material.js` alphaHash, alphaToCoverage, premultipliedAlpha; `MeshPhysicalMaterial.js` transmission, thickness, attenuationColor, attenuationDistance; `WebGLRenderLists.js` sort). Not run in a page yet.

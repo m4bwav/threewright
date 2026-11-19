@@ -4,6 +4,15 @@ Plugin versions. Skill-level changes are in each `skills/*/CHANGELOG.md`; the se
 
 ## Unreleased
 
+## 1.4.0 · 2026-11-18
+
+- `tw lint` rule `setEffects-output-pass` (warn): an `OutputPass` inside `WebGLRenderer.setEffects([...])` tone-maps twice. kb `post-processing`: the r182 built-in effects route (`outputBufferType: HalfFloatType`, `setEffects`, emissive above 1 for bloom). 70 lint rules.
+- game-starter: `?manual` runs no animation loop and `__game.advance(seconds)` steps whole ticks then renders, so shots are repeatable; done-checklist line 14a.
+- kb `transparency-and-blending`: player behind walls (`GreaterDepth` silhouette) and fake light pools (additive discs, depth test off, drawn right after the ground).
+- kb `geospatial-and-globes`: polygons and loops on a sphere (gnomonic point in polygon, great-circle arc crossings); `templates/globe/sphereMath.mjs` with a Node test.
+- threewright-games `references/hud-and-minimap.md` (planet minimap, far-side pointers); threewright-shaders `references/particles.md`; kb `bundle-size`: one line on single-file esbuild bundles.
+- Ideas from robinduckett/boo-mas (github.com/robinduckett/boo-mas). It has no licence, so no code was copied; everything here was written fresh.
+
 ## 1.3.0 · 2026-11-14
 
 - `tw perf --fly` (fixed camera path) and `--target-ms` (fail when p95 is over). Test added.

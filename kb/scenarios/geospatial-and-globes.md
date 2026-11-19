@@ -3,7 +3,7 @@ title: Maps and geospatial in 3D
 slug: geospatial-and-globes
 kind: scenario
 summary: 3D Tiles for real-world photogrammetry and terrain, globe.gl for data globes, MapLibre custom layers for maps; rebase coordinates to avoid float jitter at planet scale.
-tags: [geospatial, 3d tiles, globe, maplibre, cesium, google photorealistic tiles, deck.gl, terrain]
+tags: [spherical polygon, gnomonic, great circle, point in polygon, planet, geospatial, 3d tiles, globe, maplibre, cesium, google photorealistic tiles, deck.gl, terrain]
 applies_to: ">=r167"
 status: current
 renderer: webgl
@@ -41,6 +41,13 @@ template: html-importmap
 - Set a tile error target and an LRU cache size deliberately; tiles plus volumetric clouds can exceed mobile memory with defaults left untouched.
 - Attribution overlays are required by Google's 3D Tiles terms; Google Map Tiles API needs a key, billing, and session tokens that expire and must be refreshed.
 
+### Polygons and loops on a sphere
+
+- An edge between two points on a globe is a great-circle arc, not a line of constant latitude. A territory, a drawn lasso or a capture loop on a planet must be tested with arcs, or points near the edges come out wrong: the arc from 10N 0E to 10N 40E bulges poleward to about 10.63N at 20E, so a latitude box calls 10.5N 20E inside when it is outside.
+- Point in loop: project the loop and the point with the gnomonic projection onto the plane touching the sphere at the loop's centre (`p / dot(p, centre)`, then the two tangent axes). It sends every great circle to a straight line, so the usual flat crossing-number test is exact. It only works for a loop that fits in one hemisphere; split bigger ones.
+- Where two arcs cross: the great circles through a-b and c-d meet at plus or minus `normalize(cross(cross(a, b), cross(c, d)))`; keep the sign that lies between both pairs of end points. Parallel normals mean the arcs share a circle.
+- The `globe` template ships these as `sphereMath.mjs` (`pointInSphericalPolygon`, `arcIntersection`, `gnomonic`), plain arrays with no three.js, covered by a Node test.
+
 ## Pitfalls
 
 - Google Map Tiles API session tokens expire; a demo that "stops loading tiles after a while" usually means an expired or missing refresh, not a code bug.
@@ -55,6 +62,8 @@ template: html-importmap
 - Confirm attribution overlays are present in a real screenshot when using Google or Cesium tiles; this is a terms-of-service requirement, not just a visual nicety.
 
 ## Notes
+
+- 2026-11-18: polygons and loops on a sphere, idea from the robinduckett/boo-mas game (no licence; maths and code written fresh). `templates/globe/sphereMath.mjs` passes its Node test (inside, outside, the 10.5N edge case, far hemisphere, arc crossing and no crossing).
 
 - 2026-09-26: written from the 2026-09-26 research (scenarios-xr-and-testing A4, ecosystem-libraries). WebGPU support in `3d-tiles-renderer`'s core loader, `globe.gl`'s `useWebGPU` exposure, and deck.gl/luma.gl's WebGPU status are all unverified and likely to change.
 - 2026-09-26: the `globe` template was built and verified (tw check, --reduced-motion, lint, shot) on Windows 11, Chrome 153, RTX 5060 Ti.

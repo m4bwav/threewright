@@ -39,6 +39,7 @@ related: [renderer-choice, import-maps-and-builds]
 WebGPU costs about 1.6x the gzip size of WebGL for a small scene, and importing TSL through `three/tsl` adds roughly 30 KB gzip on top of that in both bundlers, because `three.tsl.js` re-exports each function from a `TSL` namespace object in a way that likely blocks tree shaking. Importing straight from `three/src/...` avoids the 30 KB but mixes source and build copies of three if anything else in the bundle imports `three/webgpu`; do not do that just to save the 30 KB, budget for it instead.
 - No minified builds ship in the npm package as of r186 (0.185.1 shipped `three.module.min.js` and friends; 0.186.0 removed all of them). A bundler minifies your own bundle; jsDelivr and similar CDNs minify on the fly when served unminified files are requested with a query that asks for it, so an import-map page can still stay small without shipping its own minifier.
 - Real CDN delivery is usually smaller than the gzip numbers above, since most CDNs serve brotli by default, which compresses three's source further than gzip.
+- Single-file HTML for a jam or an itch.io upload: `esbuild --bundle --minify` with `--alias:three=<vendored path>` gives one script that runs with no CDN, from the same source the import map runs unbundled (idea from robinduckett/boo-mas, 2026-11-18; not measured here).
 
 ## Pitfalls
 

@@ -4,6 +4,12 @@ Every change to [SKILL.md](SKILL.md) and its companions, newest first, each with
 
 Entry shape: `### C-YYYYMMDD-n · date · one-line summary`, then `because:` (IDs or "user request"), `files:` (file and section), and a sentence on what changed. Cite section headings, not line numbers.
 
+### C-20261118-1 · 2026-11-18 · ?manual frames, advance(seconds), HUD and planet minimap notes
+- because: user request (technique harvest, robinduckett/boo-mas)
+- files: SKILL.md (Step 2 rule 7), references/hud-and-minimap.md (new), references/done-checklist.md (14a), templates/game-starter (main.ts, debug/hooks.ts)
+
+The starter skips its animation loop under `?manual`, and `__game.advance(seconds)` steps whole ticks then renders, so screenshots no longer depend on wall-clock timing. `?seed` already existed. The tick-count `step(n)` is unchanged.
+
 ### C-20261114-1 · 2026-11-14 · Blind render critic loop and path perf gate
 - because: user request (Abyssal Garden thread harvest)
 - files: references/render-critic.md (new), references/done-checklist.md (15a, 15b)
