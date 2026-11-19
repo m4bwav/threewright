@@ -26,6 +26,7 @@ New game: `TW new game-starter <dir>`, then `npm install`. It pins three 0.186.1
 5. glTF assets only, optimized (`threewright-assets`); clone rigged characters with `SkeletonUtils.clone`; dispose on unload; credit every asset.
 6. Budgets: draw calls and triangles within `TW kb show performance --section Budgets`; instancing for repeats; shadows on one light.
 7. HUD and minimap (including a minimap on a small planet): [references/hud-and-minimap.md](references/hud-and-minimap.md).
+8. Mobile shell for a browser game (turn-sideways prompt, no-WebGL fallback page with links, PWA manifest, loading screen with flavour text): [references/mobile-shell.md](references/mobile-shell.md).
 
 ## Sfxwright, when installed
 

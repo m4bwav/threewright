@@ -244,3 +244,17 @@ test('hit-effects TSL page renders on WebGPURenderer without errors', { skip, ti
   const pct = Number((r.out.match(/pixels: ([\d.]+)% differ/) || [])[1]);
   assert.ok(pct > 3, r.out);
 });
+
+test('clay material variants compile to separate programs', { skip, timeout: 300000 }, () => {
+  const r = tw('check', join(ROOT, 'tests/fixtures/pages/clay'), '--size', '480x270', '--eval', "renderer.info.programs.filter((p) => p.cacheKey.includes('clay-v1:')).length");
+  assert.equal(r.code, 0, r.out + r.err);
+  assert.match(r.out, /result: OK/, r.out);
+  assert.match(r.out, /eval: 2\b/, r.out);
+});
+
+test('mobile shell loads the game and hides its cards on a landscape desktop', { skip, timeout: 300000 }, () => {
+  const r = tw('check', join(ROOT, 'tests/fixtures/pages/mobile-shell'), '--size', '480x270', '--eval', "!document.getElementById('loading') && getComputedStyle(document.getElementById('rotate')).display === 'none'");
+  assert.equal(r.code, 0, r.out + r.err);
+  assert.match(r.out, /result: OK/, r.out);
+  assert.match(r.out, /eval: true/, r.out);
+});

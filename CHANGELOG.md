@@ -4,6 +4,12 @@ Plugin versions. Skill-level changes are in each `skills/*/CHANGELOG.md`; the se
 
 ## Unreleased
 
+## 1.8.0 · 2026-11-19
+
+- threewright-shaders `references/clay-material.md`: a clay look patched into `MeshStandardMaterial` with `onBeforeCompile` (ridge pattern bumped into the normal, roughness 0.98, metalness 0), when to patch a stock material versus writing a `ShaderMaterial`, and the `customProgramCacheKey` pitfall: one versioned key per GLSL variant (`clay-v1:rings`). Fixture `tests/fixtures/pages/clay`; tests check the block and that two programs compile.
+- threewright-games `references/mobile-shell.md`: turn-sideways prompt for landscape games on portrait phones, a no-WebGL fallback page with links to the game, a PWA manifest, and a loading screen with flavour text. Fixture `tests/fixtures/pages/mobile-shell`; tests check the blocks and `tw check`.
+- Both ideas seen in a commercial web game demo; written fresh, nothing copied.
+
 ## 1.7.0 · 2026-11-19
 
 - kb recipe `pixel-art-render-target`: pixel art and pixel-3D through a small `WebGLRenderTarget` with a bleed margin, a camera snapped to whole art pixels, a sub-pixel offset applied at upscale for smooth pans, and a sharp-bilinear upscale shader for fractional scales. Checked with `tw check`, `tw lint` and two `tw shot`s. Ideas from the Murder engine (isadorasophia/murder, MIT) and Cole Cecil's 2017 post on scaling pixel art; written fresh.

@@ -69,6 +69,16 @@
         "a tw check run with --eval or --actions is in the trace"
       ],
       "runs": 3
+    },
+    {
+      "id": "trigger-mobile-shell",
+      "kind": "trigger",
+      "prompt": "my three.js game is landscape only; what should phones in portrait and browsers without WebGL see, and can players install it?",
+      "expectations": [
+        "the threewright-games skill is invoked",
+        "the answer covers a rotate prompt, a no-WebGL fallback page with links, and a PWA manifest with orientation landscape"
+      ],
+      "runs": 3
     }
   ]
 }
