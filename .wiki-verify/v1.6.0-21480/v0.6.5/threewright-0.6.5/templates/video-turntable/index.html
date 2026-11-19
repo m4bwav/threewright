@@ -1,0 +1,297 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>three.js turntable for video capture</title>
+  <style>
+    html, body { margin: 0; height: 100%; overflow: hidden; background: #e9e7e3; }
+    canvas { display: block; width: 100%; height: 100%; touch-action: none; }
+    #note { position: fixed; left: 16px; bottom: 12px; margin: 0; font: 14px/1.4 system-ui, sans-serif; color: #a1261b; }
+  </style>
+  <!-- Pin the exact version: an unpinned CDN URL changes under you. -->
+  <script type="importmap">
+  {
+    "imports": {
+      "three": "https://cdn.jsdelivr.net/npm/three@0.186.1/build/three.module.js",
+      "three/addons/": "https://cdn.jsdelivr.net/npm/three@0.186.1/examples/jsm/"
+    }
+  }
+  </script>
+</head>
+<body>
+  <p id="note" hidden></p>
+  <script type="module">
+    // A product turntable built for frame-exact video capture, and a normal
+    // interactive preview (drag to orbit) when opened in a browser.
+    //
+    // URL parameters, all optional:
+    //   ?seconds=3    length of one full turn, which is also the loop length (default 3)
+    //   ?fps=30       frame rate the page advertises to capture tools (default 30)
+    //   ?bg=e9e7e3    background colour as hex, with or without #; "transparent" clears to
+    //                 alpha for compositing (then capture with --alpha to .webm or .mov)
+    //   ?model=url    a .glb or .gltf to turn instead of the built-in bottle
+    //
+    // Capture one seamless loop (from the threewright folder):
+    //   node scripts/tw.mjs video <dir> --out turn.mp4 --seconds 3 --fps 30
+    // tw calls window.__tw.renderFrame(i, fps) for i = 0 .. seconds * fps - 1, so the last
+    // frame stops one step short of 360 degrees and the video loops without a stutter.
+    // Pass --seconds equal to the page's turn length. To use URL parameters, serve the
+    // folder and give tw the URL, for example http://localhost:8080/?seconds=6&bg=ffffff.
+    import * as THREE from 'three';
+    import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
+    import { RoomEnvironment } from 'three/addons/environments/RoomEnvironment.js';
+    import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
+
+    const params = new URLSearchParams(location.search);
+    const positive = (key, fallback) => { const v = Number(params.get(key)); return Number.isFinite(v) && v > 0 ? v : fallback; };
+    const SECONDS = positive('seconds', 3);
+    const FPS = positive('fps', 30);
+    const bgParam = (params.get('bg') || '').replace(/^#/, '');
+    const transparent = bgParam === 'transparent';
+    const BG = /^([0-9a-f]{3}){1,2}$/i.test(bgParam) ? '#' + bgParam : '#e9e7e3';
+    const modelUrl = params.get('model');
+    // The preview holds still for people who ask for less motion; capture always turns.
+    const reduceMotion = matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+    document.body.style.background = transparent ? 'transparent' : BG;
+
+    const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: transparent });
+    renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+    renderer.setSize(window.innerWidth, window.innerHeight);
+    // Neutral (Khronos PBR Neutral) keeps base colours close to their sRGB values,
+    // which is what a product shot needs; ACES and AgX shift saturated colours.
+    renderer.toneMapping = THREE.NeutralToneMapping;
+    renderer.shadowMap.enabled = true;
+    // VSM blurs the shadow map itself, so the ground shadow is soft without noise.
+    renderer.shadowMap.type = THREE.VSMShadowMap;
+    document.body.appendChild(renderer.domElement);
+
+    const scene = new THREE.Scene();
+    if (!transparent) scene.background = new THREE.Color(BG);
+
+    // Studio light from a generated room: soft reflections with no HDR download.
+    const pmrem = new THREE.PMREMGenerator(renderer);
+    const room = new RoomEnvironment();
+    scene.environment = pmrem.fromScene(room, 0.04).texture;
+    room.dispose();
+    pmrem.dispose();
+
+    // A key light only for the ground shadow and a highlight; the room does the rest.
+    const key = new THREE.DirectionalLight(0xffffff, 1.2);
+    key.castShadow = true;
+    key.shadow.mapSize.set(1024, 1024);
+    key.shadow.radius = 10;
+    key.shadow.blurSamples = 16;
+    scene.add(key, key.target);
+
+    // A weak top light whose small, heavily blurred shadow map acts as the soft
+    // contact shadow under the base, so the object sits on the floor.
+    const topLight = new THREE.DirectionalLight(0xffffff, 0.3);
+    topLight.castShadow = true;
+    topLight.shadow.mapSize.set(256, 256);
+    topLight.shadow.radius = 8;
+    topLight.shadow.blurSamples = 16;
+    // VSM stores depth as half floats; a ground facing the light head-on would compare
+    // against a rounded copy of its own depth and shadow itself without this bias.
+    topLight.shadow.bias = -0.002;
+    scene.add(topLight, topLight.target);
+
+    // ShadowMaterial draws only the shadow, so the ground has no visible edge. It must
+    // stay inside the shadow camera's box: with VSM every receiver also casts, and a
+    // ground that crosses the box edge shows a thin dark line there.
+    const ground = new THREE.Mesh(
+      new THREE.CircleGeometry(1, 64).rotateX(-Math.PI / 2),
+      new THREE.ShadowMaterial({ opacity: 0.25 })
+    );
+    ground.name = 'ground';
+    ground.receiveShadow = true;
+    scene.add(ground);
+
+    // Everything that turns lives in this group; the object sits on its axis.
+    const turntable = new THREE.Group();
+    turntable.name = 'turntable';
+    scene.add(turntable);
+
+    const camera = new THREE.PerspectiveCamera(30, window.innerWidth / window.innerHeight, 0.01, 100);
+    const controls = new OrbitControls(camera, renderer.domElement);
+    controls.enableDamping = !reduceMotion;
+    controls.enablePan = false;
+    controls.maxPolarAngle = Math.PI / 2 - 0.05; // never look from under the floor
+
+    // A 26 cm insulated bottle: painted body, steel shoulder, ridged cap. Lathe
+    // profiles are (radius, height) pairs in metres, from the base centre upwards.
+    function makeBottle() {
+      const bottle = new THREE.Group();
+      bottle.name = 'bottle';
+      const arc = (cx, cy, r, from, to, steps) => Array.from({ length: steps + 1 }, (_, k) => {
+        const a = from + ((to - from) * k) / steps;
+        return new THREE.Vector2(cx + r * Math.cos(a), cy + r * Math.sin(a));
+      });
+      const v = (x, y) => new THREE.Vector2(x, y);
+
+      const bodyProfile = [v(0, 0.003), v(0.03, 0.0005), ...arc(0.03, 0.007, 0.007, -Math.PI / 2, 0, 8), v(0.037, 0.19)];
+      const shoulder = new THREE.CubicBezierCurve(v(0.037, 0.19), v(0.037, 0.204), v(0.025, 0.203), v(0.025, 0.215)).getPoints(16);
+      const shoulderProfile = [...shoulder, v(0.025, 0.222)];
+      const capProfile = [v(0.0245, 0.2195), v(0.0268, 0.2195), v(0.0268, 0.2215), v(0.0268, 0.2555), v(0.0268, 0.2575), ...arc(0.0228, 0.2575, 0.004, 0, Math.PI / 2, 6), v(0, 0.2615)];
+
+      const paint = new THREE.MeshPhysicalMaterial({ color: 0x46695f, roughness: 0.55, clearcoat: 0.5, clearcoatRoughness: 0.35 });
+      const steel = new THREE.MeshStandardMaterial({ color: 0xd9dadc, metalness: 1, roughness: 0.28 });
+      const capMaterial = new THREE.MeshStandardMaterial({ color: 0x1d1f22, roughness: 0.6 });
+
+      const body = new THREE.Mesh(new THREE.LatheGeometry(bodyProfile, 96), paint);
+      body.name = 'body';
+      const neck = new THREE.Mesh(new THREE.LatheGeometry(shoulderProfile, 96), steel);
+      neck.name = 'shoulder';
+
+      // Grip ridges: push the cap wall out in 36 bumps, then weld the lathe seam so
+      // the recomputed normals have no visible line.
+      let capGeometry = new THREE.LatheGeometry(capProfile, 288);
+      capGeometry.deleteAttribute('uv');
+      capGeometry.deleteAttribute('normal');
+      const p = capGeometry.attributes.position;
+      for (let i = 0; i < p.count; i++) {
+        const y = p.getY(i);
+        if (y < 0.221 || y > 0.256) continue;
+        const angle = Math.atan2(p.getZ(i), p.getX(i));
+        const s = 1 + 0.04 * Math.max(0, Math.cos(angle * 36));
+        p.setX(i, p.getX(i) * s);
+        p.setZ(i, p.getZ(i) * s);
+      }
+      capGeometry = mergeSeam(capGeometry);
+      capGeometry.computeVertexNormals();
+      const cap = new THREE.Mesh(capGeometry, capMaterial);
+      cap.name = 'cap';
+
+      // A carry loop and a front badge: the parts that are not round, so the turn reads
+      // on camera (the loop alone looks the same after half a turn).
+      const carry = new THREE.Mesh(new THREE.TorusGeometry(0.014, 0.0032, 12, 40, Math.PI), capMaterial);
+      carry.name = 'carry loop';
+      carry.position.y = 0.2605;
+      // A curved plate 0.4 mm proud of the body, centred on +z (the side facing the camera at frame 0).
+      const badge = new THREE.Mesh(new THREE.CylinderGeometry(0.0374, 0.0374, 0.022, 24, 1, false, -0.3, 0.6), steel);
+      badge.name = 'badge';
+      badge.position.y = 0.125;
+
+      bottle.add(body, neck, cap, carry, badge);
+      return bottle;
+    }
+
+    // Weld vertices that share a position (the lathe seam) so normals average across it.
+    function mergeSeam(geometry) {
+      const p = geometry.attributes.position;
+      // Rounded to micrometres; Math.round also turns -0 into 0, so both seam copies match.
+      const key = (i) => `${Math.round(p.getX(i) * 1e6)},${Math.round(p.getY(i) * 1e6)},${Math.round(p.getZ(i) * 1e6)}`;
+      const first = new Map();
+      const remap = new Uint32Array(p.count);
+      for (let i = 0; i < p.count; i++) {
+        const k = key(i);
+        if (!first.has(k)) first.set(k, i);
+        remap[i] = first.get(k);
+      }
+      const index = Array.from(geometry.index.array, (i) => remap[i]);
+      geometry.setIndex(index);
+      return geometry;
+    }
+
+    async function loadModel(url) {
+      const gltf = await new GLTFLoader().loadAsync(url);
+      return gltf.scene;
+    }
+
+    // Put the object on the turntable axis, standing on y = 0, then fit the camera,
+    // the key light's shadow box and the ground to its size.
+    function place(object) {
+      object.traverse((o) => { if (o.isMesh) o.castShadow = true; });
+      const box = new THREE.Box3().setFromObject(object);
+      const center = box.getCenter(new THREE.Vector3());
+      object.position.sub(new THREE.Vector3(center.x, box.min.y, center.z));
+      turntable.add(object);
+
+      const size = box.getSize(new THREE.Vector3());
+      const sweep = Math.hypot(size.x, size.z) / 2; // radius of the cylinder it sweeps while turning
+      const radius = Math.hypot(sweep, size.y / 2); // sphere around that cylinder
+      const target = new THREE.Vector3(0, size.y / 2, 0);
+
+      // Distance at which the sphere fits the narrower of the two fields of view.
+      const vFov = THREE.MathUtils.degToRad(camera.fov);
+      const hFov = 2 * Math.atan(Math.tan(vFov / 2) * camera.aspect);
+      const distance = (radius / Math.sin(Math.min(vFov, hFov) / 2)) * 1.15;
+      const elevation = THREE.MathUtils.degToRad(10);
+      camera.position.set(0, target.y + distance * Math.sin(elevation), distance * Math.cos(elevation));
+      camera.near = distance / 50;
+      camera.far = distance * 10;
+      camera.updateProjectionMatrix();
+      controls.target.copy(target);
+      controls.minDistance = radius * 1.5;
+      controls.maxDistance = distance * 3;
+      controls.update();
+
+      // High and slightly front-left, like a studio softbox: a short shadow behind the object.
+      key.position.set(-0.8, 3, 1).normalize().multiplyScalar(radius * 4);
+      topLight.position.set(0, radius * 4, 0);
+      for (const light of [key, topLight]) {
+        const s = light.shadow.camera;
+        s.left = s.bottom = -radius * 2;
+        s.right = s.top = radius * 2;
+        s.near = radius;
+        s.far = radius * 8;
+        s.updateProjectionMatrix();
+      }
+
+      ground.scale.setScalar(radius * 1.6);
+    }
+
+    // The whole animation is a function of time, so any frame can be rendered on its own.
+    function pose(seconds) {
+      turntable.rotation.y = ((seconds / SECONDS) % 1) * Math.PI * 2;
+    }
+
+    const tw = (window.__tw ??= {});
+    tw.duration = SECONDS;
+    tw.fps = FPS;
+    // Capture hook: render frame i of the loop exactly, with no dependence on the
+    // wall clock or on the virtual clock tw installs. The live loop stops so nothing
+    // else moves the scene between frames.
+    tw.renderFrame = (i, fps = FPS) => {
+      renderer.setAnimationLoop(null);
+      pose(i / fps);
+      renderer.render(scene, camera);
+    };
+
+    const timer = new THREE.Timer();
+    timer.connect(document);
+
+    function loop(time) {
+      timer.update(time);
+      if (!reduceMotion) pose(timer.getElapsed());
+      controls.update(timer.getDelta());
+      renderer.render(scene, camera);
+    }
+
+    async function start() {
+      try {
+        place(modelUrl ? await loadModel(modelUrl) : makeBottle());
+      } catch (err) {
+        const note = document.getElementById('note');
+        note.textContent = `Could not load ${modelUrl}: ${err.message}`;
+        note.hidden = false;
+        console.error(err);
+      }
+      pose(0);
+      // Draw the first frame now rather than waiting for requestAnimationFrame:
+      // capture tools hold rAF back until the page reports it is ready.
+      renderer.render(scene, camera);
+      timer.reset();
+      renderer.setAnimationLoop(loop);
+    }
+    tw.ready = start();
+
+    window.addEventListener('resize', () => {
+      camera.aspect = window.innerWidth / window.innerHeight;
+      camera.updateProjectionMatrix();
+      renderer.setSize(window.innerWidth, window.innerHeight);
+    });
+  </script>
+</body>
+</html>
