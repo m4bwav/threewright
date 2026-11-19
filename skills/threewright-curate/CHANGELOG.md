@@ -4,6 +4,11 @@ Every change to [SKILL.md](SKILL.md) and its companions, newest first, each with
 
 Entry shape: `### C-YYYYMMDD-n · date · one-line summary`, then `because:` (IDs or "user request"), `files:` (file and section), and a sentence on what changed. Cite section headings, not line numbers.
 
+### C-20261119-1 · 2026-11-19 · Pixel art render target recipe
+- because: user request (technique harvest of the Murder engine pixel camera)
+- files: kb/recipes/pixel-art-render-target.md (new)
+- New recipe; the Code block ran unchanged in a harness page under `tw check` and `tw shot` on three 0.186.1.
+
 ### C-20261026-1 · 2026-10-26 · Align the glTF Transform CLI pin
 - because: the 0.6.6 wiki found 4.5.0 in the library entry while recipes and CHANGELOG 0.6.3 already pinned 4.5.1
 - files: kb/libraries/gltf-transform.md (frontmatter, Setup, Notes)

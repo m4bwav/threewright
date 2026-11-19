@@ -2382,6 +2382,35 @@
    "bytes": 6948
   },
   {
+   "slug": "pixel-art-render-target",
+   "kind": "recipe",
+   "path": "recipes/pixel-art-render-target.md",
+   "title": "Pixel art render target",
+   "summary": "Draw pixel art or pixel-3D into a small render target, snap the camera to whole art pixels, and upscale with a sub-pixel offset so pans stay smooth and pixels stay square.",
+   "tags": [
+    "pixel art",
+    "pixel-3d",
+    "render target",
+    "low resolution",
+    "upscale",
+    "nearest",
+    "sharp bilinear",
+    "camera snap"
+   ],
+   "applies_to": ">=r152",
+   "status": "current",
+   "renderer": "webgl",
+   "last_verified": "2026-11-19",
+   "template": "html-importmap",
+   "sections": [
+    "Goal",
+    "Code",
+    "Verify",
+    "Notes"
+   ],
+   "bytes": 6887
+  },
+  {
    "slug": "raycast-hover-and-click",
    "kind": "recipe",
    "path": "recipes/raycast-hover-and-click.md",
