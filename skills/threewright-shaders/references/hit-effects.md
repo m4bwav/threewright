@@ -1,6 +1,6 @@
 # Hit effects, outline, beam and black hole (GLSL)
 
-Six WebGL `ShaderMaterial` recipes for games: a shield that shows several hits at once, bullet holes cut through scenery, an ink outline from depth, a layered energy beam, a black-hole accretion disc, and an fbm detail. Every block below is copied verbatim into `tests/fixtures/pages/hit-fx/index.html`, which `tw shaders` compiles in the browser tests (five programs link, the noise is included in two of them; three r186, 2026-11-18). A unit test fails if a block here and the fixture drift apart. Port to TSL with three's `Transpiler` or by hand when the page uses WebGPURenderer.
+Six WebGL `ShaderMaterial` recipes for games: a shield that shows several hits at once, bullet holes cut through scenery, an ink outline from depth, a layered energy beam, a black-hole accretion disc, and an fbm detail. Every block below is copied verbatim into `tests/fixtures/pages/hit-fx/index.html`, which `tw shaders` compiles in the browser tests (five programs link, the noise is included in three of them; three r186, 2026-11-18). A unit test fails if a block here and the fixture drift apart. For WebGPURenderer use the TSL versions in [hit-effects-tsl.md](hit-effects-tsl.md).
 
 Ideas from sloppysteaks69/GPU-Bandits (Godot shaders, no licence) and vitaminclaude/voidstruck (WGSL, PolyForm Strict). Neither licence allows reuse, so only the ideas were taken; the code here was written fresh.
 
@@ -55,8 +55,10 @@ void main() {
 uniform vec4 uHits[4];
 uniform float uStrength;
 uniform float uTime;
+uniform float uOvercharge;   // 0 normal .. 1 fully overcharged
 varying vec3 vLocal;
 const float HIT_LIFE = 1.0;
+// noise.glsl goes here
 float hexLine(vec2 p) {
   // distance to the nearest hex cell edge, 0 on the edge
   const vec2 r = vec2(1.0, 1.7320508);
@@ -87,11 +89,18 @@ void main() {
   float lattice = 1.0 - smoothstep(0.02, 0.08, hexLine(uv));
   float a = glow * mix(0.2, 1.0, lattice) * (1.0 - hole);
   vec3 tint = mix(vec3(1.0, 0.25, 0.15), vec3(0.4, 0.8, 1.0), smoothstep(0.0, 0.8, uStrength));
-  gl_FragColor = vec4(tint * 1.6 * clamp(a, 0.0, 1.0), 1.0);
+  // overcharge: lightning veins where sin-warped noise crosses its middle value
+  vec2 warp = vec2(sin(n.y * 7.0 + uTime * 1.3), sin(n.x * 6.0 - uTime * 1.1)) * 0.35;
+  float s = fbm(uv * 0.8 + warp + uTime * 0.4, 3) - 0.5;
+  float flicker = 0.6 + 0.4 * sin(uTime * 23.0 + n.y * 30.0);
+  float vein = (1.0 - smoothstep(0.0, 0.035, abs(s))) * uOvercharge * flicker;
+  gl_FragColor = vec4(tint * 1.6 * clamp(a, 0.0, 1.0) + vec3(0.75, 0.9, 1.0) * vein * 2.0, 1.0);
 }
 ```
 
-Notes: with `AdditiveBlending` write the colour already scaled by alpha, as above. More than four live hits: raise the array size and the loop bound together. For an overcharge state, add thin bright lines where a sum of sines crosses zero (`1.0 - smoothstep(0.0, 0.06, abs(s))`).
+Overcharge: raise `uOvercharge` toward 1 when the shield is over full. Thin bright veins appear where fbm, sampled at a point pushed around by slow sines, crosses its middle value 0.5; the sines make the veins crawl and fork like lightning, and a fast sine flickers them.
+
+Notes: with `AdditiveBlending` write the colour already scaled by alpha, as above. More than four live hits: raise the array size and the loop bound together.
 
 ## Bullet holes as world-space capsules
 

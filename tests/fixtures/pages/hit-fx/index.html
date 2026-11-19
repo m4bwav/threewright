@@ -48,8 +48,10 @@ void main() {
 uniform vec4 uHits[4];
 uniform float uStrength;
 uniform float uTime;
+uniform float uOvercharge;   // 0 normal .. 1 fully overcharged
 varying vec3 vLocal;
 const float HIT_LIFE = 1.0;
+// noise.glsl goes here
 float hexLine(vec2 p) {
   // distance to the nearest hex cell edge, 0 on the edge
   const vec2 r = vec2(1.0, 1.7320508);
@@ -80,7 +82,12 @@ void main() {
   float lattice = 1.0 - smoothstep(0.02, 0.08, hexLine(uv));
   float a = glow * mix(0.2, 1.0, lattice) * (1.0 - hole);
   vec3 tint = mix(vec3(1.0, 0.25, 0.15), vec3(0.4, 0.8, 1.0), smoothstep(0.0, 0.8, uStrength));
-  gl_FragColor = vec4(tint * 1.6 * clamp(a, 0.0, 1.0), 1.0);
+  // overcharge: lightning veins where sin-warped noise crosses its middle value
+  vec2 warp = vec2(sin(n.y * 7.0 + uTime * 1.3), sin(n.x * 6.0 - uTime * 1.1)) * 0.35;
+  float s = fbm(uv * 0.8 + warp + uTime * 0.4, 3) - 0.5;
+  float flicker = 0.6 + 0.4 * sin(uTime * 23.0 + n.y * 30.0);
+  float vein = (1.0 - smoothstep(0.0, 0.035, abs(s))) * uOvercharge * flicker;
+  gl_FragColor = vec4(tint * 1.6 * clamp(a, 0.0, 1.0) + vec3(0.75, 0.9, 1.0) * vein * 2.0, 1.0);
 }
 </script>
 <script type="x-shader/x-glsl" id="holes.vert">
@@ -224,7 +231,7 @@ void main() {
     const mat = (name, u, extra = {}) => new THREE.ShaderMaterial({ name, uniforms: u, vertexShader: src(name + '.vert'), fragmentShader: src(name + '.frag'), ...extra });
     const add = (geo, m, x, y = 0) => { const o = new THREE.Mesh(geo, m); o.position.set(x, y, 0); o.name = m.name; scene.add(o); return o; };
     const hits = [new THREE.Vector4(0, 0, 1, 0.2), new THREE.Vector4(1, 0, 0, 0.5), new THREE.Vector4(0, 1, 0, -1), new THREE.Vector4(0, 0, 0, -1)];
-    const shield = mat('shield', { uHits: { value: hits }, uStrength: { value: 0.3 }, uTime: { value: 0 } }, { transparent: true, blending: THREE.AdditiveBlending, depthWrite: false, side: THREE.DoubleSide });
+    const shield = mat('shield', { uHits: { value: hits }, uStrength: { value: 0.3 }, uTime: { value: 0 }, uOvercharge: { value: 1 } }, { transparent: true, blending: THREE.AdditiveBlending, depthWrite: false, side: THREE.DoubleSide });
     add(new THREE.SphereGeometry(1, 48, 32), shield, -4);
     const holeA = Array.from({ length: 32 }, () => new THREE.Vector4());
     const holeB = Array.from({ length: 32 }, () => new THREE.Vector3());

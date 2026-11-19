@@ -595,3 +595,11 @@ test('hit-effects GLSL blocks match the fixture page tw shaders compiles', () =>
   assert.equal(blocks.length, 11);
   for (const b of blocks) assert.ok(page.includes(b), `fixture is missing or differs from block ${b.split('\n')[0]}`);
 });
+
+test('hit-effects TSL blocks match the fixture page, in order', () => {
+  const md = readFileSync(join(ROOT, 'skills/threewright-shaders/references/hit-effects-tsl.md'), 'utf8');
+  const page = readFileSync(join(ROOT, 'tests/fixtures/pages/hit-fx-tsl/index.html'), 'utf8');
+  const blocks = [...md.matchAll(/```js\n([\s\S]*?)```/g)].map((m) => m[1]);
+  assert.equal(blocks.length, 7);
+  assert.ok(page.includes(blocks.join('')), 'fixture module script differs from the md blocks joined in order');
+});

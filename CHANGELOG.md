@@ -4,6 +4,12 @@ Plugin versions. Skill-level changes are in each `skills/*/CHANGELOG.md`; the se
 
 ## Unreleased
 
+## 1.6.0 · 2026-11-18
+
+- threewright-shaders `references/hit-effects-tsl.md`: the six hit-effect recipes (shield, capsule bullet holes, depth-Laplacian outline as a `RenderPipeline` output, nested beam, black hole, octave-offset fbm) in TSL for `WebGPURenderer`. Every block is in `tests/fixtures/pages/hit-fx-tsl`; a unit test keeps them identical and a browser test runs `tw check` on it (WebGPU backend, no errors, pixels drawn).
+- Shield overcharge veins in both GLSL and TSL: thin lightning lines where sin-warped fbm crosses its middle value, driven by `uOvercharge` / `overcharge`. Idea from sloppysteaks69/GPU-Bandits (no licence); written fresh.
+- Noted in the TSL file: `vec3(new Color())` renders black, use `color()`.
+
 ## 1.5.0 · 2026-11-18
 
 - threewright-shaders `references/hit-effects.md`: GLSL recipes for a shield showing four hits at once (travelling rings, hex lattice, holes and red shift as strength drops), world-space capsule bullet holes (discard, glowing burnt rim, charred back faces), an ink outline from the depth Laplacian normalised by the largest nearby depth, a beam of three nested additive cylinders, a black-hole disc (polar swirl noise, Doppler-bright side, lensed arc, photon ring) and fbm with per-octave offsets and lacunarity 2.03. Every block is in `tests/fixtures/pages/hit-fx`; a unit test keeps them identical and a browser test checks all five programs link.
