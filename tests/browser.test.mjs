@@ -229,3 +229,9 @@ test('shot --eval changes the scene before the capture', { skip, timeout: 300000
     assert.ok(b.json.pixels.bbox.y0 > a.json.pixels.bbox.y0, `${JSON.stringify(a.json.pixels.bbox)} vs ${JSON.stringify(b.json.pixels.bbox)}`);
   } finally { rmSync(dir, { recursive: true, force: true }); }
 });
+
+test('hit-effects reference shaders all link', { skip, timeout: 300000 }, () => {
+  const r = tw('shaders', join(ROOT, 'tests/fixtures/pages/hit-fx'), '--size', '480x270');
+  assert.equal(r.code, 0, r.out + r.err);
+  for (const name of ['shield', 'holes', 'outline', 'beam', 'blackhole']) assert.match(r.out, new RegExp(`"${name}" · linked`), r.out);
+});

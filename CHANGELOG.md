@@ -4,6 +4,11 @@ Plugin versions. Skill-level changes are in each `skills/*/CHANGELOG.md`; the se
 
 ## Unreleased
 
+## 1.5.0 · 2026-11-18
+
+- threewright-shaders `references/hit-effects.md`: GLSL recipes for a shield showing four hits at once (travelling rings, hex lattice, holes and red shift as strength drops), world-space capsule bullet holes (discard, glowing burnt rim, charred back faces), an ink outline from the depth Laplacian normalised by the largest nearby depth, a beam of three nested additive cylinders, a black-hole disc (polar swirl noise, Doppler-bright side, lensed arc, photon ring) and fbm with per-octave offsets and lacunarity 2.03. Every block is in `tests/fixtures/pages/hit-fx`; a unit test keeps them identical and a browser test checks all five programs link.
+- Ideas from sloppysteaks69/GPU-Bandits (github.com/sloppysteaks69/GPU-Bandits, no licence) and vitaminclaude/voidstruck (github.com/vitaminclaude/voidstruck, PolyForm Strict). No code was copied; everything here was written fresh.
+
 ## 1.4.0 · 2026-11-18
 
 - `tw lint` rule `setEffects-output-pass` (warn): an `OutputPass` inside `WebGLRenderer.setEffects([...])` tone-maps twice. kb `post-processing`: the r182 built-in effects route (`outputBufferType: HalfFloatType`, `setEffects`, emissive above 1 for bloom). 70 lint rules.
