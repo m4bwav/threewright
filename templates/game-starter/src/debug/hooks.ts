@@ -6,6 +6,7 @@
 //   const g = window.__game;
 //   g.pause(true); g.input.hold('right', 60); g.step(60);
 //   g.state().player.x;   g.hash();   g.events(0);
+//   ?manual&seed=7 then g.advance(2): no animation loop, so frames depend only on calls.
 
 import type * as THREE from 'three';
 import { STEP, type ActionFrame, type Game, type GameEvent } from '../sim/game.ts';
@@ -24,6 +25,7 @@ export interface App {
   restart(seed?: number): void;
   record(log: InputLog | null): void; // start or stop appending each tick's frame to log
   frameMs(): number;
+  manual: boolean; // ?manual: no animation loop runs; frames come only from step() and advance()
   input: Input;
   renderer: THREE.WebGLRenderer;
   camera: THREE.PerspectiveCamera;
@@ -70,6 +72,13 @@ export function installHooks(app: App) {
       app.render(1, n * STEP);
       return app.game()!.tick;
     },
+
+    // Advance simulated time by whole ticks (seconds / STEP, rounded), then render once.
+    // With ?manual this is the only clock, so `advance(2)` then a screenshot is repeatable.
+    advance(seconds: number) {
+      return hooks.step(Math.max(0, Math.round(seconds / STEP)));
+    },
+    get manual() { return app.manual; },
 
     input: {
       set: (frame: Partial<ActionFrame>) => app.input.set(frame),

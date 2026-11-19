@@ -6,7 +6,7 @@ Updated 2026-10-26 (v0.6.7 released, wiki published, scene revalidation complete
 
 An expansive evergreen three.js plugin: skills plus a knowledge base plus token-saving scripts and tests, for everything from 3D charts in docs to videos to games. Research and use the latest, most popular three.js AI skills, tools and docs. Teach the latest three.js (r186, 0.186.1, 2026-09-24) and where it is heading (WebGPU, TSL); stale material is only for old versions. Public repo m4bwav/threewright. Follow the chartwright plugin layout (m4bwav/chartwright) and the evergreen protocol (m4bwav/evergreen-protocol). No AI attribution anywhere.
 
-## State (2026-10-26)
+## State (2026-10-26; later releases in CHANGELOG.md, latest 1.4.0 on 2026-11-18)
 
 Version 0.6.7 is released: [PR #15](https://github.com/m4bwav/threewright/pull/15), squash merge `5f56603`, [GitHub Release](https://github.com/m4bwav/threewright/releases/tag/v0.6.7). Development tests passed in the isolated `fix/round2-followup-20261026` worktree. The [wiki](https://github.com/m4bwav/threewright/wiki) is published at `8c9e5a818e12bb8ec8c9c45591e6b541f1379de5`, verified against the released tag archive. Details are in `ai-docs/notes/2026-10-26-round2-followup.md`.
 
@@ -20,7 +20,7 @@ Done and verified:
 - New in 0.5.0: `tw vendor` (pinned CDN modules into vendor/, import map rewritten; `tw new` does it for templates with `"vendor": true`), JPEG/WebP shots for posters, backdrop objects left out of the bounds checks. scroll-hero now meets threewright-web Step 2 (poster first, vendored libraries, final view held under reduced motion).
 - New in 0.6.0: `tw vendor` also copies files a module fetches by `new URL(..., import.meta.url)` (the r186 Draco and KTX2 decoders); product-viewer is `"vendor": true` and checks offline with Draco and KTX2 models. Decoder hints and KB text agree that decoder paths are optional in r186. Three scenario entries no longer call verified templates unverified.
 - Templates (12, all verified): html-importmap, html-webgpu, vite-ts, r3f, chart-3d-scatter, video-turntable, game-starter, surface, globe, product-viewer, scroll-hero, splats. The light palettes of surface and globe are now shot too.
-- Lint: 69 rules; `tw deprecations` 0 pending for r186 at v0.6.6.
+- Lint: 70 rules (setEffects-output-pass added in 1.4.0); `tw deprecations` 0 pending for r186 at v0.6.6.
 - v0.6.7 follow-up: `npm ci` then `npm test` in `dev/` passed 66 tests total, 63 passed, 3 existing build-template skips, 0 failed on 2026-10-26. Help lists `glb --strict`; the `--against` test uses a static fixture. The glTF Transform CLI pin is 4.5.1, verified from npm metadata; the entry labels its older source/API review separately.
 - Scene revalidation: the existing `scene prints a compact tree of the main scene` browser assertion passed in 20 separate runs, one selected test each. The earlier root-only observation was not reproduced. `mainScene()` and its fallback are unchanged.
 

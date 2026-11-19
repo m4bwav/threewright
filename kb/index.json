@@ -106,7 +106,7 @@
     "Verify",
     "Notes"
    ],
-   "bytes": 4665
+   "bytes": 4937
   },
   {
    "slug": "cameras-and-controls",
@@ -460,7 +460,10 @@
     "renderpipeline",
     "bloom",
     "tsl",
-    "outputpass"
+    "outputpass",
+    "seteffects",
+    "hdr",
+    "halffloattype"
    ],
    "applies_to": ">=r183",
    "status": "current",
@@ -473,7 +476,7 @@
     "Verify",
     "Notes"
    ],
-   "bytes": 5845
+   "bytes": 7312
   },
   {
    "slug": "raycasting-and-picking",
@@ -590,6 +593,10 @@
    "title": "Transparency and blending",
    "summary": "Pick the transparency by its cause (coverage, transmission, glow) before touching transparent: alphaTest, alphaHash, alphaToCoverage, transmission, additive blending, and the sorting traps.",
    "tags": [
+    "x-ray",
+    "greaterdepth",
+    "light pools",
+    "fake lighting",
     "transparency",
     "alpha",
     "alphatest",
@@ -613,7 +620,7 @@
     "Verify",
     "Notes"
    ],
-   "bytes": 5109
+   "bytes": 7095
   },
   {
    "slug": "tsl",
@@ -893,6 +900,11 @@
    "title": "Maps and geospatial in 3D",
    "summary": "3D Tiles for real-world photogrammetry and terrain, globe.gl for data globes, MapLibre custom layers for maps; rebase coordinates to avoid float jitter at planet scale.",
    "tags": [
+    "spherical polygon",
+    "gnomonic",
+    "great circle",
+    "point in polygon",
+    "planet",
     "geospatial",
     "3d tiles",
     "globe",
@@ -915,7 +927,7 @@
     "Verify",
     "Notes"
    ],
-   "bytes": 4934
+   "bytes": 6422
   },
   {
    "slug": "product-viewer",

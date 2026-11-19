@@ -4,6 +4,12 @@ Every change to [SKILL.md](SKILL.md) and its companions, newest first, each with
 
 Entry shape: `### C-YYYYMMDD-n · date · one-line summary`, then `because:` (IDs or "user request"), `files:` (file and section), and a sentence on what changed. Cite section headings, not line numbers.
 
+### C-20261118-1 · 2026-11-18 · particle notes
+- because: user request (technique harvest, robinduckett/boo-mas)
+- files: SKILL.md (Step 2), references/particles.md (new)
+
+Vertex-shader-advected ambient particles and tangent wind on a sphere. kb `post-processing` also gained the r182 `setEffects` HDR section and the `setEffects-output-pass` lint rule.
+
 ### C-20261111-1 · 2026-11-11 · kb recipe fft-ocean
 - because: user request (technique harvest, post 1vic0bw)
 - files: kb/recipes/fft-ocean.md

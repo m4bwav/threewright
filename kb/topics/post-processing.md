@@ -3,7 +3,7 @@ title: Post-processing on both renderers
 slug: post-processing
 kind: topic
 summary: EffectComposer for WebGLRenderer versus RenderPipeline and TSL display nodes for WebGPURenderer, and why they never mix.
-tags: [post-processing, effectcomposer, renderpipeline, bloom, tsl, outputpass]
+tags: [post-processing, effectcomposer, renderpipeline, bloom, tsl, outputpass, seteffects, hdr, halffloattype]
 applies_to: ">=r183"
 status: current
 renderer: both
@@ -20,6 +20,11 @@ template: html-importmap
 - Two separate pipelines, one per renderer; they do not interoperate.
   - `WebGLRenderer`: `EffectComposer` from `three/addons/postprocessing/EffectComposer.js`, with `RenderPass` first and passes such as `UnrealBloomPass`, `SMAAPass`, `FXAAPass`, `GTAOPass`, and `OutputPass` last. Since r155, tone mapping and `outputColorSpace` only apply when rendering to the screen, so a composer chain is linear and untonemapped unless `OutputPass` (or the older `GammaCorrectionShader`) is the final pass.
   - `WebGPURenderer`: `RenderPipeline` (renamed from `PostProcessing` in r183; the old name still works with a warning) plus `pass(scene, camera)` from `three/tsl` and TSL display-node functions from `three/addons/tsl/display/` (`bloom` in `BloomNode.js`, `fxaa`, `smaa`, `traa` in `TRAANode.js`, `dof` in `DepthOfFieldNode.js`, `ao` in `GTAONode.js`, `ssao` in `SSAONode.js` (new r186), `ssr`, `ssgi`, `gaussianBlur`, `outline`, `film`, `lut3D`, `oitPass` (order-independent transparency, new r186)). Set `renderPipeline.outputNode = <composed node>` and call `renderPipeline.render()` (or drive it from `renderer.setAnimationLoop`).
+- `WebGLRenderer` built-in effects (new r182; unverified against a real page here, and r186 is the release this knowledge base pins): create the renderer with `outputBufferType: THREE.HalfFloatType` (or `FloatType`) and hand it passes with `renderer.setEffects([bloomPass, ...])`. The scene renders into a half-float target, so emissive values above 1.0 survive to the bloom threshold, and the renderer applies `toneMapping` (for example `ACESFilmicToneMapping`) and `outputColorSpace` itself after the last pass.
+  - No `OutputPass` in that list: three warns it is not needed, and it would tone-map twice. `tw lint`'s `setEffects-output-pass` warns on it.
+  - `setEffects()` without a half or full float `outputBufferType` logs an error ("setEffects() requires outputBufferType set to HalfFloatType or FloatType"); the 8-bit default would clip HDR anyway.
+  - Bloom then picks only what is brighter than 1.0: push the glowing parts' `emissiveIntensity` past 1 instead of lowering the bloom threshold until the whole frame glows.
+  - Keep the composer route (`EffectComposer` with `OutputPass` last) for pages pinned before r182.
 - `DirectRenderPipeline` (new r186, WebGPU only) applies tone mapping and color space transforms inside the material shaders and skips the intermediate output pass entirely, which is cheaper but "not compatible with materials that sample the framebuffer, such as transmissive materials".
 - `EffectComposer`, its passes, `ShaderMaterial` and `onBeforeCompile` are never supported on `WebGPURenderer`; putting either in a WebGPU page fails, not just underperforms (see `materials`). There is no shared abstraction between the two pipelines: porting an effect means rewriting it in TSL, not swapping a class name.
 - MRT and pass merging: `RenderPipeline` automatically merges compatible display nodes and shares a multi-render-target pass where it can, which is why the WebGPU path often needs fewer explicit passes than the equivalent `EffectComposer` chain.
@@ -43,4 +48,5 @@ template: html-importmap
 ## Notes
 
 - 2026-09-26: written from the core r160-r186 research (sections 1, 5, 6) and the direction research (sections 2.2, 3.2), checked against `node_modules/three/src/renderers/common/RenderPipeline.js` and `examples/jsm/postprocessing/` and `examples/jsm/tsl/display/` in the installed 0.186.1.
+- 2026-11-18: `setEffects` and `outputBufferType` section from the robinduckett/boo-mas game (r187 vendor build, `three.module.js` messages "setEffects() requires outputBufferType set to HalfFloatType or FloatType" and the OutputPass warning); idea only, no code taken. Not yet run in a threewright page.
 - 2026-10-25: composer MSAA pitfall and the `composer-without-aa` lint note (CGPP 3e §36.9.1, round 2 books track); `EffectComposer.js` in three 0.186.1 makes its default target with no samples.

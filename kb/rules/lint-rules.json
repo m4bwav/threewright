@@ -725,6 +725,18 @@
       "source": "three.js manual, EffectComposer / OutputPass pages; behaviour change verified against three 0.186.1's src/renderers/webgl/WebGLRenderer.js (render-to-screen check) and examples/jsm/postprocessing/OutputPass.js"
     },
     {
+      "id": "setEffects-output-pass",
+      "pattern": "\\bsetEffects\\s*\\(\\s*\\[[^\\]]*\\bOutputPass\\b",
+      "since": 182,
+      "status": "pitfall",
+      "severity": "warn",
+      "message": "WebGLRenderer.setEffects() (r182+) applies toneMapping and outputColorSpace itself after the last effect; an OutputPass in the list is not needed (three warns) and tone-maps and converts colour space a second time",
+      "fix": "drop the OutputPass from setEffects([...]) and keep renderer.toneMapping and outputColorSpace on the renderer",
+      "sample": "renderer.setEffects([bloomPass, new OutputPass()]);",
+      "ok": "renderer.setEffects([bloomPass]);",
+      "source": "three r187 build/three.module.js: setEffects() warns that OutputPass is not needed with built-in effects (read in the robinduckett/boo-mas vendored build, 2026-11-18); setEffects and outputBufferType arrived in r182 per ai-docs/research/2026-09-26-core-r160-r186.md"
+    },
+    {
       "id": "composer-without-aa",
       "pattern": "\\bnew\\s+EffectComposer\\s*\\(",
       "requires": "from\\s+['\"]three/(?:addons|examples/jsm)/postprocessing/EffectComposer\\.js['\"]",

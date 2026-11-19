@@ -30,7 +30,11 @@ let game: Game | null = null;
 let paused = false;
 let recording: InputLog | null = null;
 let frameMs = 0;
-let seed = parseSeed(new URLSearchParams(location.search).get('seed'), 1);
+const params = new URLSearchParams(location.search);
+let seed = parseSeed(params.get('seed'), 1);
+// ?manual: no animation loop. Tests and screenshots drive frames with
+// __game.advance(seconds), so a shot never depends on wall-clock timing.
+const manual = params.has('manual');
 
 const hud = new Hud((screen) => {
   if (screen === 'paused') paused = false;
@@ -70,7 +74,7 @@ window.addEventListener('resize', () => {
 });
 
 let startWasDown = false;
-renderer.setAnimationLoop((time) => {
+if (!manual) renderer.setAnimationLoop((time) => {
   timer.update(time);
   const dt = timer.getDelta();
   frameMs += (dt * 1000 - frameMs) * 0.1;
@@ -94,6 +98,7 @@ const app: App = {
   restart,
   record: (log) => { recording = log; },
   frameMs: () => frameMs,
+  manual,
   input,
   renderer,
   camera: view.camera,

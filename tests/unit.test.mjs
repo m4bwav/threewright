@@ -572,3 +572,18 @@ test('tw look CLI prints a score, writes the sheet and LUT, and fails below --mi
   assert.ok(existsSync(join(dir, 's.png')) && existsSync(join(dir, 'f.cube')));
   rmSync(dir, { recursive: true, force: true });
 });
+
+test('globe sphereMath: great-circle loops and arc crossings', async () => {
+  const { latLonToUnit: ll, pointInSphericalPolygon: inside, arcIntersection } = await import('../templates/globe/sphereMath.mjs');
+  const loop = [ll(10, 0), ll(10, 40), ll(40, 40), ll(40, 0)];
+  assert.equal(inside(ll(25, 20), loop), true);
+  assert.equal(inside(ll(5, 20), loop), false);
+  // The 10N-to-10N edge is a great circle that bulges to about 10.63N at 20E,
+  // so 10.5N is outside the loop although a latitude box would call it inside.
+  assert.equal(inside(ll(10.5, 20), loop), false);
+  assert.equal(inside(ll(10.8, 20), loop), true);
+  assert.equal(inside(ll(-25, 200), loop), false); // far hemisphere
+  const p = arcIntersection(ll(0, -10), ll(0, 10), ll(-10, 0), ll(10, 0));
+  assert.ok(p && Math.abs(p[0] - 1) < 1e-9 && Math.abs(p[1]) < 1e-9 && Math.abs(p[2]) < 1e-9);
+  assert.equal(arcIntersection(ll(0, -10), ll(0, 10), ll(5, 20), ll(10, 20)), null);
+});
