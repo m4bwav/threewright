@@ -1,0 +1,8 @@
+{
+  "name": "threewright",
+  "owner": { "name": "Mark Rogers" },
+  "metadata": { "description": "Evergreen three.js skills with a release-aware knowledge base and a headless verification CLI" },
+  "plugins": [
+    { "name": "threewright", "source": "./", "description": "Build, fix, upgrade and verify three.js work (web, docs, video, games, shaders, R3F, assets) with current r186 APIs; curate the knowledge base" }
+  ]
+}

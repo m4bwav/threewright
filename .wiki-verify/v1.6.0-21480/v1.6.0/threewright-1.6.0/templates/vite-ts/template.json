@@ -1,0 +1,28 @@
+{
+  "name": "vite-ts",
+  "summary": "Vite + TypeScript bundler starter: WebGLRenderer, OrbitControls from three/addons, RoomEnvironment lighting, shadows, Timer-driven animation, window.__tw.ready after the first frame",
+  "renderer": "webgl",
+  "three": "0.186.1",
+  "entry": "index.html",
+  "packages": {
+    "three": "0.186.1",
+    "@types/three": "0.186.0",
+    "typescript": "7.0.2",
+    "vite": "8.3.1"
+  },
+  "use_for": ["apps that outgrow one HTML file", "TypeScript projects", "pages that add npm packages beside three (physics, UI, loaders)", "production builds with hashed, cacheable assets"],
+  "next": [
+    "cd <dir> && npm install",
+    "cd <dir> && npm run dev   (dev server with hot reload)",
+    "cd <dir> && npm run build   (tsc --noEmit, then vite build into <dir>/dist)",
+    "node <threewright>/scripts/tw.mjs check <dir>/dist"
+  ],
+  "bundle_gzip_bytes": 138052,
+  "notes": [
+    "typescript 7 is the native compiler: tsc works, but require('typescript') no longer exposes the compiler API, so tools built on it (type-aware typescript-eslint, ts-node, ts-loader) need typescript 6.x",
+    "three alone is about 560 kB minified, over Vite's 500 kB chunk warning, so vite.config.ts raises build.chunkSizeWarningLimit to 800 kB; base './' lets dist/ run from any folder"
+  ],
+  "verified": [
+    { "date": "2026-09-26", "platform": "Linux container, Node 22, Chromium 141, SwiftShader", "checks": "npm ci, typecheck and build with no warnings, tw check OK on dist with no console warnings (also on vite dev and vite preview), tw shot, tw lint clean, tw video --frames-dir on the virtual clock" }
+  ]
+}

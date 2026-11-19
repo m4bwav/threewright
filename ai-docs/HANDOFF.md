@@ -1,6 +1,6 @@
 # HANDOFF
 
-Updated 2026-10-26 (v0.6.7 released, wiki published, scene revalidation complete). Start at `ai-docs/INDEX.md`, then this file and the matching notes.
+Updated 2026-11-18 (v1.6.0 released: hit effects in TSL and shield overcharge veins; wiki at 1.6.0; next: r187 curate pass, three 0.187.0 is out). Start at `ai-docs/INDEX.md`, then this file and the matching notes.
 
 ## Goal (from the owner)
 

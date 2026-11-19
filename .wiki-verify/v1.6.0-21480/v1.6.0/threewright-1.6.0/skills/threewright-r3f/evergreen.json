@@ -1,0 +1,64 @@
+{
+  "evergreen": "1.0",
+  "name": "threewright-r3f",
+  "kind": "skill",
+  "main": "SKILL.md",
+  "files": {
+    "research": "RESEARCH.md",
+    "changelog": "CHANGELOG.md",
+    "learnings": "LEARNINGS.md",
+    "tests": "TESTS.md"
+  },
+  "protocol": "plugin",
+  "source": null,
+  "topic": "React Three Fiber, drei and the pmndrs ecosystem, their versions, WebGPU support and pitfalls",
+  "tier": "fast",
+  "interval_days": 14.0,
+  "last_checked": "2026-10-11",
+  "next_due": "2026-10-23",
+  "verify_at_use": false,
+  "volatile_claims": [],
+  "contradiction": null,
+  "events": [],
+  "streak": {
+    "quiet": 0,
+    "pinned_min": 0,
+    "pinned_max": 0,
+    "vau_quiet": 0
+  },
+  "history": [
+    {
+      "date": "2026-09-26",
+      "m": null,
+      "interval_after": 14,
+      "note": "created"
+    },
+    {
+      "date": "2026-10-11",
+      "m": 0.1,
+      "interval_after": 14.0,
+      "note": "refresh 2026-10-11: quiet, fiber 9.8.1 still latest; cost: searches 3 · fetches 14 · tool calls 21"
+    }
+  ],
+  "counts": {
+    "learnings": 0,
+    "changes": 1,
+    "research": 2,
+    "tests": 5
+  },
+  "consolidate_every": 25,
+  "tests": {
+    "last_run": "2026-10-11T14:14",
+    "harness": "claude plugin eval 2.1.281 --ablation none (trigger, decoy)",
+    "env": "owner-pc Windows 11",
+    "cases": 4,
+    "passed": 4,
+    "failed": 0,
+    "failing": [],
+    "last_failure": {
+      "date": "2026-09-26",
+      "note": "action and outcome x3 through the Skill tool; outcome-1 run 3 fired no skill (build and check still passed)"
+    },
+    "research_after_days": null
+  }
+}

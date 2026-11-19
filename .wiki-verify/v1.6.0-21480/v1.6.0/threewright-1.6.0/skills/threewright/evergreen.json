@@ -1,0 +1,61 @@
+{
+  "evergreen": "1.0",
+  "name": "threewright",
+  "kind": "skill",
+  "main": "SKILL.md",
+  "files": {
+    "research": "RESEARCH.md",
+    "changelog": "CHANGELOG.md",
+    "learnings": "LEARNINGS.md",
+    "tests": "TESTS.md"
+  },
+  "protocol": "plugin",
+  "source": null,
+  "topic": "current three.js APIs and releases, WebGPU and TSL status, the verification tooling and how agents build and check three.js work",
+  "tier": "fast",
+  "interval_days": 9.33,
+  "last_checked": "2026-10-11",
+  "next_due": "2026-10-19",
+  "verify_at_use": false,
+  "volatile_claims": [],
+  "contradiction": null,
+  "events": [],
+  "streak": {
+    "quiet": 0,
+    "pinned_min": 0,
+    "pinned_max": 0,
+    "vau_quiet": 0
+  },
+  "history": [
+    {
+      "date": "2026-09-26",
+      "m": null,
+      "interval_after": 14,
+      "note": "created"
+    },
+    {
+      "date": "2026-10-11",
+      "m": 0.45,
+      "interval_after": 9.33,
+      "note": "refresh 2026-10-11: Linux headless WebGPU flags fixed in cdp.mjs, WorldBench, r186 still latest; cost: searches 10 · fetches 19 · tool calls 41"
+    }
+  ],
+  "counts": {
+    "learnings": 5,
+    "changes": 1,
+    "research": 2,
+    "tests": 4
+  },
+  "consolidate_every": 25,
+  "tests": {
+    "last_run": "2026-10-11T14:14",
+    "harness": "claude plugin eval 2.1.281 --ablation none (trigger, decoy)",
+    "env": "owner-pc Windows 11",
+    "cases": 5,
+    "passed": 5,
+    "failed": 0,
+    "failing": [],
+    "last_failure": null,
+    "research_after_days": null
+  }
+}

@@ -1,0 +1,366 @@
+{
+  "schemaVersion": 1,
+  "claudeVersion": "2.1.281",
+  "startedAt": "2026-09-26T21:25:34.772Z",
+  "durationSeconds": 24,
+  "costUsd": 0.8943814,
+  "partial": false,
+  "suite": {
+    "root": "D:\\m4bwa\\Claude\\Projects\\Ai\\threewright",
+    "ablation": "with-without",
+    "judgeModel": "sonnet",
+    "caseFilter": "trigger-*",
+    "threshold": 1,
+    "concurrency": 4,
+    "plugins": [
+      {
+        "name": "threewright",
+        "version": "0.4.0",
+        "path": "D:\\m4bwa\\Claude\\Projects\\Ai\\threewright"
+      }
+    ]
+  },
+  "cases": [
+    {
+      "name": "trigger-1",
+      "dir": "evals\\threewright-shaders\\trigger-1",
+      "source": "prose",
+      "promptMarkdown": "write a TSL material that makes the mesh glow with moving stripes\n\n(For this run: start the job, and stop after the first two or three tool calls with a one-line note of which skill you invoked and what you would do next.)",
+      "runsPerCase": 3,
+      "timeoutSeconds": 240,
+      "maxTurns": 8,
+      "graders": [
+        {
+          "name": "threewright-shaders invoked",
+          "type": "tool_used",
+          "weight": 1,
+          "config": {
+            "tool": "Skill",
+            "input_match": "\"skill\"\\s*:\\s*\"(?:[\\w-]+:)?threewright-shaders\"",
+            "min": 1,
+            "arm": "both"
+          }
+        }
+      ],
+      "arms": {
+        "with": [
+          {
+            "score": 1,
+            "passed": true,
+            "turns": 4,
+            "costUsd": 0.1011524,
+            "judgeCostUsd": 0,
+            "durationSeconds": 10,
+            "startedAt": "2026-09-26T21:25:34.805Z",
+            "error": null,
+            "tracePath": "C:\\Users\\m4bwa\\AppData\\Local\\Temp\\claude-eval-fMVgPI\\out\\trace.jsonl",
+            "skippedPaidGraders": false,
+            "graders": [
+              {
+                "name": "threewright-shaders invoked",
+                "passed": true,
+                "weight": 1,
+                "explanation": "Skill called 1x (expected 1..∞)",
+                "withOnly": false,
+                "scored": true
+              }
+            ]
+          },
+          {
+            "score": 1,
+            "passed": true,
+            "turns": 4,
+            "costUsd": 0.09817,
+            "judgeCostUsd": 0,
+            "durationSeconds": 8,
+            "startedAt": "2026-09-26T21:25:34.805Z",
+            "error": null,
+            "tracePath": "C:\\Users\\m4bwa\\AppData\\Local\\Temp\\claude-eval-INuZca\\out\\trace.jsonl",
+            "skippedPaidGraders": false,
+            "graders": [
+              {
+                "name": "threewright-shaders invoked",
+                "passed": true,
+                "weight": 1,
+                "explanation": "Skill called 1x (expected 1..∞)",
+                "withOnly": false,
+                "scored": true
+              }
+            ]
+          },
+          {
+            "score": 1,
+            "passed": true,
+            "turns": 4,
+            "costUsd": 0.09705599999999999,
+            "judgeCostUsd": 0,
+            "durationSeconds": 8,
+            "startedAt": "2026-09-26T21:25:34.805Z",
+            "error": null,
+            "tracePath": "C:\\Users\\m4bwa\\AppData\\Local\\Temp\\claude-eval-0GkNxC\\out\\trace.jsonl",
+            "skippedPaidGraders": false,
+            "graders": [
+              {
+                "name": "threewright-shaders invoked",
+                "passed": true,
+                "weight": 1,
+                "explanation": "Skill called 1x (expected 1..∞)",
+                "withOnly": false,
+                "scored": true
+              }
+            ]
+          }
+        ],
+        "without": [
+          {
+            "score": 0,
+            "passed": false,
+            "turns": 3,
+            "costUsd": 0.05222980000000001,
+            "judgeCostUsd": 0,
+            "durationSeconds": 8,
+            "startedAt": "2026-09-26T21:25:34.805Z",
+            "error": null,
+            "tracePath": "C:\\Users\\m4bwa\\AppData\\Local\\Temp\\claude-eval-faPkqA\\out\\trace.jsonl",
+            "skippedPaidGraders": false,
+            "graders": [
+              {
+                "name": "threewright-shaders invoked",
+                "passed": false,
+                "weight": 1,
+                "explanation": "Skill called 0x (expected 1..∞)",
+                "withOnly": false,
+                "scored": true
+              }
+            ]
+          },
+          {
+            "score": 0,
+            "passed": false,
+            "turns": 3,
+            "costUsd": 0.0532298,
+            "judgeCostUsd": 0,
+            "durationSeconds": 7,
+            "startedAt": "2026-09-26T21:25:42.307Z",
+            "error": null,
+            "tracePath": "C:\\Users\\m4bwa\\AppData\\Local\\Temp\\claude-eval-urLWVH\\out\\trace.jsonl",
+            "skippedPaidGraders": false,
+            "graders": [
+              {
+                "name": "threewright-shaders invoked",
+                "passed": false,
+                "weight": 1,
+                "explanation": "Skill called 0x (expected 1..∞)",
+                "withOnly": false,
+                "scored": true
+              }
+            ]
+          },
+          {
+            "score": 0,
+            "passed": false,
+            "turns": 2,
+            "costUsd": 0.0484184,
+            "judgeCostUsd": 0,
+            "durationSeconds": 6,
+            "startedAt": "2026-09-26T21:25:42.904Z",
+            "error": null,
+            "tracePath": "C:\\Users\\m4bwa\\AppData\\Local\\Temp\\claude-eval-zYUFMX\\out\\trace.jsonl",
+            "skippedPaidGraders": false,
+            "graders": [
+              {
+                "name": "threewright-shaders invoked",
+                "passed": false,
+                "weight": 1,
+                "explanation": "Skill called 0x (expected 1..∞)",
+                "withOnly": false,
+                "scored": true
+              }
+            ]
+          }
+        ]
+      },
+      "aggregates": {
+        "score": 1,
+        "passRate": 1,
+        "scoreWithout": 0,
+        "passRateWithout": 0,
+        "delta": 1
+      }
+    },
+    {
+      "name": "trigger-2",
+      "dir": "evals\\threewright-shaders\\trigger-2",
+      "source": "prose",
+      "promptMarkdown": "port this Shadertoy shader to three.js\n\n(For this run: start the job, and stop after the first two or three tool calls with a one-line note of which skill you invoked and what you would do next.)",
+      "runsPerCase": 3,
+      "timeoutSeconds": 240,
+      "maxTurns": 8,
+      "graders": [
+        {
+          "name": "threewright-shaders invoked",
+          "type": "tool_used",
+          "weight": 1,
+          "config": {
+            "tool": "Skill",
+            "input_match": "\"skill\"\\s*:\\s*\"(?:[\\w-]+:)?threewright-shaders\"",
+            "min": 1,
+            "arm": "both"
+          }
+        }
+      ],
+      "arms": {
+        "with": [
+          {
+            "score": 1,
+            "passed": true,
+            "turns": 4,
+            "costUsd": 0.0983772,
+            "judgeCostUsd": 0,
+            "durationSeconds": 8,
+            "startedAt": "2026-09-26T21:25:43.045Z",
+            "error": null,
+            "tracePath": "C:\\Users\\m4bwa\\AppData\\Local\\Temp\\claude-eval-Qe7GVJ\\out\\trace.jsonl",
+            "skippedPaidGraders": false,
+            "graders": [
+              {
+                "name": "threewright-shaders invoked",
+                "passed": true,
+                "weight": 1,
+                "explanation": "Skill called 1x (expected 1..∞)",
+                "withOnly": false,
+                "scored": true
+              }
+            ]
+          },
+          {
+            "score": 1,
+            "passed": true,
+            "turns": 4,
+            "costUsd": 0.0968464,
+            "judgeCostUsd": 0,
+            "durationSeconds": 8,
+            "startedAt": "2026-09-26T21:25:44.518Z",
+            "error": null,
+            "tracePath": "C:\\Users\\m4bwa\\AppData\\Local\\Temp\\claude-eval-FSXPmS\\out\\trace.jsonl",
+            "skippedPaidGraders": false,
+            "graders": [
+              {
+                "name": "threewright-shaders invoked",
+                "passed": true,
+                "weight": 1,
+                "explanation": "Skill called 1x (expected 1..∞)",
+                "withOnly": false,
+                "scored": true
+              }
+            ]
+          },
+          {
+            "score": 1,
+            "passed": true,
+            "turns": 4,
+            "costUsd": 0.0979224,
+            "judgeCostUsd": 0,
+            "durationSeconds": 9,
+            "startedAt": "2026-09-26T21:25:49.154Z",
+            "error": null,
+            "tracePath": "C:\\Users\\m4bwa\\AppData\\Local\\Temp\\claude-eval-uA5TDG\\out\\trace.jsonl",
+            "skippedPaidGraders": false,
+            "graders": [
+              {
+                "name": "threewright-shaders invoked",
+                "passed": true,
+                "weight": 1,
+                "explanation": "Skill called 1x (expected 1..∞)",
+                "withOnly": false,
+                "scored": true
+              }
+            ]
+          }
+        ],
+        "without": [
+          {
+            "score": 0,
+            "passed": false,
+            "turns": 3,
+            "costUsd": 0.050629600000000004,
+            "judgeCostUsd": 0,
+            "durationSeconds": 6,
+            "startedAt": "2026-09-26T21:25:49.545Z",
+            "error": null,
+            "tracePath": "C:\\Users\\m4bwa\\AppData\\Local\\Temp\\claude-eval-DTb9Xm\\out\\trace.jsonl",
+            "skippedPaidGraders": false,
+            "graders": [
+              {
+                "name": "threewright-shaders invoked",
+                "passed": false,
+                "weight": 1,
+                "explanation": "Skill called 0x (expected 1..∞)",
+                "withOnly": false,
+                "scored": true
+              }
+            ]
+          },
+          {
+            "score": 0,
+            "passed": false,
+            "turns": 2,
+            "costUsd": 0.050993000000000004,
+            "judgeCostUsd": 0,
+            "durationSeconds": 7,
+            "startedAt": "2026-09-26T21:25:51.536Z",
+            "error": null,
+            "tracePath": "C:\\Users\\m4bwa\\AppData\\Local\\Temp\\claude-eval-ynvqB8\\out\\trace.jsonl",
+            "skippedPaidGraders": false,
+            "graders": [
+              {
+                "name": "threewright-shaders invoked",
+                "passed": false,
+                "weight": 1,
+                "explanation": "Skill called 0x (expected 1..∞)",
+                "withOnly": false,
+                "scored": true
+              }
+            ]
+          },
+          {
+            "score": 0,
+            "passed": false,
+            "turns": 2,
+            "costUsd": 0.0493564,
+            "judgeCostUsd": 0,
+            "durationSeconds": 6,
+            "startedAt": "2026-09-26T21:25:52.222Z",
+            "error": null,
+            "tracePath": "C:\\Users\\m4bwa\\AppData\\Local\\Temp\\claude-eval-l16X1j\\out\\trace.jsonl",
+            "skippedPaidGraders": false,
+            "graders": [
+              {
+                "name": "threewright-shaders invoked",
+                "passed": false,
+                "weight": 1,
+                "explanation": "Skill called 0x (expected 1..∞)",
+                "withOnly": false,
+                "scored": true
+              }
+            ]
+          }
+        ]
+      },
+      "aggregates": {
+        "score": 1,
+        "passRate": 1,
+        "scoreWithout": 0,
+        "passRateWithout": 0,
+        "delta": 1
+      }
+    }
+  ],
+  "aggregates": {
+    "casesTotal": 2,
+    "casesPassed": 2,
+    "overallScore": 1,
+    "overallPassRate": 1,
+    "meanDelta": 1
+  }
+}

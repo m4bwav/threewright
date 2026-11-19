@@ -1,0 +1,37 @@
+# Changelog: threewright-games
+
+Every change to [SKILL.md](SKILL.md) and its companions, newest first, each with the reason. Reasons cite findings in [RESEARCH.md](RESEARCH.md) (`R-`), lessons in [LEARNINGS.md](LEARNINGS.md) (`L-`), and test runs in [TESTS.md](TESTS.md) (`T-`). State in `evergreen.json`. Protocol: the installed evergreen plugin (`protocol: "plugin"` in evergreen.json).
+
+Entry shape: `### C-YYYYMMDD-n · date · one-line summary`, then `because:` (IDs or "user request"), `files:` (file and section), and a sentence on what changed. Cite section headings, not line numbers.
+
+### C-20261118-1 · 2026-11-18 · ?manual frames, advance(seconds), HUD and planet minimap notes
+- because: user request (technique harvest, robinduckett/boo-mas)
+- files: SKILL.md (Step 2 rule 7), references/hud-and-minimap.md (new), references/done-checklist.md (14a), templates/game-starter (main.ts, debug/hooks.ts)
+
+The starter skips its animation loop under `?manual`, and `__game.advance(seconds)` steps whole ticks then renders, so screenshots no longer depend on wall-clock timing. `?seed` already existed. The tick-count `step(n)` is unchanged.
+
+### C-20261114-1 · 2026-11-14 · Blind render critic loop and path perf gate
+- because: user request (Abyssal Garden thread harvest)
+- files: references/render-critic.md (new), references/done-checklist.md (15a, 15b)
+
+A fresh subagent judges screenshots only; `tw perf --fly --target-ms` checks frame time on a fixed camera path.
+
+### C-20261106-1 · 2026-11-06 · Sfxwright, when installed
+- because: user request
+- files: SKILL.md (sfxwright note)
+- Hand sound effects to sfxwright when present and read its sounds.json; this plugin's own steps stay as the fallback.
+
+### C-20261101-1 · 2026-11-01 · Step 2 rule 1: why Timer over Clock, delta clamp, interpolation
+- because: user request (book learnings, Gregory, Game Engine Architecture 2e, 2014; owner-approved row)
+- files: SKILL.md (Step 2, rule 1)
+- Rule 1 now says why: `Clock.getDelta()` jumps after a hidden tab, a connected `Timer` resets on visibility (checked in three 0.186.1 `src/core/Timer.js`); clamp the delta and render at `alpha`. No trigger or description changed, so the evals were not re-run.
+
+### C-20260926-2 · 2026-09-26 · Input bursts and the text snapshot in the smoke test
+- because: ai-docs/research/2026-09-26-mcp-and-ai-tools.md (tw features to add, item 5)
+- files: SKILL.md (Step 3: verify); templates/game-starter/src/debug/hooks.ts, src/env.d.ts
+- tw sends real input with `--actions`; game-starter defines `window.render_game_to_text()`, which `tw check` prints.
+
+### C-20260926-1 · 2026-09-26 · Created as an evergreen unit
+- because: user request (ai-docs/HANDOFF.md step 6)
+- files: SKILL.md, RESEARCH.md, LEARNINGS.md, TESTS.md, evergreen.json, evals/evals.json, references/
+- Initial version. Tier `moderate`, interval 30 days. See R-20260926-1 for the research basis; the first test run is logged in TESTS.md.

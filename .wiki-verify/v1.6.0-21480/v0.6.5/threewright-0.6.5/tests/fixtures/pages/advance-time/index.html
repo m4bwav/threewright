@@ -1,0 +1,29 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>fixture: a page stepped by window.advanceTime(ms)</title>
+  <script type="importmap">
+  { "imports": { "three": "https://cdn.jsdelivr.net/npm/three@0.186.1/build/three.module.js" } }
+  </script>
+</head>
+<body style="margin:0">
+  <script type="module">
+    // The advanceTime(ms) convention: the page steps its own simulation and draws.
+    // Nothing else animates it, so frames only change when tw calls advanceTime.
+    import * as THREE from 'three';
+    const renderer = new THREE.WebGLRenderer();
+    renderer.setSize(innerWidth, innerHeight);
+    document.body.appendChild(renderer.domElement);
+    const scene = new THREE.Scene();
+    const camera = new THREE.PerspectiveCamera(50, innerWidth / innerHeight, 0.1, 50);
+    camera.position.z = 4;
+    const box = new THREE.Mesh(new THREE.BoxGeometry(), new THREE.MeshNormalMaterial());
+    scene.add(box);
+    let t = 0;
+    window.advanceTime = (ms) => { t += ms; box.rotation.set(t / 700, t / 500, 0); renderer.render(scene, camera); };
+    window.__t = () => t;
+    renderer.render(scene, camera);
+  </script>
+</body>
+</html>

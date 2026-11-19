@@ -189,3 +189,4 @@ Technique harvest post 1vic0bw: kb recipe `fft-ocean` (CPU Tessendorf FFT, Jacob
 
 - 2026-11-18: 1.5.0 hit-effects GLSL reference (shield, capsule holes, depth-Laplacian outline, beam, black hole, fbm) from GPU-Bandits and voidstruck ideas, written fresh; fixture tests/fixtures/pages/hit-fx compiles all five programs.
 - 2026-11-18: 1.6.0 hit-effects TSL (references/hit-effects-tsl.md, fixture tests/fixtures/pages/hit-fx-tsl, tw check on WebGPU backend OK) and shield overcharge veins in GLSL+TSL. Gotcha: TSL vec3(THREE.Color) renders black, use color(). tw shaders is WebGL-only, so TSL proof is tw check + tw shot.
+- 2026-11-18: wiki brought from 0.6.7 to 1.6.0 (wiki commit 848be6d; note 2026-10-26-github-wiki.md, 1.6.0 section). three 0.187.0 is out: r187 curate pass owed.

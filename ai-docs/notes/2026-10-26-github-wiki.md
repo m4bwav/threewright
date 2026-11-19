@@ -10,6 +10,14 @@ summary: "the published 0.6.7 wiki commit and passing gates, original 0.6.6 evid
 
 # GitHub wiki for 0.6.6 and 0.6.7
 
+## 1.6.0 update (2026-11-18)
+
+Wiki commit `848be6d`, footer 1.6.0. Program [2026-11-18-wiki-verify.py](2026-11-18-wiki-verify.py) (default 1.6.0, still compares 0.6.5) ran against the v1.6.0 archive; output [2026-11-18-wiki-verify-160.out.txt](2026-11-18-wiki-verify-160.out.txt). Pages rebuilt from [2026-11-18-wiki-pages-src/](2026-11-18-wiki-pages-src/) with [2026-11-18-wiki-build-pages.py](2026-11-18-wiki-build-pages.py); use these dated files next time. diffout against the 0.6.7 output: 61 sections, 13 changed (help: look, perf --fly; kb 93 entries, 70 rules; Chrome 157; versions --check 22 behind). Gates: check 12 pages 0 errors; outputs 42 checked 0 missing; snippets 0 missing; live 12 pages 0 failures, anchors 0 broken; tells 0 strong.
+
+Changes: Versions table rows 0.6.8 to 1.6.0 and a "From 0.6.7 to 1.6.0" section; the 0.6.6 and 0.6.7 rows of the counts table are now literal (they used the current-run placeholder); Commands shows the recorded `--against` line, which reported a 5.2% frame change on the animating starter this run, with a sentence saying so. Hand pages: Home, _Footer, The-Skills (shaders row), Getting-Started (Chrome 157).
+
+Findings: three 0.187.0 is on npm (versions --check lists three BEHIND in 14 places); a curate pass to r187 is owed.
+
 ## 0.6.7 verification
 
 The original 0.6.6 recording and findings below remain historical evidence. The 0.6.7 source changes correct the README counts and help omission, refresh HANDOFF and use a static browser comparison fixture. `2026-10-26-round2-followup.md` records the execution results and unresolved scene observation.

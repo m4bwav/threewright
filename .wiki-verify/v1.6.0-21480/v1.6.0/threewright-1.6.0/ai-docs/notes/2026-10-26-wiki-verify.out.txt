@@ -1,0 +1,679 @@
+## installed
+threewright 0.6.6 (tag v0.6.6 archive)
+Node 24.18.0
+
+## help
+threewright CLI (tw)  usage: node scripts/tw.mjs <command> [options]
+
+Verify a page (file, folder with index.html, or URL); text first, images on request:
+  check <page>          errors, warnings, failed requests, renderer and scene summary, runtime warnings,
+                        pixel evidence (coverage, bounds, brightness of what the canvas shows)
+  scene <page>          compact scene-graph tree (--depth 6 --max 80)
+  check <page> --eval "<js>"   also print the value of an expression after the page settles
+                        (renderer, scene and camera are bound to the main ones tw observed)
+  check <page> --strict        also fail on any console warning (three's own deprecation warnings always fail)
+  check <page> --save run.json ; check <page> --against run.json   what changed since a saved run:
+                        renderer and scene counts, object types, new or gone problems, changed frame region
+  check <page> --cycles 5 [--cycle "<js>"]   run window.__tw.cycle() (or the js) N times and fail on
+                        steady growth of geometries, textures or programs (a leak)
+  check <page> --shot a.png --sheet b.png --tree   extra outputs from the same browser launch
+                        (pages defining render_game_to_text() get its text printed as game:)
+  shaders <page> [--dump dir]   WebGL programs, their materials and link status; a failing
+                        shader's error lines with source context; --dump writes .vert/.frag files
+  perf <page> [--seconds 5] [--cpu-throttle 4]   frame time p50/p95/p99/max, frames over 33 ms,
+                        draw calls and triangles per frame, geometry, texture and heap growth
+  shot <page> --out f.png [--canvas] [--alpha]   one screenshot; prints its token cost (.jpg or .webp
+                        write that format, --quality 82, e.g. for a poster image)
+                        (shot and sheet take --eval "<js>" to set a state first, e.g. scrollTo(0, 2000))
+  sheet <page> --out f.png [--views current,front,right,top]   several angles in one image
+  sheet <page> --sweep "find('knot').material.roughness=0,0.5,1"   one tile per value, current view
+                        (shot and sheet take --labels: name tags on objects, legend printed as text)
+  video <page> --out f.mp4|.webm|.gif|.mov --seconds 5 --fps 30 [--alpha] [--frames-dir d]
+                        deterministic capture via ffmpeg (alpha: .webm or .mov, page cleared transparent;
+                        --capture canvas reads the canvas alone, without HTML overlays; a page's
+                        __tw.renderFrame(i, fps) or advanceTime(ms) drives the frames when defined)
+  --actions "key KeyW 500; click 480,270; drag 100,100 300,120; wheel 480,270 -120; type hi; wait 500"
+                        input sent before check, shot, sheet or video measures or captures
+      page options: --size 960x540 --dpr 1 --gl auto|gpu|swiftshader --webgpu --wait 1000 --root dir
+                    --reduced-motion --color-scheme light|dark --timeout 60000 --headed
+                    --cdn auto|offline|net   pinned jsDelivr/unpkg files come from node_modules or the
+                                             npm cache (auto: CDN when absent, npm if the CDN fails)
+Static tools (no browser):
+  diff <a.png> <b.png> [--threshold 0.1] [--max 0.001] [--out d.png]   pixel comparison, PASS/FAIL
+  lint <files|dirs> [--target r186] [--md] [--strict]   stale or risky three.js API use, with the
+                        release that changed it and the fix (rules: kb/rules/lint-rules.json)
+  glb <file.glb|.gltf>  model report: size, draw calls, triangles, textures in px, extensions and the
+                        decoders they need, animations, world bounds, web-budget warnings
+  kb search <words>     find knowledge-base entries (top 8, one line each)
+  kb show <slug> [--section name ...]   print an entry or only some sections
+  kb list [--kind topic|scenario|library|recipe|rule] ; kb index ; kb validate [--strict]
+  kb note <slug> "<text>"   add a dated note to an entry
+  new <template> <dir> [--force] [--no-vendor]   copy a verified starter (tw templates lists them);
+                        site templates vendor their CDN modules unless --no-vendor
+  vendor <dir|page.html> [--offline] [--dry-run]   copy the pinned CDN modules the page imports
+                        (and their own imports) into vendor/ and point the import map at them
+  templates             list starters and where each was verified
+  versions [--check]    latest npm versions vs the knowledge base and templates
+  deprecations [--src node_modules/three] [--all]   @deprecated markers no lint rule covers yet
+  doctor                node, chrome, ffmpeg, npm, CDN reach, WebGL and WebGPU in headless Chrome
+Global: --json for machine output. Image costs use Claude's 28 px patches (TW_IMAGE_TIER=standard
+for models before Claude 4.7).
+
+## templates
+chart-3d-scatter   3D scatter chart for docs: seeded data, axes with ticks and labels, legend with shape and colour per series, pause and reset buttons, reduced-motion aware, no build [webgl, three 0.186.1]
+                   verified 2026-09-26: tw check OK, tw check --reduced-motion OK, tw lint clean, tw shot looked at (axes, labels, four series, legend)
+game-starter       Game starter on Vite + TypeScript + Rapier: deterministic fixed-step simulation with no DOM (runs in Node tests), kinematic character controller, pickups, lives, HUD, pause and restart, keyboard and gamepad, window.__game hooks to step, inject input, replay and hash [webgl, three 0.186.1]
+                   verified 2026-09-26: npm ci, typecheck and build, 4 Node simulation tests (determinism, movement, fixed step), tw check dist OK, --eval drove 90 ticks through window.__game (player moved 5.9 m, stable hash), tw shot looked at
+globe              Globe for docs with no downloads beyond three.js: land drawn from a coarse inline outline into a CanvasTexture, 15 degree graticule, real city coordinates, great-circle route arcs (TubeGeometry), latLonToVector3 helper, CSS2D city labels hidden on the far side and when they collide, hover or keyboard tooltips, OrbitControls with min and max distance, auto-rotation that stops for reduced motion, route table with great-circle distances, no build [webgl, three 0.186.1]
+                   verified 2026-09-26: tw check OK (54 draw calls, 48k tris, pixels 12% coverage), tw check --reduced-motion OK (3 render calls, rotation off), tw lint clean, --eval: far-side labels hidden (6 of 12 shown from the home view), N key faced each city in turn and filled the live region, a hover scan picked cities and routes and ignored the far side, longest route Singapore to Los Angeles 14,122 km; tw sheet (current, front, right, top) showed consistent land placement; tw shot at 960x720 looked at: Europe, Africa and the Atlantic in view, hub labels readable on a translucent backing, arcs clear of the frame, Mumbai label hidden where it would overlap Dubai; headless Chrome reported the dark colour scheme, so the light palette was not shot
+html-importmap     One HTML file, no build: WebGLRenderer, import map pinned to three 0.186.1, OrbitControls, RoomEnvironment lighting, shadows, Timer-driven animation [webgl, three 0.186.1]
+                   verified 2026-09-26: tw check OK, tw sheet, tw video (mp4, webm, gif, mov, canvas capture)
+html-webgpu        One HTML file, no build: WebGPURenderer (WebGL 2 fallback), a TSL node material, RenderPipeline with bloom, await renderer.init() before PMREM [webgpu, three 0.186.1]
+                   verified 2026-09-26: tw check --webgpu OK on the real WebGPU backend (draw calls 16, PCF shadows), tw shot looked at: TSL knot, bloom, shadow on the floor
+product-viewer     Product viewer for one GLB, no build: GLTFLoader with Draco and Meshopt wired, RoomEnvironment light, soft shadow on an invisible floor, camera fitted on load, OrbitControls with damping and limits, loading and error states, colour buttons, keyboard orbit, reduced motion (no auto-rotate, no inertia); Draco and KTX2 decoders load from next to their loaders, so tw new vendors three and both decoders into vendor/ [webgl, three 0.186.1]
+                   verified 2026-09-26: tw check OK (also --cdn offline), tw check --reduced-motion OK (eval __tw.variant(3) gave Coral), tw lint clean (index.html, make-model.mjs), tw glb model.glb 239 KB, 8 draw calls, 12,352 triangles, no textures, no decoders; ?model=missing.glb over http shows the error text; tw shot looked at: speaker framed in the middle, fabric, metal cap and rubber foot read clearly, not blown out, soft shadow falling back right, swatches and Pause turning button below; reduced-motion shot shows Turn instead of Pause
+r3f                React Three Fiber + drei on Vite + TypeScript: <Canvas> with dpr [1, 2] and PCF shadows, drei OrbitControls (makeDefault), an offline <Environment> built from <Lightformer> panels, useFrame animation, window.__tw.ready from inside the Canvas [webgl, three 0.186.1]
+                   verified 2026-09-26: npm ci, typecheck and build with no warnings, tw check OK on dist with no console warnings (also on vite dev and vite preview), tw shot, tw lint clean, tw video --frames-dir on the virtual clock
+scroll-hero        Scroll-driven hero, no build: GSAP 3.15.0 ScrollTrigger scrubs one timeline over four text sections, Lenis 1.3.26 smooths the scroll through GSAP's ticker, one fixed three.js canvas rendered on demand behind a poster image, WebGL started after first paint; reduced motion means no Lenis and the final view held still; ?progress=0..1, #progress= or window.__tw.setProgress(p) jumps to any point; tw new vendors three, GSAP and Lenis into vendor/ [webgl, three 0.186.1]
+                   verified 2026-09-26: tw new vendored 9 files (2476 KB) and rewrote the import map; tw check OK with --cdn offline (no CDN requests), with --reduced-motion, with ?progress=0.6 and at 390x844; reduced motion: tw diff of the canvas at progress 0 and 1 with the text hidden, 0 pixels (normal mode 14%); the four posters looked at; tw lint clean
+splats             Gaussian splat viewer on the r186 native GaussianSplat (WebGPURenderer, WebGL 2 fallback): SPLATLoader, a generated 24,000-splat scene, load and error states, backend readout, auto-rotate off for reduced motion [webgpu, three 0.186.1]
+                   verified 2026-09-26: tw check --webgpu OK on the real WebGPU backend (page reports 24,000 splats), tw check --gl swiftshader OK on the WebGL 2 fallback, tw check --reduced-motion OK, tw lint clean, tw shot looked at on both backends: striped sphere, petal ring and ground disc, sorted correctly
+surface            3D surface chart z = f(x, y) for docs: indexed BufferGeometry grid with viridis vertex colours (unlit), contour lines at the z ticks, axes with ticks and CSS2D labels, colour bar legend, hover readout of x, y and z, keyboard orbit, pause and reset, reduced-motion aware, render on demand, tables of extremes and a coarse grid, no build [webgl, three 0.186.1]
+                   verified 2026-09-26: tw check OK (93 render calls, 12 draw calls, 7.2k tris, pixels 11% coverage), tw check --reduced-motion OK (3 render calls: render on demand holds still, button reads Start rotation), tw lint clean, --eval hover and N key gave correct tooltip and live-region text, tw sheet (current, front, right, top), tw shot at 960x720 and 420x640 looked at: axes, ticks and titles readable, viridis surface with contours and mesh lines, colour bar -6 to 8, nothing clipped (the lowest z tick and first x tick sit close at the front corner, still legible); headless Chrome reported the dark colour scheme, so the light palette was not shot
+video-turntable    Product turntable for video: procedural studio model, neutral tone mapping, soft shadows, window.__tw.renderFrame(i, fps) so tw video captures exact frames and a seamless loop [webgl, three 0.186.1]
+                   verified 2026-09-26: tw check OK, tw check --reduced-motion OK, tw lint clean, tw shot looked at, tw video mp4 through page renderFrame()
+vite-ts            Vite + TypeScript bundler starter: WebGLRenderer, OrbitControls from three/addons, RoomEnvironment lighting, shadows, Timer-driven animation, window.__tw.ready after the first frame [webgl, three 0.186.1]
+                   verified 2026-09-26: npm ci, typecheck and build with no warnings, tw check OK on dist with no console warnings (also on vite dev and vite preview), tw shot, tw lint clean, tw video --frames-dir on the virtual clock
+
+## doctor
+node v24.18.0 ok
+chrome C:\Program Files\Google\Chrome\Application\chrome.exe (Chrome/155.0.0.0)
+ffmpeg ok
+headless default: WebGL ANGLE (NVIDIA, NVIDIA GeForce RTX 5060 Ti (0x00002D04) Direct3D11 vs_5_0 ps_5_0, D3D11) · WebGPU adapter ok (nvidia blackwell)
+headless --gl swiftshader: WebGL ANGLE (Google, Vulkan 1.3.0 (SwiftShader Device (Subzero) (0x0000C0DE)), SwiftShader driver) · WebGPU no adapter
+cdn.jsdelivr.net from the browser: reachable (200)
+[exit 0]
+
+## kb search
+transparency-and-blending  (topic)  Pick the transparency by its cause (coverage, transmission, glow) before touching transparent: alphaTest, alphaHash, alphaToCoverage, transmission, additive blending, and the sorting traps.
+spark  (library)  The most capable three.js Gaussian-splat engine, with streaming LoD and a GPU virtual memory pool; WebGL2 only in official releases, versus r186's native WebGPU splat renderer.
+splat-scenes  (scenario)  Split by scene size: three r186's native WebGPU splat renderer for small to medium scenes, Spark on WebGL2 for large or streamed ones; KHR_gaussian_splatting is now ratified.
+gaussian-splats  (topic)  The native r186 splat renderer versus Spark, splat file formats, and which one to reach for by scene size.
+renderer-choice  (topic)  Which renderer to default to per scenario in r186, why, and what breaks if you pick the wrong one.
+post-processing  (topic)  EffectComposer for WebGLRenderer versus RenderPipeline and TSL display nodes for WebGPURenderer, and why they never mix.
+performance  (topic)  Draw call and triangle budgets by target device, instancing and batching, and the measurements that catch a slow scene in text.
+games  (scenario)  Plain three.js plus Rapier is the default game stack; a fixed-timestep loop, an action-map input layer, and headless hooks that let a test step the game deterministically.
+
+## kb show transparency essentials
+# Transparency and blending (topics/transparency-and-blending.md; current, >=r162)
+
+## Essentials
+- Name the cause before choosing a setting. Three different things look "see-through" and each has its own tool:
+  - **Coverage**: the surface is solid where it exists and absent elsewhere (leaf cards, grass, fences, lace, hair cards, decals with a cut-out shape). Use `alphaTest` (for example `0.5`), which discards pixels below the threshold and needs no sorting. With `antialias: true` on `WebGLRenderer`, add `alphaToCoverage = true` to smooth the cut edges (the material docs say it only works on an MSAA context). `alphaHash = true` discards against a random threshold instead: soft fades without sorting, at the cost of grain (TAA hides it).
+  - **Transmission**: light passes through a volume (glass, water, gems, thick plastic). Use `MeshPhysicalMaterial` with `transmission` (keep `opacity` at 1, as the docs ask), `thickness`, and for tinted glass `attenuationColor` with `attenuationDistance`: white light becomes `attenuationColor` after travelling `attenuationDistance` world units, so thicker parts come out deeper and more saturated, thin edges paler. Transmission renders through its own pass and needs no `transparent` flag.
+  - **Glow**: light is added, nothing is hidden (sparks, fire, beams, magic). Use `blending: THREE.AdditiveBlending` with `depthWrite: false`; order no longer matters because addition is commutative. Bloom belongs only on the brightest pixels, not on every glowing card.
+- Only real partial cover (smoke, a fading object, a tinted window pane drawn as a flat card) needs `transparent: true` with `opacity` or an alpha map. That path is the one with sorting problems below.
+- On `WebGPURenderer`, r186 has order-independent transparency as a pass (`oitPass` from `three/addons/tsl/display/OITPassNode.js`, see `post-processing`), which removes most sorting faults at a cost per frame.
+
+## kb show models budgets
+# 3D models for the web (topics/models-for-the-web.md; current, >=r180)
+
+## Budgets
+Guidance for one model on a page, not a spec (whole-scene numbers are in `performance`):
+
+| Target | Triangles | Draw calls | Textures | File |
+|---|---|---|---|---|
+| Phone, one hero model | 50k to 100k | under 10 | 1024 to 2048 px, KTX2 | 2 to 5 MB |
+| Desktop product viewer | 100k to 300k | under 20 | 2048 px (4096 only for a true hero), KTX2 | 5 to 10 MB |
+| Game prop in a kit | 500 to 5k | 1 (shared material) | atlas or trim sheet | under 500 KB |
+
+polywright's `web-threejs` check target warns above 150k triangles, 2048 px images and 10 MB.
+
+## kb list rule
+current-vs-legacy  (rule)  What counts as current in r186, what is the WebGL path (current, feature-light), what is legacy, and the release each old pattern changed in, for porting and for reading old code.
+verification-ladder  (rule)  Prove a three.js page works with the cheapest evidence first; lint, console and scene text, model report, then one small image, and what each rung costs in tokens.
+when-3d-is-justified  (rule)  Build a 3D chart only for data with three real axes or real geometry, always rotatable, always paired with an exact-value view; hand decorative 3D back to 2D.
+
+## kb counts
+topic 25, scenario 13, library 30, recipe 20, rule 3, total 91
+
+## lint rule count
+69 rules
+
+## lint old page
+three r150 (pinned URL) · 1 file(s)
+old\index.html:2:46 warn umd-build: the UMD builds build/three.js and build/three.min.js were deprecated in r150 and removed in r161 (the cdnjs package "three.js" ships the same UMD files under a different path)
+    fix: load the ES module build through an import map ("three": ".../build/three.module.js") or a bundler
+old\index.html:3:46 error examples-js: examples/js (global-script addons) was removed in r148
+    fix: import addons as modules from three/addons/... (examples/jsm)
+old\index.html:6:12 warn physically-correct-lights: physicallyCorrectLights is gone (renamed useLegacyLights in r150); physically based light units are the only mode now
+    fix: delete the line and retune light intensities (candela, lux) if the scene looks too dark
+old\index.html:7:20 error global-three-addon: addons are not on the THREE namespace; the global-script versions were removed in r148
+    fix: import { OrbitControls } from 'three/addons/controls/OrbitControls.js' and call new OrbitControls(...)
+old\index.html:8:25 warn buffer-geometry-aliases: the *BufferGeometry aliases (BoxBufferGeometry and so on) were deprecated in r144 and removed in r154
+    fix: use BoxGeometry, SphereGeometry and so on (they are BufferGeometry)
+2 error(s), 3 warning(s)
+[exit 1]
+
+## lint composer
+three r186 (latest known (r186)) · 1 file(s)
+post\bloom.js:5:18 info composer-without-aa: antialias: true only multisamples the canvas; three.js's EffectComposer renders into its own render targets, created without samples, so edges come out aliased (and alphaToCoverage does nothing) unless the composer gets a multisampled target or an AA pass
+    fix: new EffectComposer(renderer, new WebGLRenderTarget(w, h, { type: HalfFloatType, samples: 4 })), or add SMAAPass or FXAAPass before OutputPass
+0 error(s), 0 warning(s), 1 note(s)
+[exit 0]
+
+## lint composer fixed
+three r186 (latest known (r186)) · 1 file(s)
+0 error(s), 0 warning(s)
+[exit 0]
+
+## lint typed buffer attribute
+three r186 (latest known (r186)) · 1 file(s)
+wave\wave.js:6:37 info typed-buffer-attribute-copies: this typed BufferAttribute was given an array that is written again later, but the typed subclasses copy the array they are given (new Float32Array(array)), so those writes never reach the GPU, silently
+    fix: for data you update later, write into the attribute's own array (const a = attr.array) or use new BufferAttribute(typedArray, itemSize), which keeps it
+0 error(s), 0 warning(s), 1 note(s)
+[exit 0]
+
+## lint md
+three r150 (pinned URL) · 1 file(s)
+old\index.html:2:46 warn umd-build: the UMD builds build/three.js and build/three.min.js were deprecated in r150 and removed in r161 (the cdnjs package "three.js" ships the same UMD files under a different path)
+    fix: load the ES module build through an import map ("three": ".../build/three.module.js") or a bundler
+old\index.html:3:46 error examples-js: examples/js (global-script addons) was removed in r148
+    fix: import addons as modules from three/addons/... (examples/jsm)
+old\index.html:6:12 warn physically-correct-lights: physicallyCorrectLights is gone (renamed useLegacyLights in r150); physically based light units are the only mode now
+    fix: delete the line and retune light intensities (candela, lux) if the scene looks too dark
+old\index.html:7:20 error global-three-addon: addons are not on the THREE namespace; the global-script versions were removed in r148
+    fix: import { OrbitControls } from 'three/addons/controls/OrbitControls.js' and call new OrbitControls(...)
+old\index.html:8:25 warn buffer-geometry-aliases: the *BufferGeometry aliases (BoxBufferGeometry and so on) were deprecated in r144 and removed in r154
+    fix: use BoxGeometry, SphereGeometry and so on (they are BufferGeometry)
+2 error(s), 3 warning(s)
+[exit 1]
+
+## glb forest
+forest.glb · 8 KB (JSON 8 KB, binary 1 KB) · glTF 2.0 · wiki-verify
+scenes 1 · nodes 150 · meshes 1 (1 primitives, 150 draw calls) · vertices 450 · triangles 150
+materials 1 (opaque 1) · textures 0 · images 0
+bounds: size 29 x 2 x 18 · center 14.5, 1, 9
+warnings (1):
+  149 nodes repeat a mesh another node already draws: instance them (gltf-transform instance, gltfpack -mi, or Blender's glTF export with GPU instances)
+[exit 0]
+
+## glb forest instanced
+forest-instanced.glb · 3 KB (JSON 1 KB, binary 2 KB) · glTF 2.0 · wiki-verify
+extensions: EXT_mesh_gpu_instancing
+scenes 1 · nodes 1 · meshes 1 (1 primitives, 1 draw calls) · vertices 450 · triangles 150
+materials 1 (opaque 1) · textures 0 · images 0
+bounds: size 1 x 2 x 0 · center 0.5, 1, 0
+[exit 0]
+
+## glb cards
+cards.glb · 4 KB (JSON 1 KB, binary 3 KB) · glTF 2.0 · wiki-verify
+scenes 1 · nodes 1 · meshes 1 (1 primitives, 1 draw calls) · vertices 3 · triangles 1
+materials 1 (blend 1, double-sided 1) · textures 1 · images 1 (png 1; 3 KB; largest 1000 px)
+bounds: size 1 x 2 x 0 · center 0.5, 1, 0
+warnings (2):
+  1 material(s) are alphaMode BLEND and double-sided: if they are leaf, grass, fence or hair cards, use MASK (alphaTest, or alphaToCoverage with MSAA); blended cards sort per object and swap order as the camera moves
+  1 texture(s) with a side that is not a multiple of 4: KTX2 encoding needs multiples of 4, and powers of two (512, 1024, 2048) suit mipmaps and compression best
+[exit 0]
+
+## glb strict
+cards.glb · 4 KB (JSON 1 KB, binary 3 KB) · glTF 2.0 · wiki-verify
+scenes 1 · nodes 1 · meshes 1 (1 primitives, 1 draw calls) · vertices 3 · triangles 1
+materials 1 (blend 1, double-sided 1) · textures 1 · images 1 (png 1; 3 KB; largest 1000 px)
+bounds: size 1 x 2 x 0 · center 0.5, 1, 0
+warnings (2):
+  1 material(s) are alphaMode BLEND and double-sided: if they are leaf, grass, fence or hair cards, use MASK (alphaTest, or alphaToCoverage with MSAA); blended cards sort per object and swap order as the camera moves
+  1 texture(s) with a side that is not a multiple of 4: KTX2 encoding needs multiples of 4, and powers of two (512, 1024, 2048) suit mipmaps and compression best
+[exit 1]
+
+## glb json
+{
+  "file": "forest-instanced.glb",
+  "bytes": 2792,
+  "jsonBytes": 892,
+  "binBytes": 1872,
+  "glb": true,
+  "version": "2.0",
+  "generator": "wiki-verify",
+  "extensionsUsed": [
+    "EXT_mesh_gpu_instancing"
+  ],
+  "extensionsRequired": [],
+  "needs": [],
+  "scenes": 1,
+  "nodes": 1,
+  "meshes": 1,
+  "primitives": 1,
+  "drawCalls": 1,
+  "vertices": 450,
+  "triangles": 150,
+  "geometryBytes": 72,
+  "materials": 1,
+  "alphaModes": {
+    "OPAQUE": 1
+  },
+  "doubleSided": 0,
+  "unlit": 0,
+  "textures": 0,
+  "images": 0,
+  "imageBytes": 0,
+  "imageTypes": {},
+  "largestImage": null,
+  "animations": [],
+  "skins": [],
+  "morphTargets": 0,
+  "cameras": 0,
+  "lights": 0,
+  "variants": [],
+  "bounds": {
+    "size": [
+      1,
+      2,
+      0
+    ],
+    "center": [
+      0.5,
+      1,
+      0
+    ]
+  },
+  "warn": []
+}
+[exit 0]
+
+## glb forest 0.6.5
+forest.glb · 8 KB (JSON 8 KB, binary 1 KB) · glTF 2.0 · wiki-verify
+scenes 1 · nodes 150 · meshes 1 (1 primitives, 1 draw calls) · vertices 450 · triangles 150
+materials 1 (opaque 1) · textures 0 · images 0
+bounds: size 29 x 2 x 18 · center 14.5, 1, 9
+[exit 0]
+
+## glb cards 0.6.5
+cards.glb · 4 KB (JSON 1 KB, binary 3 KB) · glTF 2.0 · wiki-verify
+scenes 1 · nodes 1 · meshes 1 (1 primitives, 1 draw calls) · vertices 3 · triangles 1
+materials 1 (blend 1, double-sided 1) · textures 1 · images 1 (png 1; 3 KB; largest 1000 px)
+bounds: size 1 x 2 x 0 · center 0.5, 1, 0
+[exit 0]
+
+## glb strict 0.6.5
+cards.glb · 4 KB (JSON 1 KB, binary 3 KB) · glTF 2.0 · wiki-verify
+scenes 1 · nodes 1 · meshes 1 (1 primitives, 1 draw calls) · vertices 3 · triangles 1
+materials 1 (blend 1, double-sided 1) · textures 1 · images 1 (png 1; 3 KB; largest 1000 px)
+bounds: size 1 x 2 x 0 · center 0.5, 1, 0
+[exit 0]
+
+## lint composer strict
+three r186 (latest known (r186)) · 1 file(s)
+post\bloom.js:5:18 info composer-without-aa: antialias: true only multisamples the canvas; three.js's EffectComposer renders into its own render targets, created without samples, so edges come out aliased (and alphaToCoverage does nothing) unless the composer gets a multisampled target or an AA pass
+    fix: new EffectComposer(renderer, new WebGLRenderTarget(w, h, { type: HalfFloatType, samples: 4 })), or add SMAAPass or FXAAPass before OutputPass
+0 error(s), 0 warning(s), 1 note(s)
+[exit 0]
+
+## lint composer 0.6.5
+three r186 (latest known (r186)) · 1 file(s)
+0 error(s), 0 warning(s)
+[exit 0]
+
+## kb counts 0.6.5
+topic 23, scenario 13, library 30, recipe 20, rule 3, total 89
+
+## lint rule count 0.6.5
+68 rules
+
+## new
+copied html-importmap to <work>\site
+  next: serve the folder with any static server (module imports do not load from file://)
+  next: node <plugin>/scripts/tw.mjs check site
+[exit 0]
+
+## check
+page: http://127.0.0.1:<port>/index.html
+three: r186 · scenes 2 · render calls <n>
+renderer: WebGLRenderer canvas 960x540 dpr 1 · draw calls 3 · tris 15424 · geometries 14 · textures 5 · programs 5 · output srgb · toneMapping ACESFilmic · shadows PCF
+gpu: ANGLE (NVIDIA, NVIDIA GeForce RTX 5060 Ti (0x00002D04) Direct3D11 vs_5_0 ps_5_0, D3D11)
+cdn: 4 file(s) served locally (three@0.186.1 from cache)
+scene: Mesh 2, Scene 1, DirectionalLight 1
+  meshes 2 · lights 1 · verts 4091 · tris 7744 · materials 2 · textures 0 · environment true · background #1b1d22
+bounds: center 0,0.94,0 size 6,<h>,6
+camera: PerspectiveCamera pos 3,2.2,4 fov 45 near 0.1 far 100 aspect 1.78
+pixels: 46% differ from the background #1b1d22 · bbox x 0.06-0.94 y 0.23-1 · mean luma 0.45 · <n> colours
+result: OK (no exceptions, errors, failed requests, three deprecations or scene warnings)
+[exit 0]
+
+## lint site
+three r186 (pinned URL) · 1 file(s)
+0 error(s), 0 warning(s)
+[exit 0]
+
+## check eval
+page: http://127.0.0.1:<port>/index.html
+three: r186 · scenes 2 · render calls <n>
+renderer: WebGLRenderer canvas 960x540 dpr 1 · draw calls 3 · tris 15424 · geometries 14 · textures 5 · programs 5 · output srgb · toneMapping ACESFilmic · shadows PCF
+gpu: ANGLE (NVIDIA, NVIDIA GeForce RTX 5060 Ti (0x00002D04) Direct3D11 vs_5_0 ps_5_0, D3D11)
+cdn: 4 file(s) served locally (three@0.186.1 from cache)
+scene: Mesh 2, Scene 1, DirectionalLight 1
+  meshes 2 · lights 1 · verts 4091 · tris 7744 · materials 2 · textures 0 · environment true · background #1b1d22
+bounds: center 0,0.94,0 size 6,<h>,6
+camera: PerspectiveCamera pos 3,2.2,4 fov 45 near 0.1 far 100 aspect 1.78
+pixels: 46% differ from the background #1b1d22 · bbox x 0.06-0.94 y 0.23-1 · mean luma 0.45 · <n> colours
+eval: true
+result: OK (no exceptions, errors, failed requests, three deprecations or scene warnings)
+[exit 0]
+
+## check eval find
+page: http://127.0.0.1:<port>/index.html
+three: r186 · scenes 2 · render calls <n>
+renderer: WebGLRenderer canvas 960x540 dpr 1 · draw calls 3 · tris 15424 · geometries 14 · textures 5 · programs 5 · output srgb · toneMapping ACESFilmic · shadows PCF
+gpu: ANGLE (NVIDIA, NVIDIA GeForce RTX 5060 Ti (0x00002D04) Direct3D11 vs_5_0 ps_5_0, D3D11)
+cdn: 4 file(s) served locally (three@0.186.1 from cache)
+scene: Mesh 2, Scene 1, DirectionalLight 1
+  meshes 2 · lights 1 · verts 4091 · tris 7744 · materials 2 · textures 0 · environment true · background #1b1d22
+bounds: center 0,0.94,0 size 6,<h>,6
+camera: PerspectiveCamera pos 3,2.2,4 fov 45 near 0.1 far 100 aspect 1.78
+pixels: 46% differ from the background #1b1d22 · bbox x 0.06-0.94 y 0.23-1 · mean luma 0.45 · <n> colours
+eval: "3fa7ff"
+result: OK (no exceptions, errors, failed requests, three deprecations or scene warnings)
+[exit 0]
+
+## scene
+Scene
+  DirectionalLight · pos 4,6,3 · intensity 2 #ffffff shadow
+  Mesh "knot" · pos 0,0.9,0 · TorusKnotGeometry v4025 · MeshStandardMaterial #3fa7ff
+  Mesh "ground" · CircleGeometry v66 · MeshStandardMaterial #3a3d45
+[exit 0]
+
+## check save against
+page: http://127.0.0.1:<port>/index.html
+three: r186 · scenes 2 · render calls <n>
+renderer: WebGLRenderer canvas 960x540 dpr 1 · draw calls 3 · tris 15424 · geometries 14 · textures 5 · programs 5 · output srgb · toneMapping ACESFilmic · shadows PCF
+gpu: ANGLE (NVIDIA, NVIDIA GeForce RTX 5060 Ti (0x00002D04) Direct3D11 vs_5_0 ps_5_0, D3D11)
+cdn: 4 file(s) served locally (three@0.186.1 from cache)
+scene: Mesh 2, Scene 1, DirectionalLight 1
+  meshes 2 · lights 1 · verts 4091 · tris 7744 · materials 2 · textures 0 · environment true · background #1b1d22
+bounds: center 0,0.94,0 size 6,<h>,6
+camera: PerspectiveCamera pos 3,2.2,4 fov 45 near 0.1 far 100 aspect 1.78
+pixels: 46% differ from the background #1b1d22 · bbox x 0.06-0.94 y 0.23-1 · mean luma 0.45 · <n> colours
+saved before.json
+result: OK (no exceptions, errors, failed requests, three deprecations or scene warnings)
+[exit 0]
+page: http://127.0.0.1:<port>/index.html
+three: r186 · scenes 2 · render calls <n>
+renderer: WebGLRenderer canvas 960x540 dpr 1 · draw calls 3 · tris 15424 · geometries 14 · textures 5 · programs 5 · output srgb · toneMapping ACESFilmic · shadows PCF
+gpu: ANGLE (NVIDIA, NVIDIA GeForce RTX 5060 Ti (0x00002D04) Direct3D11 vs_5_0 ps_5_0, D3D11)
+cdn: 4 file(s) served locally (three@0.186.1 from cache)
+scene: Mesh 2, Scene 1, DirectionalLight 1
+  meshes 2 · lights 1 · verts 4091 · tris 7744 · materials 2 · textures 0 · environment true · background #1b1d22
+bounds: center 0,0.94,0 size 6,<h>,6
+camera: PerspectiveCamera pos 3,2.2,4 fov 45 near 0.1 far 100 aspect 1.78
+pixels: 46% differ from the background #1b1d22 · bbox x 0.06-0.94 y 0.23-1 · mean luma 0.45 · <n> colours
+against before.json (<time>): no changes
+result: OK (no exceptions, errors, failed requests, three deprecations or scene warnings)
+[exit 0]
+
+## shot
+wrote shot.png (960x540, 700 image tokens)
+pixels: 46% differ from the background #1b1d22 · bbox x 0.06-0.94 y 0.23-1 · mean luma 0.45 · <n> colours
+[exit 0]
+
+## sheet
+wrote sheet.png (960x540, 700 image tokens)
+[exit 0]
+
+## diff
+0 pixel(s) differ (0.000%, budget 0.100%) · largest channel change 0 · PASS
+[exit 0]
+
+## perf
+perf 2s (headless, uncalibrated): <n> frames · <fps> fps
+frame ms: <timings>
+per frame: draw calls 3 · triangles 15424
+memory: geometries 14 -> 14 · textures 5 -> 5 · JS heap <mb> -> <mb>
+[exit 0]
+
+## video
+wrote <work>\turn.mp4 · 10 frames at 10 fps (1s) · 32 KB · driver virtual clock · took <s>
+[exit 0]
+
+## check black mesh
+page: http://127.0.0.1:<port>/index.html
+three: r186 · scenes 1 · render calls <n>
+renderer: WebGLRenderer canvas 960x540 dpr 1 · draw calls 1 · tris 12 · geometries 1 · textures 1 · programs 1 · output srgb · toneMapping None · shadows false
+gpu: ANGLE (NVIDIA, NVIDIA GeForce RTX 5060 Ti (0x00002D04) Direct3D11 vs_5_0 ps_5_0, D3D11)
+cdn: 2 file(s) served locally (three@0.186.1 from cache)
+scene: Scene 1, Mesh 1
+  meshes 1 · lights 0 · verts 24 · tris 12 · materials 1 · textures 0 · environment false · background null
+bounds: center 0,0,0 size 1,1,1
+camera: PerspectiveCamera pos 0,0,4 fov 50 near 0.1 far 50 aspect 1.78
+pixels: 0% differ from the background #000000 · mean luma 0 · <n> colours
+CHECK (2):
+  lit materials but no lights and no scene.environment: meshes will render black
+  the canvas is one flat colour (#000000): nothing rendered, or the camera sees nothing
+result: PROBLEMS FOUND
+[exit 1]
+
+## check stale projection
+page: http://127.0.0.1:<port>/index.html
+three: r186 · scenes 1 · render calls <n>
+renderer: WebGLRenderer canvas 960x540 dpr 1 · draw calls 1 · tris 12 · geometries 1 · textures 0 · programs 1 · output srgb · toneMapping None · shadows false
+gpu: ANGLE (NVIDIA, NVIDIA GeForce RTX 5060 Ti (0x00002D04) Direct3D11 vs_5_0 ps_5_0, D3D11)
+cdn: 2 file(s) served locally (three@0.186.1 from cache)
+scene: Scene 1, Mesh 1
+  meshes 1 · lights 0 · verts 24 · tris 12 · materials 1 · textures 0 · environment false · background null
+bounds: center 0,0,0 size 1,1,1
+camera: PerspectiveCamera pos 0,0,4 fov 50 near 0.1 far 50 aspect 1.78
+pixels: 9.4% differ from the background #000000 · bbox x 0.35-0.65 y 0.35-0.65 · mean luma 0.53 · <n> colours
+CHECK (1):
+  camera.aspect is 1.78 but the projection matrix still uses 1: call camera.updateProjectionMatrix() after setting aspect
+result: PROBLEMS FOUND
+[exit 1]
+
+## check missing import map
+page: http://127.0.0.1:<port>/index.html
+three: not detected · scenes 0 · render calls <n>
+gpu: ANGLE (NVIDIA, NVIDIA GeForce RTX 5060 Ti (0x00002D04) Direct3D11 vs_5_0 ps_5_0, D3D11)
+EXCEPTIONS (1):
+  TypeError: Failed to resolve module specifier "three". Relative references must start with either "/", "./", or "../".
+ERRORS (1):
+  Uncaught TypeError: Failed to resolve module specifier "three". Relative references must start with either "/", "./", or "../".
+CHECK (1):
+  no three.js scene observed (three.js not loaded, a second copy of three, or nothing rendered yet)
+fix hints (1):
+  the import map lacks an entry for this specifier; addons import bare "three", so map "three" (and "three/addons/", "three/webgpu", "three/tsl" as used)
+result: PROBLEMS FOUND
+[exit 1]
+
+## shaders bad shader
+programs 2 (WebGL) · 1 FAILED
+  #0 MeshNormalMaterial "ok" · linked · used by MeshNormalMaterial "ok" · vertex 514 lines, fragment 286 lines
+  #1 ShaderMaterial "glow" · FAILED · used by ShaderMaterial "glow" · vertex 69 lines, fragment 57 lines
+FAILED #1 ShaderMaterial "glow":
+  program: Fragment shader is not compiled.
+  fragment:
+    line 57: 'glowColour' : undeclared identifier; 'constructor' : not enough data provided for construction
+        54 | 	return dot( weights, rgb );
+        55 | }
+        56 | 
+    >   57 | void main() { gl_FragColor = vec4(glowColour, 1.0); }
+[exit 1]
+
+## vendor dry run
+<work>\site\index.html: 4 file(s), 2116 KB (dry run, nothing written)
+  three -> ./vendor/three@0.186.1/build/three.module.js
+  three/addons/ -> ./vendor/three@0.186.1/examples/jsm/
+[exit 0]
+
+## dev npm ci
+
+added 1 package in <s>
+[exit 0]
+
+## deprecations
+three 0.186.1: 59 deprecation marker(s), 53 covered by lint rules, 6 skipped on purpose, 0 pending
+[exit 0]
+
+## versions check
+@gltf-transform/cli            latest 4.5.1        BEHIND  (4.5.0 in 1 place)
+@google/model-viewer           latest 4.4.0        BEHIND  (4.3.1 in 1 place)
+@iwsdk/core                    latest 1.1.0-rc.2   BEHIND  (1.0.0-rc.2 in 1 place)
+@needle-tools/engine           latest 5.1.16       BEHIND  (5.1.13 in 1 place)
+@react-three/fiber             latest 9.8.2        BEHIND  (9.8.1 in 2 places)  also: canary 10.0.0-canary.58acabc, alpha 10.0.0-alpha.6
+@sparkjsdev/spark              latest 2.4.0        BEHIND  (2.2.0 in 1 place)
+@tresjs/core                   latest 5.10.0       BEHIND  (5.9.0 in 1 place)
+@vitejs/plugin-react           latest 6.1.2        BEHIND  (6.1.1 in 1 place)
+jolt-physics                   latest 1.1.1        BEHIND  (1.1.0 in 1 place)
+lenis                          latest 1.3.27       BEHIND  (1.3.26 in 1 place)  also: dev 2.0.0-dev.5
+plotly.js                      latest 4.1.2        BEHIND  (4.1.1 in 1 place)
+react                          latest 19.3.1       BEHIND  (19.3.0 in 1 place)
+react-dom                      latest 19.3.1       BEHIND  (19.3.0 in 1 place)
+three-mesh-bvh                 latest 0.9.16       BEHIND  (0.9.15 in 1 place)
+vite                           latest 8.3.5        BEHIND  (8.3.1 in 2 places)
+@deck.gl/core                  latest 9.4.0        ok  (9.4.0 in 1 place)
+@dimforge/rapier3d-compat      latest 0.21.0       ok  (0.21.0 in 1 place)
+@pixiv/three-vrm               latest 3.5.5        ok  (3.5.5 in 1 place)
+@react-three/a11y              latest 3.0.0        ok  (3.0.0 in 1 place)
+@react-three/drei              latest 10.7.9       ok  (10.7.9 in 2 places)  also: alpha 11.0.0-alpha.7
+@react-three/rapier            latest 2.2.0        ok  (2.2.0 in 1 place)
+@theatre/core                  latest 0.7.2        ok  (0.7.2 in 1 place)
+@threlte/core                  latest 8.6.1        ok  (8.6.1 in 1 place)
+@types/react                   latest 19.3.0       ok  (19.3.0 in 1 place)
+@types/react-dom               latest 19.3.0       ok  (19.3.0 in 1 place)
+@types/three                   latest 0.186.0      ok  (0.186.0 in 2 places)
+3d-tiles-renderer              latest 0.5.3        ok  (0.5.3 in 1 place)
+camera-controls                latest 3.1.2        ok  (3.1.2 in 1 place)
+cannon-es                      latest 0.20.0       ok  (0.20.0 in 1 place)
+globe.gl                       latest 2.46.2       ok  (2.46.2 in 1 place)
+gltfpack                       latest 1.3.0        ok  (1.3.0 in 1 place)
+gsap                           latest 3.15.0       ok  (3.15.0 in 1 place)
+lil-gui                        latest 0.21.0       ok  (0.21.0 in 1 place)
+postprocessing                 latest 6.39.5       ok  (6.39.5 in 1 place)  also: alpha 7.0.0-alpha.4, beta 7.0.0-beta.16
+stats-gl                       latest 4.2.3        ok  (4.2.3 in 1 place)
+three                          latest 0.186.1      ok  (0.186.1 in 14 places)
+three-stdlib                   latest 2.36.1       ok  (2.36.1 in 1 place)
+troika-three-text              latest 0.52.5       ok  (0.52.5 in 1 place)
+typescript                     latest 7.0.2        ok  (7.0.2 in 2 places)  also: beta 7.1.0-beta, next 7.1.0-dev.20261026.1
+15 package(s) behind: refresh those kb entries and templates (threewright-curate), then tw kb validate
+[exit 1]
+
+## kb show legacy map
+---
+title: Teach current three.js; keep legacy for old projects
+slug: current-vs-legacy
+kind: rule
+summary: What counts as current in r186, what is the WebGL path (current, feature-light), what is legacy, and the release each old pattern changed in, for porting and for reading old code.
+tags: [legacy, deprecated, removed, migration, upgrade, old tutorial, r186, webgpu, webgl]
+applies_to: any
+status: current
+renderer: both
+last_verified: 2026-09-26
+sources: [ai-docs/research/2026-09-26-direction.md, ai-docs/research/2026-09-26-core-r160-r186.md, kb/rules/lint-rules.json]
+related: [import-maps-and-builds, verification-ladder]
+---
+
+# Teach current three.js; keep legacy for old projects
+
+## Rule
+
+- **Current** means it works in r186 with no deprecation warning. Generate only current code for new work, and say which path it is on: `both`, the WebGL path or the WebGPU path.
+- **WebGL path** (current, feature-light): WebGLRenderer, EffectComposer with `OutputPass` last, `ShaderMaterial`, `RawShaderMaterial`, `onBeforeCompile`, the `CSM` addon. Teach them for WebGL pages without calling them legacy, and say that new features land on the WebGPU path (TSL node materials, `RenderPipeline`, compute).
+- **Legacy** means removed or deprecated. Show it only when reading or porting an old project, inside a fence marked `legacy`, with the release numbers. Never generate it for new code.
+- Before editing an old project, find its release (`package.json`, the pinned CDN URL, or `THREE.REVISION` in the console) and run `tw lint <dir> --target r186` to list what breaks on upgrade, with the fix for each.
+- A tutorial, answer or snippet older than about a year is a legacy source until checked: search the knowledge base (`tw kb search`) or `node_modules/three` before trusting an API name.
+
+## Why
+
+- Models trained on years of three.js code keep writing APIs that were removed long ago (the global `THREE` script, `Geometry`, `outputEncoding`); the three.js project's own llms.txt lists them as the most common mistakes. Labelling each pattern by release is what lets an agent help an r150 project without teaching r150 to an r186 one.
+- New features land on WebGPURenderer and TSL, but the manual still recommends WebGLRenderer for plain WebGL 2 applications and calls WebGPURenderer experimental (direction research, sections 2 and 6), so the WebGL path is not legacy.
+
+The map of old patterns (release changed, last release where it was the normal way). `tw lint` carries the machine-checked version with a rule per row.
+
+| legacy pattern | replacement | changed | last recommended |
+|---|---|---|---|
+| `Geometry`, `Face3` | `BufferGeometry` | removed r125 | r124 |
+| `examples/js` global addons, `new THREE.OrbitControls()` | `three/addons/...` ES modules | removed r148 | r147 |
+| `build/three.js`, `build/three.min.js`, the `THREE` global | ES modules | deprecated r150, removed r161 (tarballs checked) | r149 |
+| `physicallyCorrectLights` | physical light units (the default since r155) | deprecated r150, removed r160 (tarballs checked) | r149 |
+| `useLegacyLights` | physical light units only | default off r155, removed r165 (tarballs checked) | r154 |
+| `mergeBufferGeometries()` | `mergeGeometries()` | r151 | r150 |
+| `outputEncoding`, `texture.encoding`, `sRGBEncoding`, `LinearEncoding` | `outputColorSpace`, `texture.colorSpace`, `SRGBColorSpace`, `LinearSRGBColorSpace` | replaced r152, removed r162 | r151 |
+| WebGL 1, `WebGL1Renderer` | WebGLRenderer (WebGL 2) or WebGPURenderer | deprecated r153, removed r163 | r152 |
+| `USDZLoader` | `USDLoader` | deprecated r179 | r178 |
+| `RGBELoader` | `HDRLoader` | deprecated r180 | r179 |
+| `renderAsync()`, `clearAsync()`, `hasFeatureAsync()`, `initTextureAsync()`, PMREM `from*Async()`, `KTX2Loader.detectSupportAsync()` | `await renderer.init()` once, then the sync call (`compileAsync`, `computeAsync`, `readRenderTargetPixelsAsync` stay) | deprecated r181 | r180 |
+| `waitForGPU()`; TSL `PI2`; TSL `cache()` | removed; `TWO_PI`; `isolate()` | r181 | r180 |
+| `getColorBufferType()` | `getOutputBufferType()` | r182 | r181 |
+| `Clock` | `Timer` | deprecated r183 | r182 |
+| `PostProcessing` | `RenderPipeline` | renamed r183 | r182 |
+| TSL `directionToColor()`, `colorToDirection()`, `directionToFaceDirection()` | `packNormalToRGB()`, `unpackRGBToNormal()`, `negateOnBackSide()` | r185 | r184 |
+| `require('three')` | `import * as THREE from 'three'` | deprecated r186 | r185 |
+| `three.module.min.js` and the other `.min.js` builds | the plain builds (CDNs and bundlers compress) | removed r186 (tarballs checked) | r185 |
+| `Source` | `TextureSource` | renamed r186 | r185 |
+| `PCFSoftShadowMap` | `PCFShadowMap` (soft since r182) | deprecated r186 | r185 |
+
+EffectComposer, `ShaderMaterial` and `onBeforeCompile` were never supported by WebGPURenderer: they are current on the WebGL path and wrong on the WebGPU path.
+
+## Notes
+
+- 2026-09-26: written from the direction research (section 6, corrected: `computeAsync` is not deprecated in r186) and the lint rules checked against the installed three 0.186.1 and the npm tarballs.
+[exit 0]
+
+## kb show upgrade recipe
+# Upgrade an old project (recipes/upgrade-an-old-project.md; current, any)
+
+## Goal
+Move an existing three.js project forward to r186 (or just find out what would break if you did), without guessing which of its patterns are still fine and which are gone. Find the installed version, lint against the target release, and fix the two changes that survive a clean lint pass but still make the scene look wrong: light units and texture color space.
+[exit 0]
+
+## kb show ladder
+# The verification ladder (text before pixels) (rules/verification-ladder.md; current, any)
+
+## Rule
+Climb only as far as the question needs, and never report a page as working from its source alone.
+
+| rung | command | answers | cost |
+|---|---|---|---|
+| 1 | `tw lint <dir>` | stale or risky API, with the release and the fix | a few lines of text |
+| 2 | `tw check <page>` | exceptions, console errors and warnings, failed requests, renderer, draw calls, triangles, scene counts, bounds, camera, runtime warnings (black meshes, washed-out textures, camera off the scene, aspect mismatch) and fix hints | 15 to 30 lines of text |
+| 3 | `tw scene <page>` | the scene graph as an indented tree, repeated siblings collapsed | up to `--max` lines (80 default) |
+| 4 | `tw glb <model>` | model size, draw calls, triangles, texture pixels, extensions and the decoders they need, bounds, budget warnings | about 10 lines |
+| 5 | `tw shot <page> --size 640x360` | one picture of the page, for a visual question only | 299 image tokens |
+| 6 | `tw sheet <page>` | four camera angles in one 960x540 image (framing, scale, hidden geometry) | 700 image tokens |
+| 7 | `tw video <page>` then a frame strip | motion, loops, timing | one strip image, never the video |
+
+- Rung 2 is the default proof that a page works: `result: OK` means no exceptions, no console errors, no failed requests and no scene warnings. Report its lines, not "it looks fine".
+- Go to an image (rungs 5 to 7) only when the question is visual (composition, colour, framing, style) or when text says OK but the user reports something wrong.
+- Keep images small: 640x360 or the default sheet. A 1280x720 shot costs 1196 tokens and a 1920x1080 one 2691, and every image stays in the conversation for later turns.
+- Never read binary assets (GLB, HDR, EXR, KTX2, PLY, SPZ, base64 data URIs) into context; `tw glb` and file sizes answer the questions.
+[exit 0]
+
+## kb show agent tooling
+# Agent tooling for three.js (topics/agent-tooling.md; current, any)
+
+## Essentials
+- General browser MCPs carry almost all real-world use: Chrome DevTools MCP (52.6k stars) and Playwright MCP (37.6k stars) dwarf every three.js-specific tool by adoption, but neither knows anything about a three.js scene, and Playwright's accessibility snapshot is empty for a `<canvas>` element, so canvas interaction needs coordinate clicks, not accessibility-tree targeting.
+- Three.js-aware tools exist but are smaller and narrower: `threejs-devtools-mcp` (60 tools, proxies a dev server on port 9222, reads `__THREE_DEVTOOLS__`, dormant since 2026-03-23) covers scene/object/material/shader/texture/animation/performance/memory inspection; Meta's IWSDK MCP runtime (55 tools) is the most complete agent tooling for any three.js-based stack found, but only works inside IWSDK apps specifically (ECS, ready-made hand/XR input emulation, a headless deterministic "agent" mode); the official three.js DevTools extension (now merged into the three.js repo itself, v1.18 in r186) is a human-facing browser panel with no agent interface at all.
+- The converging design principle across every serious tool is "files and text, not bytes": Chrome DevTools MCP's own design principles say "Reference over Value"; IWSDK 1.0 returns a `screenshotPath`, not inline image bytes; the Playwright team's own guidance is to prefer its CLI over its MCP server for coding agents, citing about 27k tokens for the CLI against about 114k for the same task through the MCP server (secondary sources; treat the exact multiplier as approximate but the direction as consistent across every tool surveyed). This is why `tw` stays a zero-dependency CLI that prints compact text and writes images to disk rather than returning bytes inline by default.
+- Concrete numbers worth knowing when budgeting a verification loop (measured 2026-09-26): `tw check` on a starter template printed 767 bytes (about 190 tokens); `tw scene` printed 226 bytes; a full canvas screenshot through `threejs-devtools-mcp` at 1920x1080 costs 2,691 tokens inline, the same image `tw shot` would instead write to disk and report the path plus that same cost estimate, letting you decide whether to actually read it.
+- Ideas worth reusing from the wider tool landscape even without adopting the tool itself: a `dispose_check` that compares `renderer.info.memory` counts against unique in-scene geometries and textures (see `memory-and-disposal`); a `perf_monitor` reporting frame-time p50/p95/p99 with spike detection, not just an average fps; a `scene_diff` that snapshots and diffs the graph across two points in time; a labeled multi-view contact sheet that groups duplicate objects (`Mesh x240 'bolt'`) instead of listing each one, the same idea `tw scene` and `tw sheet` already implement.
+- The verification-ladder discipline (`verification-ladder`) generalizes across every tool in this space: text first (console errors, `renderer.info` counts, a scene-graph dump), then a small screenshot only for a genuinely visual question, then a pixel diff rather than a human "looks fine" judgment for anything that repeats.
+
+## kb validate
+91 entries, 69 lint rules: 0 error(s), 0 warning(s)
+[exit 0]
+
+## vendor then offline check
+<work>\site\index.html: 4 file(s), 2116 KB copied under vendor/
+  three -> ./vendor/three@0.186.1/build/three.module.js
+  three/addons/ -> ./vendor/three@0.186.1/examples/jsm/
+[exit 0]
+page: http://127.0.0.1:<port>/index.html
+three: r186 · scenes 2 · render calls <n>
+renderer: WebGLRenderer canvas 960x540 dpr 1 · draw calls 3 · tris 15424 · geometries 14 · textures 5 · programs 5 · output srgb · toneMapping ACESFilmic · shadows PCF
+gpu: ANGLE (NVIDIA, NVIDIA GeForce RTX 5060 Ti (0x00002D04) Direct3D11 vs_5_0 ps_5_0, D3D11)
+scene: Mesh 2, Scene 1, DirectionalLight 1
+  meshes 2 · lights 1 · verts 4091 · tris 7744 · materials 2 · textures 0 · environment true · background #1b1d22
+bounds: center 0,0.94,0 size 6,<h>,6
+camera: PerspectiveCamera pos 3,2.2,4 fov 45 near 0.1 far 100 aspect 1.78
+pixels: 46% differ from the background #1b1d22 · bbox x 0.06-0.94 y 0.23-1 · mean luma 0.45 · <n> colours
+result: OK (no exceptions, errors, failed requests, three deprecations or scene warnings)
+[exit 0]
+

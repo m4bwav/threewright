@@ -1,0 +1,61 @@
+{
+  "evergreen": "1.0",
+  "name": "threewright-shaders",
+  "kind": "skill",
+  "main": "SKILL.md",
+  "files": {
+    "research": "RESEARCH.md",
+    "changelog": "CHANGELOG.md",
+    "learnings": "LEARNINGS.md",
+    "tests": "TESTS.md"
+  },
+  "protocol": "plugin",
+  "source": null,
+  "topic": "TSL, node materials, compute and node post-processing in three.js, the WebGL shader path, and shader tooling",
+  "tier": "fast",
+  "interval_days": 9.33,
+  "last_checked": "2026-10-11",
+  "next_due": "2026-10-20",
+  "verify_at_use": false,
+  "volatile_claims": [],
+  "contradiction": null,
+  "events": [],
+  "streak": {
+    "quiet": 0,
+    "pinned_min": 0,
+    "pinned_max": 0,
+    "vau_quiet": 0
+  },
+  "history": [
+    {
+      "date": "2026-09-26",
+      "m": null,
+      "interval_after": 14,
+      "note": "created"
+    },
+    {
+      "date": "2026-10-11",
+      "m": 0.3,
+      "interval_after": 9.33,
+      "note": "refresh 2026-10-11: DirectRenderPipeline no MSAA on WebGL2, gpuTest pattern, range() hash in r187; cost: searches 2 · fetches 7 · tool calls 14"
+    }
+  ],
+  "counts": {
+    "learnings": 0,
+    "changes": 1,
+    "research": 2,
+    "tests": 4
+  },
+  "consolidate_every": 25,
+  "tests": {
+    "last_run": "2026-10-11T14:14",
+    "harness": "claude plugin eval 2.1.281 --ablation none (trigger, decoy)",
+    "env": "owner-pc Windows 11",
+    "cases": 4,
+    "passed": 4,
+    "failed": 0,
+    "failing": [],
+    "last_failure": null,
+    "research_after_days": null
+  }
+}

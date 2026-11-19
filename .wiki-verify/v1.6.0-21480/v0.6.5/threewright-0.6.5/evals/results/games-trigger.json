@@ -1,0 +1,366 @@
+{
+  "schemaVersion": 1,
+  "claudeVersion": "2.1.281",
+  "startedAt": "2026-09-26T21:24:05.168Z",
+  "durationSeconds": 26,
+  "costUsd": 0.8666868000000001,
+  "partial": false,
+  "suite": {
+    "root": "D:\\m4bwa\\Claude\\Projects\\Ai\\threewright",
+    "ablation": "with-without",
+    "judgeModel": "sonnet",
+    "caseFilter": "trigger-*",
+    "threshold": 1,
+    "concurrency": 4,
+    "plugins": [
+      {
+        "name": "threewright",
+        "version": "0.4.0",
+        "path": "D:\\m4bwa\\Claude\\Projects\\Ai\\threewright"
+      }
+    ]
+  },
+  "cases": [
+    {
+      "name": "trigger-1",
+      "dir": "evals\\threewright-games\\trigger-1",
+      "source": "prose",
+      "promptMarkdown": "make a little 3D platformer in three.js where a capsule jumps between floating boxes\n\n(For this run: start the job, and stop after the first two or three tool calls with a one-line note of which skill you invoked and what you would do next.)",
+      "runsPerCase": 3,
+      "timeoutSeconds": 240,
+      "maxTurns": 8,
+      "graders": [
+        {
+          "name": "threewright-games invoked",
+          "type": "tool_used",
+          "weight": 1,
+          "config": {
+            "tool": "Skill",
+            "input_match": "\"skill\"\\s*:\\s*\"(?:[\\w-]+:)?threewright-games\"",
+            "min": 1,
+            "arm": "both"
+          }
+        }
+      ],
+      "arms": {
+        "with": [
+          {
+            "score": 1,
+            "passed": true,
+            "turns": 4,
+            "costUsd": 0.098497,
+            "judgeCostUsd": 0,
+            "durationSeconds": 10,
+            "startedAt": "2026-09-26T21:24:05.218Z",
+            "error": null,
+            "tracePath": "C:\\Users\\m4bwa\\AppData\\Local\\Temp\\claude-eval-Qytlas\\out\\trace.jsonl",
+            "skippedPaidGraders": false,
+            "graders": [
+              {
+                "name": "threewright-games invoked",
+                "passed": true,
+                "weight": 1,
+                "explanation": "Skill called 1x (expected 1..∞)",
+                "withOnly": false,
+                "scored": true
+              }
+            ]
+          },
+          {
+            "score": 1,
+            "passed": true,
+            "turns": 4,
+            "costUsd": 0.0968406,
+            "judgeCostUsd": 0,
+            "durationSeconds": 11,
+            "startedAt": "2026-09-26T21:24:05.218Z",
+            "error": null,
+            "tracePath": "C:\\Users\\m4bwa\\AppData\\Local\\Temp\\claude-eval-Q2hVvQ\\out\\trace.jsonl",
+            "skippedPaidGraders": false,
+            "graders": [
+              {
+                "name": "threewright-games invoked",
+                "passed": true,
+                "weight": 1,
+                "explanation": "Skill called 1x (expected 1..∞)",
+                "withOnly": false,
+                "scored": true
+              }
+            ]
+          },
+          {
+            "score": 1,
+            "passed": true,
+            "turns": 4,
+            "costUsd": 0.097947,
+            "judgeCostUsd": 0,
+            "durationSeconds": 10,
+            "startedAt": "2026-09-26T21:24:05.218Z",
+            "error": null,
+            "tracePath": "C:\\Users\\m4bwa\\AppData\\Local\\Temp\\claude-eval-IcK6Zi\\out\\trace.jsonl",
+            "skippedPaidGraders": false,
+            "graders": [
+              {
+                "name": "threewright-games invoked",
+                "passed": true,
+                "weight": 1,
+                "explanation": "Skill called 1x (expected 1..∞)",
+                "withOnly": false,
+                "scored": true
+              }
+            ]
+          }
+        ],
+        "without": [
+          {
+            "score": 0,
+            "passed": false,
+            "turns": 2,
+            "costUsd": 0.047913800000000006,
+            "judgeCostUsd": 0,
+            "durationSeconds": 7,
+            "startedAt": "2026-09-26T21:24:05.218Z",
+            "error": null,
+            "tracePath": "C:\\Users\\m4bwa\\AppData\\Local\\Temp\\claude-eval-TLJWXM\\out\\trace.jsonl",
+            "skippedPaidGraders": false,
+            "graders": [
+              {
+                "name": "threewright-games invoked",
+                "passed": false,
+                "weight": 1,
+                "explanation": "Skill called 0x (expected 1..∞)",
+                "withOnly": false,
+                "scored": true
+              }
+            ]
+          },
+          {
+            "score": 0,
+            "passed": false,
+            "turns": 2,
+            "costUsd": 0.047723600000000005,
+            "judgeCostUsd": 0,
+            "durationSeconds": 5,
+            "startedAt": "2026-09-26T21:24:12.231Z",
+            "error": null,
+            "tracePath": "C:\\Users\\m4bwa\\AppData\\Local\\Temp\\claude-eval-x8wqAu\\out\\trace.jsonl",
+            "skippedPaidGraders": false,
+            "graders": [
+              {
+                "name": "threewright-games invoked",
+                "passed": false,
+                "weight": 1,
+                "explanation": "Skill called 0x (expected 1..∞)",
+                "withOnly": false,
+                "scored": true
+              }
+            ]
+          },
+          {
+            "score": 0,
+            "passed": false,
+            "turns": 2,
+            "costUsd": 0.04763160000000001,
+            "judgeCostUsd": 0,
+            "durationSeconds": 6,
+            "startedAt": "2026-09-26T21:24:15.391Z",
+            "error": null,
+            "tracePath": "C:\\Users\\m4bwa\\AppData\\Local\\Temp\\claude-eval-kGU5qm\\out\\trace.jsonl",
+            "skippedPaidGraders": false,
+            "graders": [
+              {
+                "name": "threewright-games invoked",
+                "passed": false,
+                "weight": 1,
+                "explanation": "Skill called 0x (expected 1..∞)",
+                "withOnly": false,
+                "scored": true
+              }
+            ]
+          }
+        ]
+      },
+      "aggregates": {
+        "score": 1,
+        "passRate": 1,
+        "scoreWithout": 0,
+        "passRateWithout": 0,
+        "delta": 1
+      }
+    },
+    {
+      "name": "trigger-2",
+      "dir": "evals\\threewright-games\\trigger-2",
+      "source": "prose",
+      "promptMarkdown": "my three.js game runs faster on my 144 Hz monitor, fix the game loop\n\n(For this run: start the job, and stop after the first two or three tool calls with a one-line note of which skill you invoked and what you would do next.)",
+      "runsPerCase": 3,
+      "timeoutSeconds": 240,
+      "maxTurns": 8,
+      "graders": [
+        {
+          "name": "threewright-games invoked",
+          "type": "tool_used",
+          "weight": 1,
+          "config": {
+            "tool": "Skill",
+            "input_match": "\"skill\"\\s*:\\s*\"(?:[\\w-]+:)?threewright-games\"",
+            "min": 1,
+            "arm": "both"
+          }
+        }
+      ],
+      "arms": {
+        "with": [
+          {
+            "score": 1,
+            "passed": true,
+            "turns": 4,
+            "costUsd": 0.0870782,
+            "judgeCostUsd": 0,
+            "durationSeconds": 7,
+            "startedAt": "2026-09-26T21:24:15.696Z",
+            "error": null,
+            "tracePath": "C:\\Users\\m4bwa\\AppData\\Local\\Temp\\claude-eval-58yYKD\\out\\trace.jsonl",
+            "skippedPaidGraders": false,
+            "graders": [
+              {
+                "name": "threewright-games invoked",
+                "passed": true,
+                "weight": 1,
+                "explanation": "Skill called 1x (expected 1..∞)",
+                "withOnly": false,
+                "scored": true
+              }
+            ]
+          },
+          {
+            "score": 1,
+            "passed": true,
+            "turns": 4,
+            "costUsd": 0.0896908,
+            "judgeCostUsd": 0,
+            "durationSeconds": 8,
+            "startedAt": "2026-09-26T21:24:16.560Z",
+            "error": null,
+            "tracePath": "C:\\Users\\m4bwa\\AppData\\Local\\Temp\\claude-eval-fVVRrq\\out\\trace.jsonl",
+            "skippedPaidGraders": false,
+            "graders": [
+              {
+                "name": "threewright-games invoked",
+                "passed": true,
+                "weight": 1,
+                "explanation": "Skill called 1x (expected 1..∞)",
+                "withOnly": false,
+                "scored": true
+              }
+            ]
+          },
+          {
+            "score": 1,
+            "passed": true,
+            "turns": 4,
+            "costUsd": 0.08879480000000001,
+            "judgeCostUsd": 0,
+            "durationSeconds": 7,
+            "startedAt": "2026-09-26T21:24:17.327Z",
+            "error": null,
+            "tracePath": "C:\\Users\\m4bwa\\AppData\\Local\\Temp\\claude-eval-3M7fTA\\out\\trace.jsonl",
+            "skippedPaidGraders": false,
+            "graders": [
+              {
+                "name": "threewright-games invoked",
+                "passed": true,
+                "weight": 1,
+                "explanation": "Skill called 1x (expected 1..∞)",
+                "withOnly": false,
+                "scored": true
+              }
+            ]
+          }
+        ],
+        "without": [
+          {
+            "score": 0,
+            "passed": false,
+            "turns": 3,
+            "costUsd": 0.0568244,
+            "judgeCostUsd": 0,
+            "durationSeconds": 10,
+            "startedAt": "2026-09-26T21:24:21.572Z",
+            "error": null,
+            "tracePath": "C:\\Users\\m4bwa\\AppData\\Local\\Temp\\claude-eval-YQyhCM\\out\\trace.jsonl",
+            "skippedPaidGraders": false,
+            "graders": [
+              {
+                "name": "threewright-games invoked",
+                "passed": false,
+                "weight": 1,
+                "explanation": "Skill called 0x (expected 1..∞)",
+                "withOnly": false,
+                "scored": true
+              }
+            ]
+          },
+          {
+            "score": 0,
+            "passed": false,
+            "turns": 3,
+            "costUsd": 0.054957400000000003,
+            "judgeCostUsd": 0,
+            "durationSeconds": 8,
+            "startedAt": "2026-09-26T21:24:22.310Z",
+            "error": null,
+            "tracePath": "C:\\Users\\m4bwa\\AppData\\Local\\Temp\\claude-eval-NizwJy\\out\\trace.jsonl",
+            "skippedPaidGraders": false,
+            "graders": [
+              {
+                "name": "threewright-games invoked",
+                "passed": false,
+                "weight": 1,
+                "explanation": "Skill called 0x (expected 1..∞)",
+                "withOnly": false,
+                "scored": true
+              }
+            ]
+          },
+          {
+            "score": 0,
+            "passed": false,
+            "turns": 3,
+            "costUsd": 0.0527876,
+            "judgeCostUsd": 0,
+            "durationSeconds": 7,
+            "startedAt": "2026-09-26T21:24:24.308Z",
+            "error": null,
+            "tracePath": "C:\\Users\\m4bwa\\AppData\\Local\\Temp\\claude-eval-zbWuz3\\out\\trace.jsonl",
+            "skippedPaidGraders": false,
+            "graders": [
+              {
+                "name": "threewright-games invoked",
+                "passed": false,
+                "weight": 1,
+                "explanation": "Skill called 0x (expected 1..∞)",
+                "withOnly": false,
+                "scored": true
+              }
+            ]
+          }
+        ]
+      },
+      "aggregates": {
+        "score": 1,
+        "passRate": 1,
+        "scoreWithout": 0,
+        "passRateWithout": 0,
+        "delta": 1
+      }
+    }
+  ],
+  "aggregates": {
+    "casesTotal": 2,
+    "casesPassed": 2,
+    "overallScore": 1,
+    "overallPassRate": 1,
+    "meanDelta": 1
+  }
+}

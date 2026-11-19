@@ -1,0 +1,14 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>fixture: bare import without an import map</title>
+</head>
+<body>
+  <script type="module">
+    // Deliberately broken: "three" is a bare specifier and nothing maps it.
+    import * as THREE from 'three';
+    new THREE.Scene();
+  </script>
+</body>
+</html>

@@ -1,0 +1,89 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>three.js Gaussian splat viewer (WebGPU)</title>
+  <style>
+    html, body { margin: 0; height: 100%; background: #101318; color: #e8ecf2; font: 14px/1.4 system-ui, sans-serif; }
+    canvas { display: block; width: 100%; height: 100%; }
+    #info { position: fixed; left: 12px; bottom: 12px; padding: 6px 10px; border-radius: 6px; background: rgb(0 0 0 / 0.55); }
+    #info.error { background: #7a1d1d; }
+  </style>
+  <!-- GaussianSplat is built on the WebGPU/TSL stack: the import map must resolve
+       "three/webgpu" and "three/tsl" as well as the addons. Pin the exact version. -->
+  <script type="importmap">
+  {
+    "imports": {
+      "three": "https://cdn.jsdelivr.net/npm/three@0.186.1/build/three.webgpu.js",
+      "three/webgpu": "https://cdn.jsdelivr.net/npm/three@0.186.1/build/three.webgpu.js",
+      "three/tsl": "https://cdn.jsdelivr.net/npm/three@0.186.1/build/three.tsl.js",
+      "three/addons/": "https://cdn.jsdelivr.net/npm/three@0.186.1/examples/jsm/"
+    }
+  }
+  </script>
+</head>
+<body>
+  <div id="info" role="status" aria-live="polite">Loading splats...</div>
+  <script type="module">
+    import * as THREE from 'three/webgpu';
+    import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
+    import { GaussianSplat } from 'three/addons/objects/GaussianSplat.js';
+    // Other formats: GaussianSplatPLYLoader (.ply), SPZLoader (.spz), KSPLATLoader (.ksplat).
+    import { SPLATLoader } from 'three/addons/loaders/SPLATLoader.js';
+
+    const SPLAT_URL = './scene.splat'; // replace with your capture
+    const info = document.getElementById('info');
+    const reduceMotion = matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+    // r186 GaussianSplat needs WebGPURenderer: WebGPU, or its WebGL 2 fallback.
+    // A plain WebGLRenderer cannot draw it.
+    const renderer = new THREE.WebGPURenderer({ antialias: false });
+    renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+    renderer.setSize(window.innerWidth, window.innerHeight);
+    document.body.appendChild(renderer.domElement);
+    await renderer.init();
+    const backend = renderer.backend.isWebGPUBackend ? 'WebGPU' : 'WebGL 2 fallback';
+
+    const scene = new THREE.Scene();
+    scene.background = new THREE.Color(0x101318);
+
+    const camera = new THREE.PerspectiveCamera(50, window.innerWidth / window.innerHeight, 0.05, 100);
+    camera.position.set(3.1, 2.3, 3.9);
+
+    const controls = new OrbitControls(camera, renderer.domElement);
+    controls.target.set(0, 0.7, 0);
+    controls.enableDamping = true;
+    controls.minDistance = 1;
+    controls.maxDistance = 12;
+    controls.autoRotate = !reduceMotion; // splat captures read best in slow motion
+    controls.autoRotateSpeed = 0.6;
+
+    // Splats bake their lighting at capture time, so scene lights do not change them.
+    // Tell tw (and any test) when the file has loaded: window.__tw.ready.
+    const tw = (window.__tw = window.__tw || {});
+    tw.ready = new SPLATLoader().loadAsync(SPLAT_URL).then((geometry) => {
+      const splats = new GaussianSplat(geometry);
+      splats.name = 'splats';
+      scene.add(splats);
+      const count = geometry.getAttribute('position').count;
+      info.textContent = `${count.toLocaleString('en')} splats · ${backend}`;
+    }).catch((err) => {
+      info.textContent = `Could not load ${SPLAT_URL}: ${err.message}`;
+      info.classList.add('error');
+      console.error(err);
+    });
+
+    renderer.setAnimationLoop(() => {
+      controls.update();
+      renderer.render(scene, camera); // GaussianSplat sorts itself before each render
+    });
+
+    window.addEventListener('resize', () => {
+      camera.aspect = window.innerWidth / window.innerHeight;
+      camera.updateProjectionMatrix();
+      renderer.setSize(window.innerWidth, window.innerHeight);
+    });
+  </script>
+</body>
+</html>
