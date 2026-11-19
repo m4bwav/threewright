@@ -4,6 +4,10 @@ Plugin versions. Skill-level changes are in each `skills/*/CHANGELOG.md`; the se
 
 ## Unreleased
 
+## 1.7.0 · 2026-11-19
+
+- kb recipe `pixel-art-render-target`: pixel art and pixel-3D through a small `WebGLRenderTarget` with a bleed margin, a camera snapped to whole art pixels, a sub-pixel offset applied at upscale for smooth pans, and a sharp-bilinear upscale shader for fractional scales. Checked with `tw check`, `tw lint` and two `tw shot`s. Ideas from the Murder engine (isadorasophia/murder, MIT) and Cole Cecil's 2017 post on scaling pixel art; written fresh.
+
 ## 1.6.0 · 2026-11-18
 
 - threewright-shaders `references/hit-effects-tsl.md`: the six hit-effect recipes (shield, capsule bullet holes, depth-Laplacian outline as a `RenderPipeline` output, nested beam, black hole, octave-offset fbm) in TSL for `WebGPURenderer`. Every block is in `tests/fixtures/pages/hit-fx-tsl`; a unit test keeps them identical and a browser test runs `tw check` on it (WebGPU backend, no errors, pixels drawn).
