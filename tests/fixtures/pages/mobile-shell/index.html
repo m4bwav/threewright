@@ -1,0 +1,64 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>fixture: mobile shell</title>
+<script type="importmap">
+{ "imports": { "three": "https://cdn.jsdelivr.net/npm/three@0.186.1/build/three.module.js" } }
+</script>
+</head>
+<body>
+<!-- Built by build-fixture.mjs from skills/threewright-games/references/mobile-shell.md (tests/unit.test.mjs checks). -->
+<link rel="manifest" href="manifest.webmanifest">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#1d1a24">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<style>
+  html, body { margin: 0; height: 100%; background: #1d1a24; color: #f3ead8; font: 16px system-ui, sans-serif; overflow: hidden; }
+  .shell-card { position: fixed; inset: 0; display: none; place-items: center; text-align: center; padding: 24px; background: #1d1a24; z-index: 10; }
+  #loading { display: grid; }
+  #loading .bar { width: min(60vw, 320px); height: 6px; background: #3a3444; margin: 16px auto; }
+  #loading .bar i { display: block; height: 100%; width: 0; background: #e0a050; transition: width .2s; }
+  @media (orientation: portrait) and (pointer: coarse) { #rotate { display: grid; } }
+</style>
+<div id="loading" class="shell-card"><div><div class="bar"><i></i></div><p id="flavour">&nbsp;</p></div></div>
+<div id="rotate" class="shell-card"><p>Turn your phone sideways to play.</p></div>
+<div id="no-webgl" class="shell-card"><div>
+  <p>This game needs WebGL, and this browser has it turned off or does not support it.</p>
+  <p><a href="https://example.com/your-game">Get the game</a> or watch the <a href="https://example.com/trailer">trailer</a>.</p>
+</div></div>
+<script type="module">
+function hasWebGL() {
+  try {
+    const c = document.createElement('canvas');
+    return !!(window.WebGL2RenderingContext && c.getContext('webgl2'));
+  } catch { return false; }
+}
+const portraitQuery = matchMedia('(orientation: portrait) and (pointer: coarse)');
+const shell = {
+  paused: () => portraitQuery.matches || document.hidden,
+  onPauseChange(fn) {
+    portraitQuery.addEventListener('change', () => fn(shell.paused()));
+    document.addEventListener('visibilitychange', () => fn(shell.paused()));
+  },
+  startLoading(manager, lines) {
+    const bar = document.querySelector('#loading .bar i');
+    const text = document.getElementById('flavour');
+    let i = 0;
+    const show = () => { text.textContent = lines[i++ % lines.length]; };
+    show();
+    const timer = setInterval(show, 2500);
+    manager.onProgress = (url, loaded, total) => { bar.style.width = (100 * loaded / total) + '%'; };
+    return () => { clearInterval(timer); document.getElementById('loading').remove(); };
+  },
+};
+if (!hasWebGL()) {
+  document.getElementById('loading').remove();
+  document.getElementById('no-webgl').style.display = 'grid';
+} else {
+  window.__shell = shell;
+  import('./game.js');
+}
+</script>
+</body>
+</html>

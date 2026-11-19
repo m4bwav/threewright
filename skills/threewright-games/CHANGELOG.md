@@ -4,6 +4,12 @@ Every change to [SKILL.md](SKILL.md) and its companions, newest first, each with
 
 Entry shape: `### C-YYYYMMDD-n · date · one-line summary`, then `because:` (IDs or "user request"), `files:` (file and section), and a sentence on what changed. Cite section headings, not line numbers.
 
+### C-20261119-1 · 2026-11-19 · mobile shell reference
+- because: user request
+- files: SKILL.md (Step 2 rule 8), references/mobile-shell.md (new)
+
+Turn-sideways prompt by CSS media query with pause, no-WebGL fallback page with links, PWA manifest, LoadingManager loading screen with rotating flavour text. Fixture tests/fixtures/pages/mobile-shell built from the blocks; unit and browser tests. Idea seen in a commercial web game demo; written fresh.
+
 ### C-20261118-1 · 2026-11-18 · ?manual frames, advance(seconds), HUD and planet minimap notes
 - because: user request (technique harvest, robinduckett/boo-mas)
 - files: SKILL.md (Step 2 rule 7), references/hud-and-minimap.md (new), references/done-checklist.md (14a), templates/game-starter (main.ts, debug/hooks.ts)

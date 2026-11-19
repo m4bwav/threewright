@@ -603,3 +603,22 @@ test('hit-effects TSL blocks match the fixture page, in order', () => {
   assert.equal(blocks.length, 7);
   assert.ok(page.includes(blocks.join('')), 'fixture module script differs from the md blocks joined in order');
 });
+
+test('clay-material makeClay block matches the fixture page', () => {
+  const md = readFileSync(join(ROOT, 'skills/threewright-shaders/references/clay-material.md'), 'utf8');
+  const page = readFileSync(join(ROOT, 'tests/fixtures/pages/clay/index.html'), 'utf8');
+  const blocks = [...md.matchAll(/```js\n([\s\S]*?)```/g)].map((m) => m[1]);
+  assert.equal(blocks.length, 1);
+  assert.ok(page.includes(blocks[0]), 'fixture makeClay differs from the md block');
+  assert.match(blocks[0], /customProgramCacheKey = \(\) => 'clay-v1:' \+ variant/);
+});
+
+test('mobile-shell blocks match the fixture page and manifest', () => {
+  const md = readFileSync(join(ROOT, 'skills/threewright-games/references/mobile-shell.md'), 'utf8');
+  const dir = join(ROOT, 'tests/fixtures/pages/mobile-shell');
+  const page = readFileSync(join(dir, 'index.html'), 'utf8');
+  const get = (lang) => [...md.matchAll(new RegExp('```' + lang + '\\n([\\s\\S]*?)```', 'g'))].map((m) => m[1]);
+  for (const b of [...get('html'), ...get('js')]) assert.ok(page.includes(b), `fixture differs from block ${b.split('\n')[0]}`);
+  assert.equal(JSON.parse(get('json')[0]).orientation, 'landscape');
+  assert.equal(readFileSync(join(dir, 'manifest.webmanifest'), 'utf8'), get('json')[0]);
+});

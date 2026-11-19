@@ -70,6 +70,16 @@
       ],
       "runs": 3,
       "redundant": "the no-plugin baseline passed it too (T-20260926-3); kept for reference, skipped by evals/headless/run.py unless --all"
+    },
+    {
+      "id": "trigger-clay",
+      "kind": "trigger",
+      "prompt": "give my three.js MeshStandardMaterial a hand-made clay look with fingerprint ridges but keep the normal lighting",
+      "expectations": [
+        "the threewright-shaders skill is invoked",
+        "the answer patches MeshStandardMaterial with onBeforeCompile and sets customProgramCacheKey with a distinct key per variant"
+      ],
+      "runs": 3
     }
   ]
 }

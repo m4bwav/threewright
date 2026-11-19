@@ -1,0 +1,74 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>fixture: clay look on MeshStandardMaterial</title>
+  <script type="importmap">
+  { "imports": { "three": "https://cdn.jsdelivr.net/npm/three@0.186.1/build/three.module.js" } }
+  </script>
+</head>
+<body style="margin:0">
+<!-- makeClay is copied verbatim from skills/threewright-shaders/references/clay-material.md (tests/unit.test.mjs checks). -->
+<script type="module">
+import * as THREE from 'three';
+function makeClay({ color = 0xc8734f, variant = 'rings', period = 0.06, strength = 0.25 } = {}) {
+  const mat = new THREE.MeshStandardMaterial({ color, roughness: 0.98, metalness: 0 });
+  const uniforms = {
+    uRidgePeriod: { value: period },
+    uRidgeOffset: { value: new THREE.Vector2(0.11, -0.07) },
+    uRidgeStrength: { value: strength },
+  };
+  mat.userData.clay = uniforms; // tweak later: mat.userData.clay.uRidgePeriod.value = 0.05
+  const ridgeCoord = variant === 'rings'
+    ? 'length(vClayPos.xy + uRidgeOffset)'
+    : 'dot(vClayPos.xy + uRidgeOffset, vec2(0.8, 0.6))';
+  mat.onBeforeCompile = (shader) => {
+    Object.assign(shader.uniforms, uniforms);
+    shader.vertexShader = shader.vertexShader
+      .replace('#include <common>', '#include <common>\nvarying vec3 vClayPos;')
+      .replace('#include <begin_vertex>', '#include <begin_vertex>\nvClayPos = position;');
+    shader.fragmentShader = shader.fragmentShader
+      .replace('#include <common>', `#include <common>
+varying vec3 vClayPos;
+uniform float uRidgePeriod;
+uniform vec2 uRidgeOffset;
+uniform float uRidgeStrength;
+float clayRidge() { return sin(${ridgeCoord} / uRidgePeriod * 6.2831853); }`)
+      .replace('#include <roughnessmap_fragment>', `#include <roughnessmap_fragment>
+roughnessFactor = clamp(roughnessFactor - 0.06 * max(clayRidge(), 0.0), 0.0, 1.0);`)
+      .replace('#include <normal_fragment_maps>', `#include <normal_fragment_maps>
+{
+  float h = clayRidge() * uRidgeStrength * uRidgePeriod;
+  vec3 dpx = dFdx(-vViewPosition), dpy = dFdy(-vViewPosition);
+  vec3 r1 = cross(dpy, normal), r2 = cross(normal, dpx);
+  float det = dot(dpx, r1);
+  vec3 grad = sign(det) * (dFdx(h) * r1 + dFdy(h) * r2);
+  normal = normalize(abs(det) * normal - grad);
+}`);
+  };
+  mat.customProgramCacheKey = () => 'clay-v1:' + variant;
+  return mat;
+}
+const renderer = new THREE.WebGLRenderer({ antialias: true });
+renderer.setSize(innerWidth, innerHeight);
+document.body.appendChild(renderer.domElement);
+const scene = new THREE.Scene();
+scene.background = new THREE.Color(0xe9e1d6);
+const camera = new THREE.PerspectiveCamera(40, innerWidth / innerHeight, 0.1, 50);
+camera.position.set(0, 0.4, 4);
+camera.lookAt(0, 0, 0);
+scene.add(new THREE.HemisphereLight(0xfff4e6, 0x6b5a4a, 1.2));
+const sun = new THREE.DirectionalLight(0xffffff, 2.2);
+sun.position.set(2, 3, 2);
+scene.add(sun);
+const geo = new THREE.SphereGeometry(0.8, 96, 64);
+const a = new THREE.Mesh(geo, makeClay({ variant: 'rings' }));
+a.name = 'rings'; a.position.x = -0.95;
+const b = new THREE.Mesh(geo, makeClay({ color: 0x6f8fb0, variant: 'lines' }));
+b.name = 'lines'; b.position.x = 0.95;
+scene.add(a, b);
+window.makeClay = makeClay;
+renderer.setAnimationLoop(() => renderer.render(scene, camera));
+</script>
+</body>
+</html>
