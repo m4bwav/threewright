@@ -235,3 +235,12 @@ test('hit-effects reference shaders all link', { skip, timeout: 300000 }, () => 
   assert.equal(r.code, 0, r.out + r.err);
   for (const name of ['shield', 'holes', 'outline', 'beam', 'blackhole']) assert.match(r.out, new RegExp(`"${name}" · linked`), r.out);
 });
+
+test('hit-effects TSL page renders on WebGPURenderer without errors', { skip, timeout: 300000 }, () => {
+  const r = tw('check', join(ROOT, 'tests/fixtures/pages/hit-fx-tsl'), '--size', '480x270');
+  assert.equal(r.code, 0, r.out + r.err);
+  assert.match(r.out, /result: OK/, r.out);
+  assert.match(r.out, /meshes 4/, r.out);
+  const pct = Number((r.out.match(/pixels: ([\d.]+)% differ/) || [])[1]);
+  assert.ok(pct > 3, r.out);
+});
