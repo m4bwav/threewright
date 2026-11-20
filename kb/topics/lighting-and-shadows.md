@@ -31,6 +31,7 @@ template: html-importmap
 - Forgetting `mesh.receiveShadow` on the floor: the classic "the shadow-casting mesh looks fine but nothing shows the shadow" bug. `tw check`'s runtime warnings flag `a light casts shadows but renderer.shadowMap.enabled is false`, but a missing `receiveShadow` on one mesh is not a message you get in text; check the scene graph or a screenshot.
 - An undersized or misaligned shadow camera: shadows disappear past its bounds, or look pixelated because the box is too large for the map size. Compute the box from the scene's `Box3` rather than guessing numbers.
 - Striped self-shadowing on lit surfaces (shadow acne), or shadows that start a gap away from the object that casts them (peter-panning): the shadow map's texels are too coarse for the surface's angle. Shrink the shadow camera box first (shadow texel size is the box width divided by `shadow.mapSize`), then try a small negative `light.shadow.bias` (around -0.0001 to -0.001) or a small `light.shadow.normalBias` (around 0.01 to 0.05, helps large terrain at grazing light; both default 0 in r186). Too much bias produces the peter-panning gap; the numbers are starting points, tune per scene.
+- Blocky shadows near the camera while distant ones look fine: perspective aliasing, one shadow texel covering many screen pixels close up. Split the view into cascades (`SunLight`, `CSM`, `CSMShadowNode`) or tighten the near split; a bigger `mapSize` alone fixes it poorly. When tuning bias, try `normalBias` before the constant `bias`, and look at contact points (feet, table legs) for light leaking under them (RTR 4e §7.4, pp. 238-244).
 - Adding `SunLight` to `WebGPURenderer` without registering `SunLightNode` first: the light exists but casts no shadow and may not render at all on that backend.
 
 ## Verify
@@ -43,3 +44,4 @@ template: html-importmap
 
 - 2026-09-26: written from the core r160-r186 research (sections 1, 3, 4, 6) and the direction research (section 4.2), checked against `node_modules/three/src/renderers/webgl/WebGLShadowMap.js`, `WebGLLights.js` and `examples/jsm/lights/SunLight.js` in the installed 0.186.1.
 - 2026-10-25: shadow acne and peter-panning pitfall (Gambetta, round 2 books track); `bias` and `normalBias` checked in three 0.186.1 `LightShadow.js` (both default 0); the ranges are starting points.
+- 2026-11-19: perspective aliasing and bias order from Real-Time Rendering 4e §7.4 (round 6 books track).
