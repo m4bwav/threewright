@@ -7,7 +7,7 @@ tags: [material, meshstandardmaterial, nodematerial, pbr, shadermaterial, webgpu
 applies_to: ">=r181"
 status: current
 renderer: both
-last_verified: 2026-09-26
+last_verified: 2026-11-19
 sources: [ai-docs/research/2026-09-26-core-r160-r186.md, ai-docs/research/2026-09-26-direction.md]
 related: [tsl, color-management, lighting-and-shadows, post-processing]
 template: html-importmap
@@ -23,6 +23,7 @@ template: html-importmap
 - A limited bridge (r184) lets node materials render inside `WebGLRenderer` after `renderer.setNodesHandler( new WebGLNodesHandler() )`, with real limits: no VSM shadows, no MRT, no transmission, no WebGPU post-processing, no storage textures. It exists to prepare a migration, not as a general-purpose path.
 - Fat/wide lines need a dedicated material: `LineBasicMaterial`'s `linewidth` is ignored on both renderers ("WebGL and WebGPU always render line primitives with a width of one pixel", r186 docs). Use `Line2` with `LineMaterial` (WebGL, `three/addons/lines/`) or the WebGPU `Line2` variant (`three/addons/lines/webgpu/`) for a real line width.
 - `Object3D.dispose()` (new in r186) disposes the object's own GPU resources and fires a `dispose` event, but geometries, materials and textures still need their own `.dispose()` call; see `memory-and-disposal`.
+- PBR value ranges (Real-Time Rendering 4e §9.5, pp. 321-323): non-metals reflect about 4% head-on (three's default `ior` 1.5 gives F0 0.04; keep `MeshPhysicalMaterial.specularIntensity` at 1 unless the material is known to differ), metals reflect 50% or more and all their colour comes from `color`, so a metal's base colour should be bright (about 0.5 linear or higher). F0 between about 0.2 and 0.45 matches no common material. Wet surfaces look darker and more saturated: darken and saturate `color` and lower `roughness`, do not only add gloss. Stylised work may break these on purpose.
 
 ## Pitfalls
 
@@ -30,6 +31,7 @@ template: html-importmap
 - Assuming a WebGL-only material library (three-custom-shader-material, or any package built on `onBeforeCompile`) works with `WebGPURenderer` because "it's just three.js": check whether the library targets node materials before adding it to a WebGPU page.
 - `TextGeometry`'s `height` option: renamed `depth` in r163, and the compatibility fallback for `height` was removed in r173, so writing `height` today is silently ignored and the extrusion defaults to 50 units. Use `depth`.
 - Expecting `linewidth` on `LineBasicMaterial` to draw a visibly thicker line: it never has, on either renderer, in current three. Use `Line2`/`LineMaterial`.
+- Highlights that sparkle and flicker on a glossy, normal-mapped surface as the camera moves, and gloss that changes with distance: specular aliasing. Mipmaps average the normal map's bumps away while the roughness map stays sharp. Raise `roughness` on the far mips in proportion to the normal map's variance (Toksvig-style, prototype only; three uses GGX) or raise `roughness` slightly overall; anti-aliasing passes do not remove it (RTR 4e §9.13, pp. 366-371).
 - Custom material subclasses that override `dispose()`: since r186 they must call `super.dispose()` or the object's own `dispose` event never fires and any code relying on it (cleanup hooks, memory tools) misses it.
 
 ## Verify
@@ -41,3 +43,4 @@ template: html-importmap
 ## Notes
 
 - 2026-09-26: written from the core r160-r186 research (sections 3, 4, 6) and the direction research (sections 2.2, 3.3, 3.4), checked against `node_modules/three/src/materials/` and `examples/jsm/lines/` in the installed 0.186.1.
+- 2026-11-19: PBR value ranges and specular aliasing from Real-Time Rendering 4e §9.5 and §9.13 (round 6 books track); `ior` 1.5 and `specularIntensity` 1 checked in three 0.186.1 `MeshPhysicalMaterial.js`.

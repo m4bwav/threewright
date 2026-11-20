@@ -5,6 +5,7 @@ Plugin versions. Skill-level changes are in each `skills/*/CHANGELOG.md`; the se
 ## Unreleased
 
 - threewright-shaders: Book of Shaders fragment rules in kb `tsl` and `seeded-randomness`, and `tw lint` rules `glsl-float-int-literal`, `glsl-step-visible-edge`, `glsl-unwrapped-time` (73 lint rules).
+- kb from Real-Time Rendering 4e: bottleneck test order and ms-not-fps in `performance`, PBR value ranges and specular aliasing in `materials`, perspective aliasing and bias order in `lighting-and-shadows`; threewright-debug symptoms rows for sparkling highlights and TRAA trails.
 
 ## 1.8.0 · 2026-11-19
 

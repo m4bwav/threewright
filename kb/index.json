@@ -277,7 +277,7 @@
     "Verify",
     "Notes"
    ],
-   "bytes": 6210
+   "bytes": 6759
   },
   {
    "slug": "llm-mistakes",
@@ -351,7 +351,7 @@
    "applies_to": ">=r181",
    "status": "current",
    "renderer": "both",
-   "last_verified": "2026-09-26",
+   "last_verified": "2026-11-19",
    "template": "html-importmap",
    "sections": [
     "Essentials",
@@ -359,7 +359,7 @@
     "Verify",
     "Notes"
    ],
-   "bytes": 4845
+   "bytes": 6111
   },
   {
    "slug": "memory-and-disposal",
@@ -446,7 +446,7 @@
     "Verify",
     "Notes"
    ],
-   "bytes": 7033
+   "bytes": 8037
   },
   {
    "slug": "post-processing",

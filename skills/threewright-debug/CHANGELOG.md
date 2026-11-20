@@ -10,6 +10,11 @@ Step 3 names `TW look` for matching a reference mood by OKLab colour statistics,
 
 ### C-YYYYMMDD-n · date · one-line summary`, then `because:` (IDs or "user request"), `files:` (file and section), and a sentence on what changed. Cite section headings, not line numbers.
 
+### C-20261119-1 · 2026-11-19 · Two symptom rows from Real-Time Rendering
+- because: user request (round 6 books track 54, RTR 4e §9.13 and §5.4)
+- files: references/symptoms.md
+- Rows for sparkling highlights (specular aliasing) and trails behind moving objects (TRAA history not rejected; `maxVelocityLength`, `depthThreshold` checked in three 0.186.1 `TRAANode.js`).
+
 ### C-20260926-3 · 2026-09-26 · sheet --sweep in Step 2
 - because: ai-docs/research/2026-09-26-mcp-and-ai-tools.md (tw features to add, item 6)
 - files: SKILL.md (Step 2)
