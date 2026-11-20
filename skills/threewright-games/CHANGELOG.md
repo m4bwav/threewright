@@ -4,6 +4,12 @@ Every change to [SKILL.md](SKILL.md) and its companions, newest first, each with
 
 Entry shape: `### C-YYYYMMDD-n · date · one-line summary`, then `because:` (IDs or "user request"), `files:` (file and section), and a sentence on what changed. Cite section headings, not line numbers.
 
+### C-20261120-2 · 2026-11-20 · tw feel, two-speed play, look numbers, active-play shots
+- because: user request (technique harvest of web games, 2026-11: five adopt-partly verdicts merged into one command)
+- files: SKILL.md (Step 3), references/done-checklist.md (lines 12a, 14, 14b, 14c, 15b; tw feel section)
+
+Line 14 must show active play. New 14b runs `tw feel` (response, hit-stop, flash rate, shake, camera hiding the player) and 14c asks for a URL flag that jumps to a stage. Line 12a adds `--delays 0,300` and `--softlock`. Frame-time lines say SwiftShader numbers are not a GPU's. Numbers and methods only; no game names, art or code.
+
 ### C-20261120-1 · 2026-11-20 · tw play soak and bot runs
 - because: user request (technique harvest, arXiv:2610.33106 VibeGame)
 - files: SKILL.md (Step 3), references/done-checklist.md (line 12a, tw play section)

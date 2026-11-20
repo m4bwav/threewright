@@ -1,0 +1,40 @@
+<!doctype html>
+<html lang="en">
+<head><meta charset="utf-8"><title>fixture: tw feel boxes</title></head>
+<body style="margin:0;background:#000">
+  <canvas id="c" width="480" height="270" style="display:block"></canvas>
+  <script>
+    // Known curves for tw feel, timed by performance.now (tw's virtual clock):
+    //   glow box (20,20,60,60): eases toward white while KeyF is held and back when released,
+    //     first order with a 120 ms time constant
+    //   counter box (200,20,80,40): a number that changes every 100 ms
+    //   KeyL: the whole screen goes white for 1 frame, then fades out linearly over 500 ms
+    //   ?strobe=N: the whole screen is white for 1 frame, N times a second
+    const cv = document.getElementById('c'), g = cv.getContext('2d');
+    const strobe = Number(new URLSearchParams(location.search).get('strobe') || 0);
+    const held = new Set();
+    let flashAt = null, glow = 0, last = null;
+    addEventListener('keydown', (e) => { held.add(e.code); if (e.code === 'KeyL') flashAt = performance.now(); });
+    addEventListener('keyup', (e) => held.delete(e.code));
+    const t0 = performance.now();
+    function frame() {
+      const now = performance.now(), dt = last === null ? 0 : now - last;
+      last = now;
+      const target = held.has('KeyF') ? 1 : 0;
+      glow += (target - glow) * (1 - Math.exp(-dt / 120));
+      g.fillStyle = '#181818'; g.fillRect(0, 0, 480, 270);
+      const v = Math.round(glow * 255);
+      g.fillStyle = `rgb(${v},${v},${v})`; g.fillRect(20, 20, 60, 60);
+      g.fillStyle = '#222'; g.fillRect(200, 20, 80, 40);
+      g.fillStyle = '#9f9'; g.font = '28px monospace';
+      g.fillText(String(Math.floor((now - t0) / 100) % 1000).padStart(3, '0'), 210, 50);
+      let a = 0;
+      if (flashAt !== null) { const s = now - flashAt; a = s < 1 ? 0 : s <= 17 ? 1 : Math.max(0, 1 - (s - 16.667) / 500); }
+      if (strobe) { const n = Math.round((now - t0) / (1000 / 60)); if (n % Math.round(60 / strobe) === 0) a = 1; }
+      if (a > 0) { g.fillStyle = `rgba(255,255,255,${a})`; g.fillRect(0, 0, 480, 270); }
+      requestAnimationFrame(frame);
+    }
+    requestAnimationFrame(frame);
+  </script>
+</body>
+</html>

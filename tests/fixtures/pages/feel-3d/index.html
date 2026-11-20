@@ -1,0 +1,70 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>fixture: tw feel camera</title>
+  <script type="importmap">
+  { "imports": { "three": "https://cdn.jsdelivr.net/npm/three@0.186.1/build/three.module.js" } }
+  </script>
+</head>
+<body style="margin:0;background:#000">
+  <script type="module">
+    // Known camera events for tw feel, timed by performance.now (tw's virtual clock):
+    //   0.5-1.5 s  FOV eases 60 -> 74
+    //   2.0 s      shake: 0.75 units, linear decay over 0.25 s (15 frames at 60 fps)
+    //   KeyP       pitch the camera down 5 degrees on the next frame (1-frame response)
+    //   4.0-4.5 s  a wall stands between camera and player; 4.5-5.0 s the camera is inside it
+    // The player circles slowly the whole time and the camera follows rigidly behind it.
+    import * as THREE from 'three';
+    const renderer = new THREE.WebGLRenderer();
+    renderer.setSize(innerWidth, innerHeight);
+    document.body.appendChild(renderer.domElement);
+    const scene = new THREE.Scene();
+    scene.background = new THREE.Color(0x203040);
+    const camera = new THREE.PerspectiveCamera(60, innerWidth / innerHeight, 0.1, 200);
+    scene.add(new THREE.HemisphereLight(0xffffff, 0x404040, 2));
+    const ground = new THREE.Mesh(new THREE.PlaneGeometry(80, 80, 8, 8), new THREE.MeshStandardMaterial({ color: 0x556655 }));
+    ground.rotation.x = -Math.PI / 2;
+    scene.add(ground);
+    for (let i = 0; i < 24; i++) {
+      const m = new THREE.Mesh(new THREE.BoxGeometry(1, 1 + (i % 4), 1), new THREE.MeshStandardMaterial({ color: new THREE.Color().setHSL(i / 24, 0.6, 0.5) }));
+      m.position.set(Math.cos(i * 0.9) * 25, 0.5, Math.sin(i * 0.9) * 25);
+      scene.add(m);
+    }
+    const player = new THREE.Mesh(new THREE.BoxGeometry(1, 1, 1), new THREE.MeshStandardMaterial({ color: 0xffaa00 }));
+    player.name = 'player';
+    scene.add(player);
+    const wall = new THREE.Mesh(new THREE.BoxGeometry(6, 6, 0.5), new THREE.MeshStandardMaterial({ color: 0x884444 }));
+    wall.name = 'wall';
+    scene.add(wall);
+    let pitch = 0;
+    addEventListener('keydown', (e) => { if (e.code === 'KeyP') pitch -= 5 * Math.PI / 180; });
+    const t0 = performance.now();
+    const smooth = (a, b, x) => { const t = Math.min(1, Math.max(0, (x - a) / (b - a))); return t * t * (3 - 2 * t); };
+    let shakeN = 0;
+    function frame() {
+      const t = (performance.now() - t0) / 1000;
+      const ang = t * 0.4;
+      player.position.set(Math.cos(ang) * 6, 0.5, Math.sin(ang) * 6);
+      const back = new THREE.Vector3(Math.cos(ang) * 6 + Math.sin(ang) * 6, 3, Math.sin(ang) * 6 - Math.cos(ang) * 6);
+      camera.position.copy(back);
+      camera.lookAt(player.position);
+      camera.rotateX(pitch);
+      const s = t - 2.0;
+      if (s >= 0 && s < 0.25) {
+        const amp = 0.75 * (1 - s / 0.25), th = shakeN++ * 2.39996;
+        camera.position.x += Math.cos(th) * amp;
+        camera.position.y += Math.sin(th) * amp;
+      }
+      const fov = 60 + 14 * smooth(0.5, 1.5, t);
+      if (camera.fov !== fov) { camera.fov = fov; camera.updateProjectionMatrix(); }
+      if (t >= 4.0 && t < 4.5) { wall.position.lerpVectors(camera.position, player.position, 0.5); wall.lookAt(camera.position); }
+      else if (t >= 4.5 && t < 5.0) { wall.position.copy(camera.position); wall.lookAt(player.position); }
+      else wall.position.set(0, -50, 0);
+      renderer.render(scene, camera);
+      requestAnimationFrame(frame);
+    }
+    requestAnimationFrame(frame);
+  </script>
+</body>
+</html>

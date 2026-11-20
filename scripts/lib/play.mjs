@@ -6,7 +6,12 @@
 // status: done (bot said so), fail (bot said so), timeout (ran the full time, fine),
 // crash (uncaught exception or the tab died) or stuck (state, or the frame when the page
 // has no state hook, unchanged for --stuck seconds; or no animation frame for 2 s; or the
-// main thread stopped answering). A screenshot is taken at the failure tick.
+// main thread stopped answering), softlock (with --softlock S: frames advance and input is
+// sent, but position and score have not changed for S s). A screenshot is taken at the
+// failure tick. --delays 0,300 runs once per reaction delay and reads the difficulty;
+// result.json also has firstScore (the tick the score first rose) and the softlock windows.
+// The two-speed read, softlock window and first-score step follow notes on a published
+// game-making skill (2026-11 technique harvest; ideas only, nothing copied).
 //
 // The loop shape (snapshot, decide, act, log every decision, one status file) follows the
 // bot runner described in arXiv:2610.33106 (VibeGame). Written fresh from our notes;
@@ -67,6 +72,51 @@ export function stuckWatch({ stuckMs = 5000, stallMs = 2000 } = {}) {
   };
 }
 
+export const FAILED = ['crash', 'stuck', 'fail', 'softlock'];
+
+// Score and position from a state object, for softlock and first-score reads. Score: score,
+// points or player.score. Position: x/y/z, pos or position (array or object), or the same
+// under player.
+export function progressOf(state) {
+  if (!state || typeof state !== 'object') return { score: null, pos: null };
+  const num = (v) => (typeof v === 'number' && Number.isFinite(v) ? v : null);
+  const p = state.player && typeof state.player === 'object' ? state.player : null;
+  const score = num(state.score) ?? num(state.points) ?? (p ? num(p.score) : null);
+  const vec = (o) => {
+    if (!o || typeof o !== 'object') return null;
+    if (Array.isArray(o)) return o.length && o.every((v) => typeof v === 'number') ? o : null;
+    const v = ['x', 'y', 'z'].map((k) => num(o[k])).filter((x) => x !== null);
+    return v.length ? v : null;
+  };
+  const pos = vec(state.pos) || vec(state.position) || (num(state.x) !== null ? vec(state) : null)
+    || (p && (vec(p.pos) || vec(p.position) || vec(p))) || null;
+  return { score, pos };
+}
+
+// Softlock: frames advance and input goes in, but neither position nor score changes for
+// windowMs. Each stall is counted once.
+export function softlockWatch({ windowMs = 3000, eps = 1e-3 } = {}) {
+  let lastPos = null, lastScore = null, since = null, acted = 0, open = null;
+  const windows = [];
+  return {
+    windows,
+    step(tMs, { pos, score }, frames, didAct, tick) {
+      if (pos == null && score == null) return null;
+      const moved = pos && lastPos && pos.some((v, i) => Math.abs(v - (lastPos[i] ?? v)) > eps);
+      const scored = score != null && lastScore != null && score !== lastScore;
+      if (since === null || moved || scored) { since = { t: tMs, frames, tick }; acted = 0; open = null; }
+      if (didAct) acted++;
+      lastPos = pos; lastScore = score;
+      if (!open && acted > 0 && frames != null && frames > since.frames && tMs - since.t >= windowMs) {
+        open = { fromTick: since.tick, t: Math.round(since.t) / 1000, seconds: Math.round(tMs - since.t) / 1000 };
+        windows.push(open);
+        return open;
+      }
+      return null;
+    },
+  };
+}
+
 const hash = (s) => createHash('sha1').update(String(s)).digest('hex').slice(0, 12);
 const withTimeout = (p, ms, what) => Promise.race([p, new Promise((_, rej) => setTimeout(() => rej(new Error(what)), ms))]);
 
@@ -118,7 +168,12 @@ export async function runPlay(target, opts) {
   ctx.page.on('Inspector.targetCrashed', () => { crashed = 'the tab crashed (renderer process died)'; });
   await ctx.page.send('Inspector.enable').catch(() => {});
   const trace = [];
-  const r = { url: ctx.url, policy: bot ? 'bot ' + opts.bot : 'monkey', seed, seconds, stuck: stuckS, status: 'timeout', reason: `ran ${seconds} s`, ticks: 0, decisions: 0 };
+  const delay = Number(opts.delay || 0);
+  const softFail = opts.softlock !== undefined && opts.softlock !== null;
+  const softS = softFail && opts.softlock !== true ? Number(opts.softlock) : 3;
+  const r = { url: ctx.url, policy: bot ? 'bot ' + opts.bot : 'monkey', seed, seconds, stuck: stuckS, delay, status: 'timeout', reason: `ran ${seconds} s`, ticks: 0, decisions: 0, firstScore: null, softlockWindows: 0, softlocks: [] };
+  const soft = softlockWatch({ windowMs: softS * 1000 });
+  let score0 = null, lastScore = null, acted = false;
   try {
     await ctx.settle({ wait: Number(opts.wait ?? 1000) });
     await ctx.page.eval(FRAME_COUNTER);
@@ -146,12 +201,21 @@ export async function runPlay(target, opts) {
       const entry = { tick, t: Math.round(tMs) / 1000, hash: key.split(':')[1] };
       if (st.text != null) entry.state = st.text.length > 240 ? st.text.slice(0, 240) + '…' : st.text;
       if (why) { entry.action = ''; trace.push(entry); fail('stuck', why); break; }
+      let parsed = st.text;
+      if (parsed != null) { try { parsed = JSON.parse(parsed); } catch { /* plain text */ } }
+      const prog = progressOf(parsed);
+      if (prog.score != null) {
+        if (score0 === null) score0 = prog.score;
+        if (r.firstScore === null && prog.score > score0) r.firstScore = { tick, t: Math.round(tMs) / 1000, score: prog.score };
+        lastScore = prog.score;
+      }
+      const lock = soft.step(tMs, prog, st.frames, acted, tick);
+      acted = false;
+      if (lock && softFail) { entry.action = ''; trace.push(entry); fail('softlock', `frames advance and input is sent, but position and score have not changed for ${lock.seconds} s`); break; }
       let decision;
       if (bot) {
-        let state = st.text;
-        if (state != null) { try { state = JSON.parse(state); } catch { /* plain text */ } }
         Object.assign(botCtx, { tick, t: tMs / 1000, frames: st.frames });
-        try { decision = parseDecision(await bot.decide(state, botCtx)); }
+        try { decision = parseDecision(await bot.decide(parsed, botCtx)); }
         catch (e) { entry.action = ''; trace.push(entry); fail('fail', 'bot error: ' + e.message); break; }
       } else decision = parseDecision(monkeyAction(rng, { keys, width: ctx.width, height: ctx.height }));
       entry.action = decision.kind === 'act' ? decision.action : decision.kind === 'idle' ? '' : decision.kind + ' ' + decision.reason;
@@ -159,6 +223,8 @@ export async function runPlay(target, opts) {
       if (decision.kind === 'done' || decision.kind === 'fail') { fail(decision.kind, decision.reason); break; }
       if (decision.kind === 'act') {
         r.decisions++;
+        acted = true;
+        if (delay > 0) await new Promise((res) => setTimeout(res, delay)); // reaction delay: the state read is this old
         try { await withTimeout(runActions(ctx.page, decision.actions), 10000, 'input was not accepted for 10 s'); }
         catch (e) { fail(crashed ? 'crash' : 'stuck', crashed || e.message); break; }
       }
@@ -168,7 +234,10 @@ export async function runPlay(target, opts) {
     if (r.status === 'timeout' && ctx.logs.exceptions.length > exSeen) fail('crash', 'uncaught exception: ' + ctx.logs.exceptions[0].split('\n')[0]);
     if (r.status === 'timeout' && Number.isFinite(maxTicks) && r.ticks >= maxTicks) r.reason = `ran ${maxTicks} ticks`;
     r.elapsed = Math.round(Date.now() - t0) / 1000;
-    const failed = ['crash', 'stuck', 'fail'].includes(r.status);
+    r.softlocks = soft.windows;
+    r.softlockWindows = soft.windows.length;
+    if (lastScore !== null) r.score = { start: score0, end: lastScore };
+    const failed = FAILED.includes(r.status);
     if (failed) {
       r.failTick = trace.length ? trace[trace.length - 1].tick : 0;
       try { r.screenshot = (await withTimeout(screenshot(ctx, join(out, 'fail.png')), 5000, 'screenshot timed out')).file; }
@@ -193,7 +262,13 @@ export async function runPlay(target, opts) {
 
 export function formatPlay(r) {
   const L = [];
-  L.push(`play: ${r.url} · ${r.policy} · seed ${r.seed} · ${r.elapsed} s · ${r.ticks} ticks · ${r.decisions} actions · state from ${r.stateSource || 'nothing read'}`);
+  L.push(`play: ${r.url} · ${r.policy} · seed ${r.seed}${r.delay ? ` · delay ${r.delay} ms` : ''} · ${r.elapsed} s · ${r.ticks} ticks · ${r.decisions} actions · state from ${r.stateSource || 'nothing read'}`);
+  const prog = [];
+  if (r.score) prog.push(`score ${r.score.start} -> ${r.score.end}`);
+  if (r.firstScore) prog.push(`first score at tick ${r.firstScore.tick} (${r.firstScore.t} s)`);
+  else if (r.score) prog.push('score never rose');
+  if (r.softlockWindows) prog.push(`softlock windows ${r.softlockWindows} (${r.softlocks.map((w) => `from ${w.t} s`).join(', ')})`);
+  if (prog.length) L.push('progress: ' + prog.join(' · '));
   L.push(`result: ${r.status.toUpperCase()} ${r.reason}${r.failTick !== undefined ? ` (tick ${r.failTick})` : ''}`);
   if (r.exception) L.push('exception:\n  ' + r.exception.replace(/\n/g, '\n  '));
   if (r.errors.length) { L.push(`errors (${r.errors.length}):`); for (const e of r.errors.slice(0, 8)) L.push('  ' + e); }
@@ -203,14 +278,42 @@ export function formatPlay(r) {
 }
 
 // tw play <page|dist> [--bot bot.mjs | --monkey] [--seconds 60] [--seed 1] [--stuck 5] [--out dir]
+// Two-speed difficulty read from runs at different reaction delays.
+export function difficultyRead(runs) {
+  const s = runs.slice().sort((x, y) => x.delay - y.delay);
+  const fast = s[0], slow = s[s.length - 1];
+  const score = (x) => (x.score ? x.score.end - x.score.start : null);
+  const sc = (x) => (score(x) !== null ? ` (score +${score(x)})` : '');
+  if (FAILED.includes(fast.status)) return { verdict: 'fast-fails', text: `the ${fast.delay} ms run fails too (${fast.status} at ${fast.elapsed} s): the opening may be unfair, or the bot is too weak to judge` };
+  const same = fast.status === slow.status && Math.abs(fast.elapsed - slow.elapsed) <= 0.1 * Math.max(fast.elapsed, slow.elapsed)
+    && (score(fast) === null || Math.abs(score(fast) - score(slow)) <= 0.1 * Math.max(1, Math.abs(score(fast))));
+  if (same) return { verdict: 'decorative', text: `a ${slow.delay} ms reaction delay changes nothing (both ${fast.status} at about ${fast.elapsed} s${sc(fast)}): the difficulty may be decorative` };
+  return { verdict: 'delay-matters', text: `reaction delay matters: ${slow.delay} ms ends ${slow.status} at ${slow.elapsed} s${sc(slow)}, ${fast.delay} ms ends ${fast.status} at ${fast.elapsed} s${sc(fast)}` };
+}
+
 export async function cmdPlay(a, print, pageOpts, list) {
   const target = a._[1];
   if (!target) throw new Error('give a page: a .html file, a folder with index.html (dist), or a URL');
-  const r = await runPlay(target, {
+  const base = {
     bot: a.bot, monkey: !!a.monkey, seconds: a.seconds, seed: a.seed, stuck: a.stuck, tick: a.tick, ticks: a.ticks,
-    out: a.out, wait: a.wait, state: a.state ?? a.eval, keys: list(a.keys), page: pageOpts(a),
-  });
+    wait: a.wait, state: a.state ?? a.eval, keys: list(a.keys), softlock: a.softlock, page: pageOpts(a),
+  };
+  const delays = list(a.delays).map(Number);
+  if (delays.length) {
+    if (delays.some((d) => !Number.isFinite(d) || d < 0)) throw new Error('--delays takes milliseconds such as 0,300');
+    const root = String(a.out || join('tw-play', `seed-${Number(a.seed ?? 1)}`));
+    const runs = [];
+    for (const d of delays) runs.push(await runPlay(target, { ...base, delay: d, out: join(root, `delay-${d}`) }));
+    const r = { delays: runs, read: difficultyRead(runs) };
+    print(r, a.json, (x) => [...x.delays.map(formatPlay), `difficulty: ${x.read.text}`].join('\n'));
+    // A slower run failing is the measurement. The command fails on the fastest run failing,
+    // or on any crash, stuck run, softlock or uncaught exception.
+    const fast = runs.slice().sort((p, q) => p.delay - q.delay)[0];
+    if (FAILED.includes(fast.status) || runs.some((x) => ['crash', 'stuck', 'softlock'].includes(x.status) || x.exceptions.length)) process.exitCode = 1;
+    return r;
+  }
+  const r = await runPlay(target, { ...base, out: a.out });
   print(r, a.json, formatPlay);
-  if (['crash', 'stuck', 'fail'].includes(r.status) || !r.ok) process.exitCode = 1;
+  if (FAILED.includes(r.status) || !r.ok) process.exitCode = 1;
   return r;
 }

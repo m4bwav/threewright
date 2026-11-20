@@ -55,6 +55,9 @@ node scripts/tw.mjs check page/ --actions "key KeyW 500; click 480,270" --cycles
 node scripts/tw.mjs check page/ --shot a.png --sheet b.png --tree --labels   # several outputs, one launch
 node scripts/tw.mjs play dist/ --monkey --seconds 60 --seed 1 --stuck 5   # random input soak: crash/stuck/timeout, trace.jsonl, result.json
 node scripts/tw.mjs play dist/ --bot bot.mjs --out run1   # a bot's decide(state, ctx) picks each action until done or fail
+node scripts/tw.mjs play dist/ --bot bot.mjs --delays 0,300 --softlock 2   # two-speed difficulty read, softlock and first-score step
+node scripts/tw.mjs feel dist/ --actions "wait 1000; key Space 50" --player "find('player')"   # response, hit-stop, flashes, shake, FOV, camera hiding the player
+node scripts/tw.mjs feel canvas-game/ --pixels --box hud=400,8,60,20 --probe "#toast"   # Canvas 2D: phase-correlation shake, box rise/decay, update periods, class spans
 node scripts/tw.mjs shaders page/ --dump shaders/   # WebGL programs, materials, failing lines with context
 node scripts/tw.mjs shot page/ --eval "__tw.setProgress(0.5)" --out mid.png   # set a state, then capture
 node scripts/tw.mjs sheet page/ --out s.png  # four angles in one image, prints its token cost
@@ -68,6 +71,7 @@ node scripts/tw.mjs kb search "bloom webgpu" # then: kb show <slug> --section <n
 node scripts/tw.mjs new game-starter my-game
 node scripts/tw.mjs vendor site/              # copy the pinned CDN modules the page imports (and the decoder files they fetch) into vendor/, rewrite the import map
 node scripts/tw.mjs shot page/ --out poster.jpg   # .jpg or .webp for a poster image
+node scripts/tw.mjs shot dist/ --out play.png --metrics   # advisory look numbers: entropy, dominant colour, edges, contrast
 node scripts/tw.mjs deprecations             # @deprecated markers in the installed three no rule covers
 node scripts/tw.mjs versions --check         # npm versions vs the knowledge base
 node scripts/tw.mjs doctor

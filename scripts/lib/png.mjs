@@ -141,3 +141,38 @@ export function diffImages(a, b, { threshold = 0.1 } = {}) {
   }
   return { share: bad / (a.width * a.height), pixels: bad, maxDelta: maxDelta / 255, image: { width: a.width, height: a.height, data: out } };
 }
+
+// Advisory look numbers for one frame (tw shot --metrics). Colour entropy in bits over a
+// 4-bit-per-channel histogram (0 to 12), the most common of those colours' share, edge
+// density (share of pixels whose luma gradient |dx| + |dy| over 2 px is 40 or more) and
+// contrast (5th to 95th percentile of luma, 0-255). Below 3.0 bits, above 0.6 share, below
+// 0.04 edges or below 60 contrast reads as flat, empty or washed out: a note, never a failure.
+export const LOOK_LIMITS = { entropy: 3.0, dominant: 0.6, edges: 0.04, contrast: 60 };
+
+export function lookMetrics({ width, height, data }) {
+  const n = width * height;
+  const hist = new Uint32Array(4096);
+  const luma = new Uint8Array(n);
+  for (let i = 0, p = 0; i < n; i++, p += 4) {
+    hist[((data[p] >> 4) << 8) | ((data[p + 1] >> 4) << 4) | (data[p + 2] >> 4)]++;
+    luma[i] = (data[p] * 54 + data[p + 1] * 183 + data[p + 2] * 19) >> 8;
+  }
+  let entropy = 0, top = 0;
+  for (const c of hist) if (c) { const q = c / n; entropy -= q * Math.log2(q); if (c > top) top = c; }
+  let edges = 0, m = 0;
+  for (let y = 1; y < height - 1; y++) for (let x = 1; x < width - 1; x++) {
+    const i = y * width + x;
+    if (Math.abs(luma[i + 1] - luma[i - 1]) + Math.abs(luma[i + width] - luma[i - width]) >= 40) edges++;
+    m++;
+  }
+  const lh = new Uint32Array(256);
+  for (const v of luma) lh[v]++;
+  const pct = (f) => { let acc = 0; for (let v = 0; v < 256; v++) { acc += lh[v]; if (acc >= f * n) return v; } return 255; };
+  const r = { entropy: Math.round(entropy * 100) / 100, dominant: Math.round(top / n * 1000) / 1000, edges: Math.round((m ? edges / m : 0) * 1000) / 1000, contrast: pct(0.95) - pct(0.05) };
+  const L = LOOK_LIMITS, low = [];
+  if (r.entropy < L.entropy) low.push(`colour entropy ${r.entropy} bits < ${L.entropy} (few colours)`);
+  if (r.dominant > L.dominant) low.push(`one colour covers ${Math.round(r.dominant * 100)}% > ${L.dominant * 100}% (mostly empty)`);
+  if (r.edges < L.edges) low.push(`edge density ${r.edges} < ${L.edges} (little detail)`);
+  if (r.contrast < L.contrast) low.push(`contrast ${r.contrast} < ${L.contrast} (washed out)`);
+  return { ...r, low };
+}

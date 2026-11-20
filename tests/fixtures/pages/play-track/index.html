@@ -1,0 +1,36 @@
+<!doctype html>
+<html lang="en">
+<head><meta charset="utf-8"><title>fixture: play track</title></head>
+<body style="margin:0;background:#111">
+  <canvas id="c" width="320" height="180"></canvas>
+  <script>
+    // A track for tw play's softlock read: ArrowRight moves the square right and every
+    // 40 px travelled scores a point. The open track wraps around; with ?wall a wall at
+    // x = 120 stops the square, so input keeps arriving and nothing progresses.
+    // The beat changes every 200 ms so the state never looks stuck.
+    const walled = new URLSearchParams(location.search).has('wall');
+    const ctx = document.getElementById('c').getContext('2d');
+    const s = { x: 20, score: 0, beat: 0 };
+    let travelled = 0;
+    const held = new Set();
+    addEventListener('keydown', (e) => held.add(e.code));
+    addEventListener('keyup', (e) => held.delete(e.code));
+    const t0 = performance.now();
+    function frame() {
+      if (held.has('ArrowRight')) {
+        const nx = walled ? Math.min(120, s.x + 3) : s.x + 3;
+        travelled += nx - s.x;
+        s.x = nx > 300 ? 0 : nx;
+        s.score = Math.floor(travelled / 40);
+      }
+      s.beat = Math.floor((performance.now() - t0) / 200);
+      ctx.fillStyle = '#111'; ctx.fillRect(0, 0, 320, 180);
+      if (walled) { ctx.fillStyle = '#844'; ctx.fillRect(128, 0, 8, 180); }
+      ctx.fillStyle = '#4a8'; ctx.fillRect(s.x - 8, 82, 16, 16);
+      requestAnimationFrame(frame);
+    }
+    requestAnimationFrame(frame);
+    window.__game = { state: () => ({ ...s }) };
+  </script>
+</body>
+</html>

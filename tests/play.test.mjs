@@ -9,7 +9,7 @@ import { tmpdir } from 'node:os';
 import { dirname, join, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { findChrome } from '../scripts/lib/cdp.mjs';
-import { makeRng, monkeyAction, parseDecision, stuckWatch } from '../scripts/lib/play.mjs';
+import { difficultyRead, makeRng, monkeyAction, parseDecision, progressOf, softlockWatch, stuckWatch } from '../scripts/lib/play.mjs';
 
 const ROOT = resolve(dirname(fileURLToPath(import.meta.url)), '..');
 const TW = join(ROOT, 'scripts/tw.mjs');
@@ -118,4 +118,58 @@ test('tw play: a bot module plays to done; no state hook falls back to a frame h
   assert.ok(f.json, f.err);
   assert.equal(f.json.stateSource, 'frame hash (no state hook)');
   assert.equal(f.json.status, 'stuck', f.err);
+});
+
+test('progressOf reads score and position from common state shapes', () => {
+  assert.deepEqual(progressOf({ x: 3, y: 4, score: 2 }), { score: 2, pos: [3, 4] });
+  assert.deepEqual(progressOf({ player: { pos: [1, 2, 3], score: 5 } }), { score: 5, pos: [1, 2, 3] });
+  assert.deepEqual(progressOf({ points: 1, position: { x: 0, z: 9 } }), { score: 1, pos: [0, 9] });
+  assert.deepEqual(progressOf('text'), { score: null, pos: null });
+});
+
+test('softlockWatch counts one window while frames run and input goes in', () => {
+  const w = softlockWatch({ windowMs: 1000 });
+  let f = 0;
+  for (let t = 0; t <= 3000; t += 100) w.step(t, { pos: [t < 500 ? t : 500], score: 0 }, f++, true, t / 100);
+  assert.equal(w.windows.length, 1);
+  assert.equal(w.windows[0].t, 0.5);
+  const idle = softlockWatch({ windowMs: 1000 });
+  for (let t = 0; t <= 3000; t += 100) idle.step(t, { pos: [0], score: 0 }, f++, false, t / 100);
+  assert.equal(idle.windows.length, 0, 'no input sent: not a softlock');
+});
+
+test('difficultyRead names decorative, delay-matters and fast-fails', () => {
+  const run = (delay, status, elapsed, end = 3) => ({ delay, status, elapsed, score: { start: 0, end } });
+  assert.equal(difficultyRead([run(0, 'timeout', 6), run(300, 'timeout', 6)]).verdict, 'decorative');
+  assert.equal(difficultyRead([run(0, 'timeout', 6), run(300, 'fail', 1.5, 0)]).verdict, 'delay-matters');
+  assert.equal(difficultyRead([run(0, 'fail', 1), run(300, 'fail', 1)]).verdict, 'fast-fails');
+});
+
+test('tw play: --softlock fails a walled track and passes an open one with a first score', { skip, timeout: 200000 }, () => {
+  const bot = join(PAGES, 'play-track/bot.mjs');
+  const open = play(join(PAGES, 'play-track'), '--bot', bot, '--seconds', '4', '--softlock', '1');
+  assert.ok(open.json, open.err);
+  assert.equal(open.json.status, 'timeout', open.err);
+  assert.equal(open.json.softlockWindows, 0);
+  assert.ok(open.json.score.end > open.json.score.start, 'score rose');
+  assert.ok(open.json.firstScore && open.json.firstScore.tick < 10, JSON.stringify(open.json.firstScore));
+  assert.equal(open.code, 0);
+  const wall = play(join(PAGES, 'play-track') + '/?wall', '--bot', bot, '--seconds', '4', '--softlock', '1');
+  assert.ok(wall.json, wall.err);
+  assert.equal(wall.json.status, 'softlock', wall.err);
+  assert.ok(wall.json.softlockWindows > 0);
+  assert.equal(wall.code, 1);
+});
+
+test('tw play --delays 0,300: the late run dies earlier than the quick one', { skip, timeout: 200000 }, () => {
+  const r = play(join(PAGES, 'play-hazard'), '--bot', join(PAGES, 'play-hazard/bot.mjs'), '--seconds', '5', '--delays', '0,300');
+  assert.ok(r.json, r.err);
+  const [fast, slow] = r.json.delays;
+  assert.equal(fast.delay, 0);
+  assert.equal(slow.delay, 300);
+  assert.equal(fast.status, 'timeout', r.err);
+  assert.equal(slow.status, 'fail');
+  assert.ok(slow.elapsed < fast.elapsed, `${slow.elapsed} < ${fast.elapsed}`);
+  assert.equal(r.json.read.verdict, 'delay-matters');
+  assert.equal(r.code, 0);
 });
