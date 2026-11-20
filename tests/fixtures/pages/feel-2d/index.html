@@ -1,0 +1,42 @@
+<!doctype html>
+<html lang="en">
+<head><meta charset="utf-8"><title>fixture: tw feel canvas 2d</title></head>
+<body style="margin:0;background:#000">
+  <canvas id="c" width="480" height="270" style="display:block"></canvas>
+  <div id="hud" style="position:absolute;left:400px;top:8px;width:60px;height:12px"></div>
+  <script>
+    // Known events for tw feel in pixel mode, timed by performance.now (tw's virtual clock):
+    //   the world scrolls left 60 px/s the whole time (smooth motion, no shake)
+    //   Space      the player square turns red 100 ms later
+    //   2.0 s      view shake 6 px x, 4 px y, exponential decay 6.5 per s
+    //   3.0 s      #hud gets class "pulse" for 20 frames
+    //   4.0 s      a 6-frame freeze (nothing is drawn, nothing moves)
+    //   5.0 s      the whole screen is white for 2 frames
+    const cv = document.getElementById('c'), g = cv.getContext('2d'), hud = document.getElementById('hud');
+    let seed = 7;
+    const rnd = () => ((seed = (seed * 16807) % 2147483647) / 2147483647);
+    const rects = Array.from({ length: 400 }, () => [rnd() * 2400, rnd() * 270, 8 + rnd() * 40, 8 + rnd() * 40, `hsl(${Math.floor(rnd() * 360)},50%,${20 + Math.floor(rnd() * 30)}%)`]);
+    const t0 = performance.now();
+    let pressedAt = null, frozen = 0;
+    addEventListener('keydown', (e) => { if (e.code === 'Space' && pressedAt === null) pressedAt = performance.now(); });
+    function frame() {
+      const now = performance.now(), t = (now - t0) / 1000, n = Math.round(t * 60);
+      requestAnimationFrame(frame);
+      if (n >= 240 && n < 246) return; // freeze: draw nothing for 6 frames
+      const sh = t - 2.0;
+      let ox = 0, oy = 0;
+      if (sh >= 0) { const a = Math.exp(-6.5 * sh), th = (n - 120) * 2.39996; ox = 6 * a * Math.cos(th); oy = 4 * a * Math.sin(th); if (a < 0.02) ox = oy = 0; }
+      const scroll = (n >= 246 ? n - 6 : n) * 1; // the world does not advance during the freeze
+      g.setTransform(1, 0, 0, 1, ox, oy);
+      g.fillStyle = '#101418'; g.fillRect(-20, -20, 520, 310);
+      for (const [x, y, w, h, c] of rects) { const X = ((x - scroll) % 2400 + 2400) % 2400 - 40; if (X < 500) { g.fillStyle = c; g.fillRect(X, y, w, h); } }
+      g.fillStyle = pressedAt !== null && now - pressedAt >= 100 ? '#ff2020' : '#20ff20';
+      g.fillRect(60, 180, 40, 40);
+      g.setTransform(1, 0, 0, 1, 0, 0);
+      if (n >= 300 && n < 302) { g.fillStyle = '#fff'; g.fillRect(0, 0, 480, 270); }
+      hud.className = n >= 180 && n < 200 ? 'hud pulse' : 'hud';
+    }
+    requestAnimationFrame(frame);
+  </script>
+</body>
+</html>

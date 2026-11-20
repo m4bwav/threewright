@@ -39,8 +39,21 @@ Verify a page (file, folder with index.html, or URL); text first, images on requ
                         tw sends it; writes trace.jsonl, result.json (done, fail, timeout, crash, stuck)
                         and fail.png at the failure tick; exits 1 on crash, stuck, fail or an exception
                         --keys KeyW,Space (monkey keys) --tick 100 (ms) --ticks N (cap, for determinism)
+                        --delays 0,300 runs once per reaction delay (ms between decision and input) and
+                        reads the difficulty; --softlock S fails a run whose frames advance and input is
+                        sent but position and score stay put for S s (always reported, 3 s window);
+                        result.json has firstScore (tick and time the score first rose)
+  feel <page> [--actions "..."] [--seconds 5] [--fps 60] [--box name=x,y,w,h ...] [--player "<js>"]
+                        game feel as numbers, on the virtual clock frame by frame: input to response
+                        (per box or frame; camera path on three.js pages), freezes (hit-stop), flashes
+                        (hold, fade, shape; FAIL over 3 in 1 s), shake bursts (camera units and px, or
+                        --pixels: phase correlation on --band, for Canvas 2D), FOV range, box rise and
+                        decay times with curve shape, update periods, camera-hides-player share with
+                        --player (FAIL over 2% or a run over 1 s), --probe "<css>" class spans;
+                        --subject-depth D for px, --out dir writes feel.json with every frame
   shot <page> --out f.png [--canvas] [--alpha]   one screenshot; prints its token cost (.jpg or .webp
-                        write that format, --quality 82, e.g. for a poster image)
+                        write that format, --quality 82, e.g. for a poster image); --metrics adds
+                        advisory look numbers: colour entropy, dominant colour share, edge density, contrast
                         (shot and sheet take --eval "<js>" to set a state first, e.g. scrollTo(0, 2000))
   sheet <page> --out f.png [--views current,front,right,top]   several angles in one image
   sheet <page> --sweep "find('knot').material.roughness=0,0.5,1"   one tile per value, current view
@@ -80,7 +93,7 @@ Static tools (no browser):
 Global: --json for machine output. Image costs use Claude's 28 px patches (TW_IMAGE_TIER=standard
 for models before Claude 4.7).`;
 
-const BOOLS = ['json', 'canvas', 'webgpu', 'headed', 'strict', 'reducedMotion', 'reduced-motion', 'alpha', 'check', 'all', 'help', 'fix', 'keepFrames', 'force', 'md', 'tree', 'labels', 'sources', 'offline', 'dry-run', 'no-vendor', 'monkey'];
+const BOOLS = ['json', 'canvas', 'webgpu', 'headed', 'strict', 'reducedMotion', 'reduced-motion', 'alpha', 'check', 'all', 'help', 'fix', 'keepFrames', 'force', 'md', 'tree', 'labels', 'sources', 'offline', 'dry-run', 'no-vendor', 'monkey', 'pixels', 'metrics'];
 
 function print(obj, asJson, textFn) {
   if (asJson) console.log(JSON.stringify(obj, null, 2));
@@ -100,6 +113,7 @@ function formatCheck(r) {
     L.push(`renderer: ${ri.type}${ri.backend ? ' (' + ri.backend + ')' : ''} canvas ${ri.canvas}${ri.inDom === false ? ' NOT IN DOM' : ''} dpr ${ri.pixelRatio} · draw calls ${ri.drawCalls} · tris ${ri.triangles} · geometries ${ri.geometries} · textures ${ri.textures}${ri.programs !== undefined ? ' · programs ' + ri.programs : ''} · output ${ri.outputColorSpace} · toneMapping ${ri.toneMapping} · shadows ${ri.shadows}`);
   }
   if (r.gl) L.push(`gpu: ${r.gl}`);
+  if (softwareWarning(r.gl)) L.push(softwareWarning(r.gl));
   if (r.cdn && r.cdn.total) L.push(`cdn: ${r.cdn.total} file(s) served locally (${Object.entries(r.cdn.packages).map(([k, v]) => `${k} from ${v}`).join(', ')})`);
   const s = r.summary.scene;
   if (s) {
@@ -205,7 +219,11 @@ async function glString(page) {
 }
 
 const formatImage = (x) => `wrote ${x.file} (${x.width}x${x.height}, ${x.tokens} image tokens${x.seenAs ? `; the model downscales it to ${x.seenAs}` : ''})${x.labels && x.labels.length ? '\nlabels: ' + x.labels.join(' · ') : ''}`;
-const formatShot = (x) => !x.pixels ? formatImage(x) : `${formatImage(x)}\n${formatPixels(x.pixels)}${x.pixels.warn.length ? '\n' + x.pixels.warn.map((w) => 'CHECK ' + w).join('\n') : ''}`;
+const formatLook = (l) => `look: entropy=${l.entropy} bits dominant=${l.dominant} edges=${l.edges} contrast=${l.contrast} (advisory)${l.low.length ? '\n' + l.low.map((w) => 'low: ' + w).join('\n') : ''}`;
+const formatShot = (x) => (!x.pixels ? formatImage(x) : `${formatImage(x)}\n${formatPixels(x.pixels)}${x.pixels.warn.length ? '\n' + x.pixels.warn.map((w) => 'CHECK ' + w).join('\n') : ''}`) + (x.look ? '\n' + formatLook(x.look) : '');
+// SwiftShader is Chrome's CPU renderer: frame times and GPU costs measured on it are not a GPU's.
+const SOFTWARE_GL = /swiftshader|llvmpipe|software/i;
+const softwareWarning = (gl) => (gl && SOFTWARE_GL.test(gl) ? `warning: software GL (${gl.slice(0, 60)}): frame times are CPU-rendered, not a GPU's; do not compare them with budgets` : null);
 
 async function takeShot(ctx, a, out) {
   const { screenshot } = await import('./lib/page.mjs');
@@ -231,10 +249,16 @@ async function takeShot(ctx, a, out) {
   const r = await screenshot(ctx, out, { canvasOnly: !!a.canvas, alpha: !!a.alpha, quality: a.quality });
   if (labels) { await ctx.page.eval('document.getElementById("__tw_labels")?.remove(), true'); r.labels = labels; }
   const { readFileSync } = await import('node:fs');
-  const { decodePng, pixelStats, pixelWarnings } = await import('./lib/png.mjs');
-  if (!/\.png$/i.test(out)) return r; // pixel stats read PNG only
-  const px = pixelStats(decodePng(readFileSync(out)));
-  return { ...r, pixels: { ...px, warn: pixelWarnings(px) } };
+  const { decodePng, pixelStats, pixelWarnings, lookMetrics } = await import('./lib/png.mjs');
+  if (!/\.png$/i.test(out)) {
+    // pixel stats read PNG only; --metrics takes its own PNG of the same view
+    if (!a.metrics) return r;
+    const { data } = await ctx.page.send('Page.captureScreenshot', { format: 'png', captureBeyondViewport: false });
+    return { ...r, look: lookMetrics(decodePng(Buffer.from(data, 'base64'))) };
+  }
+  const img = decodePng(readFileSync(out));
+  const px = pixelStats(img);
+  return { ...r, pixels: { ...px, warn: pixelWarnings(px) }, ...(a.metrics ? { look: lookMetrics(img) } : {}) };
 }
 
 async function takeSheet(ctx, a, out) {
@@ -333,7 +357,7 @@ const commands = {
       const col = (i) => raw.counts.map((c) => c[i]);
       const range = (xs) => (xs.length ? [Math.min(...xs), Math.max(...xs)] : null);
       const r = {
-        url: ctx.url, seconds, cpuThrottle: throttle, note: 'headless, uncalibrated',
+        url: ctx.url, seconds, cpuThrottle: throttle, note: 'headless, uncalibrated', gl: await glString(ctx.page).catch(() => null),
         ...frameStats(raw.frames),
         drawCalls: range(col(0)), triangles: range(col(1)),
         geometries: raw.start.info && raw.end.info ? [raw.start.info[2], raw.end.info[2]] : null,
@@ -346,7 +370,9 @@ const commands = {
       if (targetMs != null) { r.targetOk = r.p95 <= targetMs; if (!r.targetOk) process.exitCode = 1; }
       const span = (v) => (v ? (v[0] === v[1] ? String(v[0]) : `${v[0]}-${v[1]}`) : '?');
       const grow = (v, unit = '') => (v ? `${v[0]}${unit} -> ${v[1]}${unit}` : 'n/a');
+      r.warning = softwareWarning(r.gl);
       print(r, a.json, (x) => [
+        ...(x.warning ? [x.warning] : []),
         `perf ${x.seconds}s${x.cpuThrottle > 1 ? ` at ${x.cpuThrottle}x CPU throttle` : ''} (${x.note}): ${x.frames} frames · ${x.fps} fps`,
         `frame ms: p50 ${x.p50} · p95 ${x.p95} · p99 ${x.p99} · max ${x.max} · over 33 ms: ${x.over33}`,
         `per frame: draw calls ${span(x.drawCalls)} · triangles ${span(x.triangles)}`,
@@ -465,6 +491,7 @@ const commands = {
   },
 
   async play(a) { const m = await import('./lib/play.mjs'); return m.cmdPlay(a, print, pageOpts, list); },
+  async feel(a) { const m = await import('./lib/feel.mjs'); return m.cmdFeel(a, print, pageOpts); },
   async lint(a) { const m = await import('./lib/lint.mjs'); return m.cmdLint(a, print); },
   async look(a) { const m = await import('./lib/look.mjs'); return m.cmdLook(a, print); },
   async glb(a) { const m = await import('./lib/glb.mjs'); return m.cmdGlb(a, print); },

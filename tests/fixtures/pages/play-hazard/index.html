@@ -1,0 +1,38 @@
+<!doctype html>
+<html lang="en">
+<head><meta charset="utf-8"><title>fixture: play hazard</title></head>
+<body style="margin:0;background:#111">
+  <canvas id="c" width="320" height="180"></canvas>
+  <script>
+    // A runner for tw play's two-speed read: a hazard slides left at 300 px/s from x = 320
+    // toward the player at x = 40, a new one every 1.5 s. Space jumps for 0.6 s. Touching a
+    // hazard on the ground ends the run (dead); each hazard passed scores a point.
+    // Hazards start 0.5 s after tw play first reads the state.
+    const ctx = document.getElementById('c').getContext('2d');
+    const s = { px: 40, hx: 320, air: false, dead: false, score: 0, beat: 0 };
+    // The run starts at the first state read, so loading and tw's settle wait cost nothing.
+    let jumpAt = -1e9, spawnAt = Infinity, active = false;
+    addEventListener('keydown', (e) => { if (e.code === 'Space' && !s.air && !s.dead) jumpAt = performance.now(); });
+    const t0 = performance.now();
+    function frame() {
+      const now = performance.now();
+      s.beat = Math.floor((now - t0) / 200);
+      if (!s.dead) {
+        s.air = now - jumpAt < 600;
+        if (!active && now >= spawnAt) { active = true; s.hx = 320; spawnAt = now; }
+        if (active) {
+          s.hx = 320 - 300 * (now - spawnAt) / 1000;
+          if (Math.abs(s.hx - s.px) < 10 && !s.air) s.dead = true;
+          if (s.hx < s.px - 20) { active = false; s.score++; spawnAt = now + 800; s.hx = 320; }
+        }
+      }
+      ctx.fillStyle = s.dead ? '#400' : '#111'; ctx.fillRect(0, 0, 320, 180);
+      ctx.fillStyle = '#4a8'; ctx.fillRect(s.px - 8, s.air ? 60 : 120, 16, 16);
+      if (active) { ctx.fillStyle = '#e44'; ctx.fillRect(s.hx - 6, 124, 12, 12); }
+      requestAnimationFrame(frame);
+    }
+    requestAnimationFrame(frame);
+    window.__game = { state: () => { if (spawnAt === Infinity) spawnAt = performance.now() + 500; return { ...s }; } };
+  </script>
+</body>
+</html>
