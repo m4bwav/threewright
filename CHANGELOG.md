@@ -2,6 +2,12 @@
 
 Plugin versions. Skill-level changes are in each `skills/*/CHANGELOG.md`; the session record is `ai-docs/log.md`.
 
+## 1.10.0 · 2026-11-20
+
+- `tw play <page|dist> [--bot bot.mjs | --monkey] [--seconds 60] [--seed 1] [--stuck 5] [--out dir]` (scripts/lib/play.mjs): closed-loop play. Each tick it reads the state (`--state`, `__game.snapshot()`, `__game.state()`, `render_game_to_text()`, or a frame hash), asks a bot's `decide(state, ctx)` or a seeded random monkey for an action in the `--actions` grammar, and sends it. Writes `trace.jsonl` and `result.json` (done, fail, timeout, crash, stuck) and `fail.png` at the failure tick; exits 1 on crash, stuck, fail or an uncaught exception. Stuck means the state or frame unchanged for `--stuck` seconds, no animation frame for 2 s, or a main thread that stops answering. Fixtures `play-clean`, `play-throw`, `play-freeze`, `play-bot`; `tests/play.test.mjs` covers crash, stuck, clean timeout, same-seed determinism, a bot run and the frame-hash fallback.
+- threewright-games done checklist line 12a: a play soak over three seeds plus a goal bot.
+- The bot-runner loop (snapshot, decide, act, a trace line per decision, one status file) follows VibeGame, arXiv:2610.33106 (Apache-2.0 code); written fresh from our notes, nothing copied. Stuck detection, the uncaught-exception hook and the monkey policy are additions.
+
 ## 1.9.0 · 2026-11-19
 
 - threewright-shaders: Book of Shaders fragment rules in kb `tsl` and `seeded-randomness`, and `tw lint` rules `glsl-float-int-literal`, `glsl-step-visible-edge`, `glsl-unwrapped-time` (73 lint rules).

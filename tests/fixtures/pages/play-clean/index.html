@@ -1,0 +1,29 @@
+<!doctype html>
+<html lang="en">
+<head><meta charset="utf-8"><title>fixture: play clean</title></head>
+<body style="margin:0;background:#111">
+  <canvas id="c" width="320" height="180"></canvas>
+  <script>
+    // A tiny game for tw play: arrows and WASD move a square, Space counts jumps.
+    // The state changes every 200 ms on its own, so it never looks stuck.
+    const ctx = document.getElementById('c').getContext('2d');
+    const s = { x: 160, y: 90, jumps: 0, beat: 0 };
+    const held = new Set();
+    addEventListener('keydown', (e) => { held.add(e.code); if (e.code === 'Space') s.jumps++; });
+    addEventListener('keyup', (e) => held.delete(e.code));
+    const t0 = performance.now();
+    function frame() {
+      if (held.has('KeyA') || held.has('ArrowLeft')) s.x = Math.max(0, s.x - 2);
+      if (held.has('KeyD') || held.has('ArrowRight')) s.x = Math.min(320, s.x + 2);
+      if (held.has('KeyW') || held.has('ArrowUp')) s.y = Math.max(0, s.y - 2);
+      if (held.has('KeyS') || held.has('ArrowDown')) s.y = Math.min(180, s.y + 2);
+      s.beat = Math.floor((performance.now() - t0) / 200);
+      ctx.fillStyle = '#111'; ctx.fillRect(0, 0, 320, 180);
+      ctx.fillStyle = '#4a8'; ctx.fillRect(s.x - 8, s.y - 8, 16, 16);
+      requestAnimationFrame(frame);
+    }
+    requestAnimationFrame(frame);
+    window.__game = { state: () => ({ ...s }) };
+  </script>
+</body>
+</html>
