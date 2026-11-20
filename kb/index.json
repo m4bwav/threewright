@@ -649,7 +649,7 @@
     "Verify",
     "Notes"
    ],
-   "bytes": 6321
+   "bytes": 8335
   },
   {
    "slug": "webgpu-support",
@@ -2512,7 +2512,7 @@
     "Verify",
     "Notes"
    ],
-   "bytes": 4057
+   "bytes": 4595
   },
   {
    "slug": "tsl-custom-material",

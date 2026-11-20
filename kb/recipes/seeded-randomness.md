@@ -55,6 +55,8 @@ const sceneRand = mulberry32(seed);
 
 For a uniformly distributed point inside a disc (a common scatter pattern), use `radius = maxRadius * Math.sqrt(rand())`, not `radius = maxRadius * rand()`, or points cluster toward the center; see `instanced-scatter` for this in context. Never mix a seeded PRNG with real `Math.random()` calls in the same generative step (a stray library call, a `Date.now()`-seeded default): any unseeded call reintroduces nondeterminism into an otherwise reproducible pipeline.
 
+On the GPU, the common `fract(sin(dot(p, vec2(12.9898, 78.233))) * 43758.5453)` hash is deterministic on one machine but is a teaching hash: its distribution is not uniform and the sine is not bit-exact across GPUs and drivers at large inputs (The Book of Shaders ch. 10 for the hash; the cross-GPU variance is widely reported, unverified here). For anything compared across machines with `tw diff`, hash integers instead (PCG or another integer hash on `uint`), or make the random values on the CPU with the PRNG above and upload them.
+
 ## Verify
 
 - Run the page twice with the same seed and diff two screenshots (`tw shot` twice, then `tw diff a.png b.png --threshold 0.1 --max 0.001`): the same seed must give a PASS with zero or near-zero pixel difference.

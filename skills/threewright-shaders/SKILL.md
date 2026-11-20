@@ -34,7 +34,7 @@ New effects default to TSL on WebGPURenderer: it compiles to WGSL or GLSL and ru
 
 ## Step 3: verify
 
-1. `TW check <page>`: `result: OK`. Shader compile errors appear as console errors; WGSL errors name the pipeline and line, and the fix hint says so. `TW lint <dir>` flags GLSL materials and EffectComposer on WebGPU pages and renamed TSL functions.
+1. `TW check <page>`: `result: OK`. Shader compile errors appear as console errors; WGSL errors name the pipeline and line, and the fix hint says so. `TW lint <dir>` flags GLSL materials and EffectComposer on WebGPU pages renamed TSL functions, and GLSL slips: a float set from a bare integer, `step` on a visible distance edge, unwrapped time in `sin`. Fragment idioms (aspect, edges, tiling, cellular search): `TW kb show tsl --section Essentials`.
 2. `TW shot <page> --out after.png --size 640x360` and look once; for a change to an existing look, `TW diff before.png after.png --out diff.png` (small or zero differences outside the intended area).
 3. Animated effects: two shots at different times, or `TW video` with a short frame strip.
 4. State which backend ran (`renderer:` line in `tw check`): headless machines often have no WebGPU adapter and test the WebGL 2 fallback.

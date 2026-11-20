@@ -837,6 +837,42 @@
       "sample": "const positions = new Float32Array(300)\nconst attr = new Float32BufferAttribute(positions, 3)\npositions.set(points)\nattr.needsUpdate = true",
       "ok": "function grid() {\n  const kinds = [0, 1]\n  return new Float32BufferAttribute(kinds, 1)\n}\nfunction road() {\n  const attr = new Float32BufferAttribute(new Float32Array(300), 1)\n  const kinds = attr.array\n  kinds[0] = 1\n}",
       "source": "three.js src/core/BufferAttribute.js: Float32BufferAttribute's constructor calls super(new Float32Array(array), ...); markdavidrogers-web PR #37 lost a whole road this way (LEARNINGS L-20261004-1)"
+    },
+    {
+      "id": "glsl-float-int-literal",
+      "status": "pitfall",
+      "severity": "warn",
+      "since": 0,
+      "pattern": "\\bfloat\\s+[A-Za-z_]\\w*\\s*=\\s*-?\\d+\\s*;",
+      "message": "a GLSL float initialised with a bare integer literal; GLSL ES has no implicit int to float conversion, so strict drivers refuse to compile it",
+      "fix": "write the decimal point: float k = 1.0;",
+      "sample": "float k = 1;",
+      "ok": "float k = 1.0;",
+      "source": "The Book of Shaders (Gonzalez Vivo and Lowe, thebookofshaders.com), ch. 5 (float literals need a decimal point); GLSL ES 3.00 spec, no implicit conversions"
+    },
+    {
+      "id": "glsl-step-visible-edge",
+      "status": "pitfall",
+      "severity": "info",
+      "since": 0,
+      "pattern": "\\bstep\\(\\s*[^,()]+,\\s*(?:length|distance)\\(",
+      "message": "step() on a distance draws a hard, aliased shape edge",
+      "fix": "use smoothstep over a pixel-wide band: smoothstep(r, r + fwidth(d), d), or a fixed small width",
+      "sample": "float c = step(0.3, length(st - 0.5));",
+      "ok": "float c = smoothstep(0.3, 0.31, length(st - 0.5));",
+      "source": "The Book of Shaders (Gonzalez Vivo and Lowe, thebookofshaders.com), ch. 7 (step versus smoothstep edges)"
+    },
+    {
+      "id": "glsl-unwrapped-time",
+      "status": "pitfall",
+      "severity": "info",
+      "since": 0,
+      "pattern": "\\b(?:sin|cos|fract)\\(\\s*(?:u_time|uTime|iTime)\\s*\\*",
+      "message": "elapsed time scaled straight into sin/cos/fract keeps growing; after hours on an open page float precision drops and the motion steps or jitters",
+      "fix": "wrap time on the CPU before upload (uTime.value = t % period) or mod() it by a whole number of periods",
+      "sample": "float w = sin(uTime * 3.0);",
+      "ok": "float w = sin(mod(uTime, 6.2831853) * 3.0);",
+      "source": "The Book of Shaders (Gonzalez Vivo and Lowe, thebookofshaders.com), ch. 5 (time-scaled arguments grow without bound)"
     }
   ],
   "skipped": [

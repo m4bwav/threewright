@@ -4,6 +4,12 @@ Every change to [SKILL.md](SKILL.md) and its companions, newest first, each with
 
 Entry shape: `### C-YYYYMMDD-n · date · one-line summary`, then `because:` (IDs or "user request"), `files:` (file and section), and a sentence on what changed. Cite section headings, not line numbers.
 
+### C-20261119-2 · 2026-11-19 · Book of Shaders fragment rules
+- because: book distillation (The Book of Shaders, ch. 5-12)
+- files: SKILL.md (Step 3 lint line), kb/topics/tsl.md, kb/recipes/seeded-randomness.md, kb/rules/lint-rules.json
+
+Fragment idioms (aspect before distance fields, smoothstep edges, transform about the centre, floor/fract tiling with a hashed id, atan and radius normalisation), two debug views, the 3x3 cell-local Worley search, a time-wrap pitfall, and a note that the fract(sin) hash is not bit-exact across GPUs. Three info/warn lint rules: glsl-float-int-literal, glsl-step-visible-edge, glsl-unwrapped-time.
+
 ### C-20261119-1 · 2026-11-19 · clay look on stock materials
 - because: user request
 - files: SKILL.md (Step 2 references), references/clay-material.md (new)

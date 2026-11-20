@@ -4,6 +4,8 @@ Plugin versions. Skill-level changes are in each `skills/*/CHANGELOG.md`; the se
 
 ## Unreleased
 
+- threewright-shaders: Book of Shaders fragment rules in kb `tsl` and `seeded-randomness`, and `tw lint` rules `glsl-float-int-literal`, `glsl-step-visible-edge`, `glsl-unwrapped-time` (73 lint rules).
+
 ## 1.8.0 · 2026-11-19
 
 - threewright-shaders `references/clay-material.md`: a clay look patched into `MeshStandardMaterial` with `onBeforeCompile` (ridge pattern bumped into the normal, roughness 0.98, metalness 0), when to patch a stock material versus writing a `ShaderMaterial`, and the `customProgramCacheKey` pitfall: one versioned key per GLSL variant (`clay-v1:rings`). Fixture `tests/fixtures/pages/clay`; tests check the block and that two programs compile.
