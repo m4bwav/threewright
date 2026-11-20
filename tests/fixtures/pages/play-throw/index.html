@@ -1,0 +1,26 @@
+<!doctype html>
+<html lang="en">
+<head><meta charset="utf-8"><title>fixture: play throws</title></head>
+<body style="margin:0;background:#111">
+  <canvas id="c" width="320" height="180"></canvas>
+  <script>
+    // Throws an uncaught error on the 10th Space press; tw play must report crash.
+    const ctx = document.getElementById('c').getContext('2d');
+    const s = { presses: 0, beat: 0 };
+    function jump() {
+      s.presses++;
+      if (s.presses === 10) throw new Error('jump buffer overflow at press 10');
+    }
+    addEventListener('keydown', (e) => { if (e.code === 'Space') jump(); });
+    const t0 = performance.now();
+    function frame() {
+      s.beat = Math.floor((performance.now() - t0) / 200);
+      ctx.fillStyle = '#111'; ctx.fillRect(0, 0, 320, 180);
+      ctx.fillStyle = '#c44'; ctx.fillRect(10, 10, s.presses * 10, 10);
+      requestAnimationFrame(frame);
+    }
+    requestAnimationFrame(frame);
+    window.render_game_to_text = () => JSON.stringify(s);
+  </script>
+</body>
+</html>

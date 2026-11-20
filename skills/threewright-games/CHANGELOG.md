@@ -4,6 +4,12 @@ Every change to [SKILL.md](SKILL.md) and its companions, newest first, each with
 
 Entry shape: `### C-YYYYMMDD-n · date · one-line summary`, then `because:` (IDs or "user request"), `files:` (file and section), and a sentence on what changed. Cite section headings, not line numbers.
 
+### C-20261120-1 · 2026-11-20 · tw play soak and bot runs
+- because: user request (technique harvest, arXiv:2610.33106 VibeGame)
+- files: SKILL.md (Step 3), references/done-checklist.md (line 12a, tw play section)
+
+Done checklist line 12a: `tw play dist --monkey` over three seeds and a goal bot through `--bot`; crash and stuck runs are bugs with a seed and a trace. The bot-runner loop comes from the VibeGame paper; stuck detection, the exception hook and the seeded monkey are ours. Written fresh from notes; no code copied.
+
 ### C-20261119-1 · 2026-11-19 · mobile shell reference
 - because: user request
 - files: SKILL.md (Step 2 rule 8), references/mobile-shell.md (new)

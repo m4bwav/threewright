@@ -194,3 +194,5 @@ Technique harvest post 1vic0bw: kb recipe `fft-ocean` (CPU Tessendorf FFT, Jacob
 - 2026-11-19: books round 6 track 40: Book of Shaders rules into kb tsl/seeded-randomness and three GLSL lint rules (branch books-r6-t40). The hit-fx fixture now shows two info glsl-unwrapped-time findings, expected.
 
 - 2026-11-19: books round 6 track 54 (Real-Time Rendering 4e): kb performance, materials, lighting-and-shadows and debug symptoms. Dropped: premultiplied alpha (already in transparency-and-blending), shadow acne basics, a new `tw perf --scale` flag (tw perf already reports p95/max; halving DPR is a one-line page change).
+
+- 2026-11-20: 1.10.0 `tw play` (technique harvest, arXiv:2610.33106 VibeGame, adopt-partly): closed-loop bot or seeded monkey, trace.jsonl + result.json, crash/stuck/timeout/done/fail, fail.png. Fixtures play-clean/throw/freeze/bot are plain canvas 2D (no three), so tests/play.test.mjs needs only Chrome. Stuck: state hash (or a 96 px frame hash without a hook) unchanged for --stuck s, no rAF for 2 s, or the main thread silent for 5 s. One run printed "Chrome exited early (code 0)" on first launch and passed on rerun; not reproduced.

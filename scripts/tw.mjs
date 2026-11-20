@@ -32,6 +32,13 @@ Verify a page (file, folder with index.html, or URL); text first, images on requ
                         draw calls and triangles per frame, geometry, texture and heap growth
                         --fly "<js using u>" moves the camera each frame (u runs 0 to 1 over the run);
                         bare --fly calls the page's window.flyThrough(u); --target-ms 16.7 fails when p95 is over
+  play <page|dist> [--bot bot.mjs | --monkey] [--seconds 60] [--seed 1] [--stuck 5] [--out dir]
+                        closed-loop play: each tick read the state (--state "<js>", __game.snapshot(),
+                        __game.state() or render_game_to_text(); a frame hash when none), the bot's
+                        decide(state, ctx) or a seeded random monkey picks an action (--actions grammar),
+                        tw sends it; writes trace.jsonl, result.json (done, fail, timeout, crash, stuck)
+                        and fail.png at the failure tick; exits 1 on crash, stuck, fail or an exception
+                        --keys KeyW,Space (monkey keys) --tick 100 (ms) --ticks N (cap, for determinism)
   shot <page> --out f.png [--canvas] [--alpha]   one screenshot; prints its token cost (.jpg or .webp
                         write that format, --quality 82, e.g. for a poster image)
                         (shot and sheet take --eval "<js>" to set a state first, e.g. scrollTo(0, 2000))
@@ -73,7 +80,7 @@ Static tools (no browser):
 Global: --json for machine output. Image costs use Claude's 28 px patches (TW_IMAGE_TIER=standard
 for models before Claude 4.7).`;
 
-const BOOLS = ['json', 'canvas', 'webgpu', 'headed', 'strict', 'reducedMotion', 'reduced-motion', 'alpha', 'check', 'all', 'help', 'fix', 'keepFrames', 'force', 'md', 'tree', 'labels', 'sources', 'offline', 'dry-run', 'no-vendor'];
+const BOOLS = ['json', 'canvas', 'webgpu', 'headed', 'strict', 'reducedMotion', 'reduced-motion', 'alpha', 'check', 'all', 'help', 'fix', 'keepFrames', 'force', 'md', 'tree', 'labels', 'sources', 'offline', 'dry-run', 'no-vendor', 'monkey'];
 
 function print(obj, asJson, textFn) {
   if (asJson) console.log(JSON.stringify(obj, null, 2));
@@ -457,6 +464,7 @@ const commands = {
     if (!r.pass) process.exitCode = 1;
   },
 
+  async play(a) { const m = await import('./lib/play.mjs'); return m.cmdPlay(a, print, pageOpts, list); },
   async lint(a) { const m = await import('./lib/lint.mjs'); return m.cmdLint(a, print); },
   async look(a) { const m = await import('./lib/look.mjs'); return m.cmdLook(a, print); },
   async glb(a) { const m = await import('./lib/glb.mjs'); return m.cmdGlb(a, print); },

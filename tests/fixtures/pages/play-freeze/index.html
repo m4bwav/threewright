@@ -1,0 +1,25 @@
+<!doctype html>
+<html lang="en">
+<head><meta charset="utf-8"><title>fixture: play freezes</title></head>
+<body style="margin:0;background:#111">
+  <canvas id="c" width="320" height="180"></canvas>
+  <script>
+    // The simulation stops updating 2 s after load (frames still run, input is ignored):
+    // tw play must report stuck. With ?nohook there is no state hook, so tw play
+    // falls back to a hash of the frame, which also stops changing.
+    const ctx = document.getElementById('c').getContext('2d');
+    const s = { tick: 0, x: 0 };
+    let frozen = false;
+    setTimeout(() => { frozen = true; }, 2000);
+    addEventListener('keydown', () => { if (!frozen) s.x++; });
+    function frame() {
+      if (!frozen) s.tick++;
+      ctx.fillStyle = '#111'; ctx.fillRect(0, 0, 320, 180);
+      ctx.fillStyle = '#48c'; ctx.fillRect(s.tick % 300, 80, 20, 20);
+      requestAnimationFrame(frame);
+    }
+    requestAnimationFrame(frame);
+    if (!location.search.includes('nohook')) window.__game = { snapshot: () => ({ ...s }) };
+  </script>
+</body>
+</html>
