@@ -2,6 +2,10 @@
 
 Plugin versions. Skill-level changes are in each `skills/*/CHANGELOG.md`; the session record is `ai-docs/log.md`.
 
+## 1.13.0 · 2026-11-21
+
+- threewright-shaders `references/lighting-and-transparency.md`: rim lighting with matched spaces, Ashikhmin-Shirley hair, tangent requirements, one sRGB conversion, clamp order, stencil portals, double-sided alpha sorting and dithered distance fade, with three.js names checked in the 0.186.1 source. Methods from The Godot Shaders Bible (Espindola, v0.11, ch. 2 and 4), written fresh.
+
 ## 1.12.0 · 2026-11-20
 
 - threewright-shaders `references/ray-tracing-in-shaders.md`: for ray tracers and ray marchers written in GLSL or TSL, a ray-origin offset along the geometric normal in float steps (shadow acne), a precise ray/sphere test, environment mip level from ray spread, running-mean accumulation in float render targets, and delta tracking for volumes. Every block compiles on `tests/fixtures/pages/ray-tracing`, whose `rtMeasure()` gives the quoted numbers (a fixed `tMin` of 1e-4 marks 42% of a ground plane as shadowed 10,000 units out, the offset 0%; the textbook sphere fills the frame where the stable form lands within 0.1% of the expected area); a browser test asserts them.
