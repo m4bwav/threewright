@@ -4,6 +4,12 @@ Every change to [SKILL.md](SKILL.md) and its companions, newest first, each with
 
 Entry shape: `### C-YYYYMMDD-n · date · one-line summary`, then `because:` (IDs or "user request"), `files:` (file and section), and a sentence on what changed. Cite section headings, not line numbers.
 
+### C-20261121-1 · 2026-11-21 · lighting models, stencil and transparency reference
+- because: book distillation (Espindola, The Godot Shaders Bible v0.11, ch. 2 and 4), L-20261121-1
+- files: SKILL.md (Step 2 references), references/lighting-and-transparency.md (new)
+
+Rim with matched spaces, Ashikhmin-Shirley hair, tangent requirements, single sRGB conversion, clamp order, stencil portals, double-sided alpha sorting and dithered distance fade, with three.js names checked in the 0.186.1 source. Not run on a page yet.
+
 ### C-20261120-1 · 2026-11-20 · ray tracing in shaders, sampling cheat sheet, bump terminator option
 - because: R-20261120-1 (book distillation, Ray Tracing Gems ch. 6, 7, 12, 15, 16, 17, 21, 28)
 - files: SKILL.md (Step 2 references), references/ray-tracing-in-shaders.md (new), references/sampling.md (new), references/clay-material.md (Notes: Bump terminator)

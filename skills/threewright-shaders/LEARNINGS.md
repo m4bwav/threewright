@@ -6,6 +6,14 @@ Write an entry the moment a real signal happens: a user correction, the same err
 
 ## Active
 
+### L-20261121-1 · 2026-11-21 · Book notes on three.js defaults were wrong twice; check the installed source
+- Trigger: the Godot Shaders Bible notes said WebGL has a stencil buffer by default and TSL tangents without an attribute are garbage; three 0.186.1 source shows `stencil = false` in both WebGLRenderer and Renderer, and `tangentView` falls back to a UV-derivative frame (TangentUtils.js).
+- Hypothesis: notes written from older three versions or by analogy with another engine.
+- Rule: before writing a three.js default or fallback into a reference, grep `dev/node_modules/three/src` for it.
+- Evidence: C-20261121-1
+- Scope: skill
+- Status: active · helpful 1 · harmful 0 · last_confirmed 2026-11-21
+
 <!-- Entry shape:
 ### L-YYYYMMDD-n · date · One-line lesson in plain words
 - Trigger: what happened, with dates or counts
