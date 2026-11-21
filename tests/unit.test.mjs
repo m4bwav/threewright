@@ -613,6 +613,18 @@ test('clay-material makeClay block matches the fixture page', () => {
   assert.match(blocks[0], /customProgramCacheKey = \(\) => 'clay-v1:' \+ variant/);
 });
 
+test('ray-tracing-in-shaders blocks match the fixture page', () => {
+  const md = readFileSync(join(ROOT, 'skills/threewright-shaders/references/ray-tracing-in-shaders.md'), 'utf8');
+  const page = readFileSync(join(ROOT, 'tests/fixtures/pages/ray-tracing/index.html'), 'utf8');
+  const glsl = [...md.matchAll(/```glsl\n([\s\S]*?)```/g)].map((m) => m[1]);
+  const js = [...md.matchAll(/```js\n([\s\S]*?)```/g)].map((m) => m[1]);
+  assert.equal(glsl.length, 4);
+  assert.equal(js.length, 1);
+  assert.ok(page.includes(glsl.join('')), 'fixture shader differs from the glsl blocks joined in order');
+  assert.ok(page.includes(js[0]), 'fixture makeAccumulator differs from the md block');
+  for (const b of glsl) assert.ok(!b.includes('`'), 'a backtick in a glsl block ends the fixture template literal');
+});
+
 test('mobile-shell blocks match the fixture page and manifest', () => {
   const md = readFileSync(join(ROOT, 'skills/threewright-games/references/mobile-shell.md'), 'utf8');
   const dir = join(ROOT, 'tests/fixtures/pages/mobile-shell');

@@ -252,6 +252,24 @@ test('clay material variants compile to separate programs', { skip, timeout: 300
   assert.match(r.out, /eval: 2\b/, r.out);
 });
 
+test('ray-tracing reference numbers hold on the fixture page', { skip, timeout: 300000 }, () => {
+  const r = tw('check', join(ROOT, 'tests/fixtures/pages/ray-tracing'), '--size', '480x270', '--eval', 'rtMeasure()');
+  assert.equal(r.code, 0, r.out + r.err);
+  assert.match(r.out, /result: OK/, r.out);
+  const m = JSON.parse(JSON.parse(r.out.match(/eval: (".*")/)[1]));
+  // Offset origins: no acne at the origin or 10,000 units out; a fixed tMin fails far out.
+  assert.equal(m.acneOffsetAtOrigin, 0, r.out);
+  assert.equal(m.acneOffsetAt1e4, 0, r.out);
+  assert.ok(m.acneFixedAt1e4 > 0.05, r.out);
+  // Stable sphere within 2% of the expected area; the textbook form is far off.
+  assert.ok(Math.abs(m.sphereStablePx / m.sphereExpectedPx - 1) < 0.02, r.out);
+  assert.ok(Math.abs(m.sphereNaivePx / m.sphereExpectedPx - 1) > 0.25, r.out);
+  // Delta tracking escape share near exp(-1); running mean: 4x frames halves the spread.
+  assert.ok(Math.abs(m.escapeShare - m.escapeExpected) < 0.01, r.out);
+  assert.ok(Math.abs(m.noise64.mean - 0.5) < 0.01, r.out);
+  assert.ok(Math.abs(m.noise16.spread / m.noise64.spread - 2) < 0.15, r.out);
+});
+
 test('mobile shell loads the game and hides its cards on a landscape desktop', { skip, timeout: 300000 }, () => {
   const r = tw('check', join(ROOT, 'tests/fixtures/pages/mobile-shell'), '--size', '480x270', '--eval', "!document.getElementById('loading') && getComputedStyle(document.getElementById('rotate')).display === 'none'");
   assert.equal(r.code, 0, r.out + r.err);
