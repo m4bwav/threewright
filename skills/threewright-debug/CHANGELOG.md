@@ -10,6 +10,12 @@ Step 3 names `TW look` for matching a reference mood by OKLab colour statistics,
 
 ### C-YYYYMMDD-n · date · one-line summary`, then `because:` (IDs or "user request"), `files:` (file and section), and a sentence on what changed. Cite section headings, not line numbers.
 
+### C-20261120-1 · 2026-11-20 · Three symptom rows from Ray Tracing Gems
+- because: book distillation (Ray Tracing Gems ch. 6, ch. 12), threewright-shaders R-20261120-1
+- files: references/symptoms.md
+
+Rows for shadow acne in a custom ray tracer, a hard terminator on strongly bumped surfaces, and jitter far from the world origin, each pointing to the threewright-shaders references that fix it.
+
 ### C-20261119-1 · 2026-11-19 · Two symptom rows from Real-Time Rendering
 - because: user request (round 6 books track 54, RTR 4e §9.13 and §5.4)
 - files: references/symptoms.md

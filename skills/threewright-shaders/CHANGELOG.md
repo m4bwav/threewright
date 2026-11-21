@@ -4,6 +4,12 @@ Every change to [SKILL.md](SKILL.md) and its companions, newest first, each with
 
 Entry shape: `### C-YYYYMMDD-n · date · one-line summary`, then `because:` (IDs or "user request"), `files:` (file and section), and a sentence on what changed. Cite section headings, not line numbers.
 
+### C-20261120-1 · 2026-11-20 · ray tracing in shaders, sampling cheat sheet, bump terminator option
+- because: R-20261120-1 (book distillation, Ray Tracing Gems ch. 6, 7, 12, 15, 16, 17, 21, 28)
+- files: SKILL.md (Step 2 references), references/ray-tracing-in-shaders.md (new), references/sampling.md (new), references/clay-material.md (Notes: Bump terminator)
+
+GLSL ES 3.0 ray-origin offset along the geometric normal in float steps, a stable ray/sphere test, environment mip level from ray spread, running-mean accumulation and delta tracking, all compiled and measured on tests/fixtures/pages/ray-tracing (fixed tMin 1e-4: 42% of a ground plane shadowed by acne at 10,000 units, offset: 0%; textbook sphere 65,536 px against 32,942 expected, stable form 32,928 px; delta-tracking escape 36.6% against 36.8%; accumulation spread 0.072 at 16 frames, 0.036 at 64). A sampler cheat sheet with JS samplers histogram-checked in tests/sampling.test.mjs (cosine AO variance 0.44x uniform per sample) and three-gpu-pathtracer's filterGlossyFactor. Bump terminator fix documented as an option, unverified. DXR-only chapters marked as not carrying.
+
 ### C-20261119-2 · 2026-11-19 · Book of Shaders fragment rules
 - because: book distillation (The Book of Shaders, ch. 5-12)
 - files: SKILL.md (Step 3 lint line), kb/topics/tsl.md, kb/recipes/seeded-randomness.md, kb/rules/lint-rules.json

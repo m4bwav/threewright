@@ -47,6 +47,13 @@ Best sources: threejs.org/tsl and docs pages, the three.js webgpu examples sourc
 
 Newest first.
 
+### R-20261120-1 · 2026-11-20 · Ray Tracing Gems (2019): methods that carry to shader ray tracers in the browser
+- Summary: Haines and Akenine-Moller (eds.), Ray Tracing Gems, Apress/NVIDIA 2019, CC BY-NC-ND 4.0. Carries: self-intersection offsets along the geometric normal scaled by coordinate magnitude (ch. 6, Wachter and Binder); precise ray/sphere roots (ch. 7, Haines, Gunther, Akenine-Moller); bump terminator shadowing (ch. 12, Conty Estevez, Lecocq, Stein); Monte Carlo sampling, the sampling zoo and firefly suppression (ch. 15 and 17, Pharr; ch. 16, Shirley et al.); environment mip from ray cones (ch. 21, Akenine-Moller and Nilsson); delta tracking (ch. 28, Raab). Does not carry: DXR host setup and RTX pipelines (ch. 3, 9, 10, 13, 14) and the 2019 hybrid engines (Parts V, VI). Dated: GGX normal-distribution sampling; VNDF is current (three r181+ PMREM). three-gpu-pathtracer 0.0.28 exposes `WebGLPathTracer.filterGlossyFactor` (typed, not in its README). Paraphrased; no code or equations copied (NoDerivatives).
+- Track: subject
+- Sources: D:/m4bwa/Claude/Projects/Ai/technique-harvest/ai-docs/books/ray-tracing-gems/notes.md (local book notes); npm three-gpu-pathtracer@0.0.28 src/index.d.ts
+- Magnitude: 0.3
+- Applied: C-20261120-1
+
 ### R-20261011-1 · 2026-10-11 · Subject and testing: DirectRenderPipeline has no MSAA on WebGL 2; three.js tests TSL by numbers; `range()` changes in r187
 - Summary: three.js #34947 (r186, Chrome 155): DirectRenderPipeline on the WebGL 2 fallback gives aliased edges even with `antialias: true`; closed as not planned, documented for r187 (PR #34954), and called a pipeline for special cases, mainly XR. PR #34331 (shipped in r186) adds `gpuTest` and `gpuFuzzTest`: assertions write actual and expected values to storage buffers, read them back and compare on the CPU with tolerances, on WebGPU and the WebGL 2 fallback under headless Puppeteer, skipping a backend that fails to start; a way to check TSL math by its numbers rather than an image (point; an eval asserting compute output read back with `getArrayBufferAsync` is a candidate). Dev (r187): RangeNode now uses `hash()` (#34897, #34920), so scenes using TSL `range()` will look different after the upgrade and a before/after diff will show it. The Linux headless WebGPU flag fix (threewright R-20261011-1) applies to Step 3's backend check. Tooling: the dgreenheck TSL skill stalled; no TSL MCP server.
 - Track: subject, testing, tooling
