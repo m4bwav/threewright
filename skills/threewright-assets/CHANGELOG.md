@@ -4,6 +4,10 @@ Every change to [SKILL.md](SKILL.md) and its companions, newest first, each with
 
 Entry shape: `### C-YYYYMMDD-n · date · one-line summary`, then `because:` (IDs or "user request"), `files:` (file and section), and a sentence on what changed. Cite section headings, not line numbers.
 
+### C-20261121-1 · 2026-11-21 · Step 2 names vinish.dev free models and Poly Pizza
+- because: user request (vinish.dev fetched 2026-11-21: 469 original models, CC BY 4.0, commercial use, no login)
+- files: SKILL.md (Step 2: source or make). Points to polywright's routes.md for the fuller list; triggers unchanged, evals not re-run.
+
 ### C-20261022-1 · 2026-10-22 · Blender export pitfalls in models-for-the-web; tw glb counts draw calls per node
 - because: books track 7 (Blender books, Conlan ch. 4 on flipped faces; the Geometry Nodes book on instances), checked on Blender 5.2.1 and three 0.186.1
 - files: kb/topics/models-for-the-web.md (Pitfalls, Notes); scripts/lib/glb.mjs (report); tests/unit.test.mjs
