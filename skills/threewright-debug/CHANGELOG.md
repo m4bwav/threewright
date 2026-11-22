@@ -2,10 +2,6 @@
 
 Every change to [SKILL.md](SKILL.md) and its companions, newest first, each with the reason. Reasons cite findings in [RESEARCH.md](RESEARCH.md) (`R-`), lessons in [LEARNINGS.md](LEARNINGS.md) (`L-`), and test runs in [TESTS.md](TESTS.md) (`T-`). State in `evergreen.json`. Protocol: the installed evergreen plugin (`protocol: "plugin"` in evergreen.json).
 
-### C-20261121-1 · 2026-11-21 · view stamp on shots
-- because: technique harvest, r/ClaudeGameDev 1y26mw1 (location line on every screenshot, reproduce at the exact view)
-- files: SKILL.md Step 3; scripts/tw.mjs; tests/browser.test.mjs
-
 Entry shape: `### C-20261110-1 · 2026-11-10 · tw look in Step 3
 - because: user request (technique harvest, post 1wvv7p9)
 - files: SKILL.md Step 3; scripts/lib/look.mjs
@@ -13,6 +9,12 @@ Entry shape: `### C-20261110-1 · 2026-11-10 · tw look in Step 3
 Step 3 names `TW look` for matching a reference mood by OKLab colour statistics, with `--fit` for a LUT.
 
 ### C-YYYYMMDD-n · date · one-line summary`, then `because:` (IDs or "user request"), `files:` (file and section), and a sentence on what changed. Cite section headings, not line numbers.
+
+### C-20261121-1 · 2026-11-21 · view stamp on shots
+- because: technique harvest, r/ClaudeGameDev 1y26mw1 (location line on every screenshot, reproduce at the exact view)
+- files: SKILL.md Step 3; scripts/tw.mjs; tests/browser.test.mjs
+
+Step 3 takes after-shots at the before shot's view file and reproduces a reported spot at its view first.
 
 ### C-20261120-1 · 2026-11-20 · Three symptom rows from Ray Tracing Gems
 - because: book distillation (Ray Tracing Gems ch. 6, ch. 12), threewright-shaders R-20261120-1
