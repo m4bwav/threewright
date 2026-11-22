@@ -55,6 +55,8 @@ Verify a page (file, folder with index.html, or URL); text first, images on requ
                         write that format, --quality 82, e.g. for a poster image); --metrics adds
                         advisory look numbers: colour entropy, dominant colour share, edge density, contrast
                         (shot and sheet take --eval "<js>" to set a state first, e.g. scrollTo(0, 2000))
+                        every shot also writes <file>.view.json (camera pose, fov, page time); --view
+                        <file>.view.json reopens that exact view, so before/after and bug reports match
   sheet <page> --out f.png [--views current,front,right,top]   several angles in one image
   sheet <page> --sweep "find('knot').material.roughness=0,0.5,1"   one tile per value, current view
                         (shot and sheet take --labels: name tags on objects, legend printed as text)
@@ -173,9 +175,31 @@ async function canvasPixels(ctx) {
 // then let the page draw it.
 async function preCapture(ctx, a) {
   await doActions(ctx, a);
+  if (a.view) await applyView(ctx, a);
   if (!a.eval) return;
   const { evalWithTarget } = await import('./lib/page.mjs');
   await ctx.page.eval(evalWithTarget(String(a.eval)));
+  await ctx.settle({ wait: Number(a.evalWait || 300) });
+}
+
+// View stamp: every shot writes <file>.view.json (camera pose, fov, page time)
+// so a capture someone calls wrong can be reopened at exactly that view with --view.
+const VIEW_READ = `(() => { const t = window.__tw.target(), c = t.camera; if (!c) return null;
+  const r = (v) => Math.round(v * 1e4) / 1e4, a = (v) => v.toArray().map(r);
+  return { camera: c.type, position: a(c.position), quaternion: a(c.quaternion), up: a(c.up), fov: c.fov, zoom: c.zoom, near: c.near, far: c.far, timeMs: Math.round(performance.now()), url: location.href }; })()`;
+export const formatView = (v) => `view: ${v.camera} pos ${v.position.join(',')} quat ${v.quaternion.join(',')}${v.fov ? ' fov ' + v.fov : ''} t ${v.timeMs}ms`;
+async function stampView(ctx, out) {
+  const v = await ctx.page.eval(VIEW_READ).catch(() => null);
+  if (!v) return null;
+  const { writeFileSync } = await import('node:fs');
+  writeFileSync(out + '.view.json', JSON.stringify(v, null, 1));
+  return v;
+}
+async function applyView(ctx, a) {
+  const v = JSON.parse(readFileSync(String(a.view), 'utf8'));
+  await ctx.page.eval(`(() => { const c = window.__tw.target().camera, v = ${JSON.stringify(v)}; if (!c) return false;
+    c.position.fromArray(v.position); c.quaternion.fromArray(v.quaternion); if (v.up) c.up.fromArray(v.up);
+    if (v.fov && c.isPerspectiveCamera) c.fov = v.fov; if (v.zoom) c.zoom = v.zoom; c.updateProjectionMatrix(); c.updateMatrixWorld(); return true; })()`);
   await ctx.settle({ wait: Number(a.evalWait || 300) });
 }
 
@@ -220,7 +244,7 @@ async function glString(page) {
 
 const formatImage = (x) => `wrote ${x.file} (${x.width}x${x.height}, ${x.tokens} image tokens${x.seenAs ? `; the model downscales it to ${x.seenAs}` : ''})${x.labels && x.labels.length ? '\nlabels: ' + x.labels.join(' · ') : ''}`;
 const formatLook = (l) => `look: entropy=${l.entropy} bits dominant=${l.dominant} edges=${l.edges} contrast=${l.contrast} (advisory)${l.low.length ? '\n' + l.low.map((w) => 'low: ' + w).join('\n') : ''}`;
-const formatShot = (x) => (!x.pixels ? formatImage(x) : `${formatImage(x)}\n${formatPixels(x.pixels)}${x.pixels.warn.length ? '\n' + x.pixels.warn.map((w) => 'CHECK ' + w).join('\n') : ''}`) + (x.look ? '\n' + formatLook(x.look) : '');
+const formatShot = (x) => (x.view ? formatView(x.view) + '\n' : '') + (!x.pixels ? formatImage(x) : `${formatImage(x)}\n${formatPixels(x.pixels)}${x.pixels.warn.length ? '\n' + x.pixels.warn.map((w) => 'CHECK ' + w).join('\n') : ''}`) + (x.look ? '\n' + formatLook(x.look) : '');
 // SwiftShader is Chrome's CPU renderer: frame times and GPU costs measured on it are not a GPU's.
 const SOFTWARE_GL = /swiftshader|llvmpipe|software/i;
 const softwareWarning = (gl) => (gl && SOFTWARE_GL.test(gl) ? `warning: software GL (${gl.slice(0, 60)}): frame times are CPU-rendered, not a GPU's; do not compare them with budgets` : null);
@@ -247,6 +271,8 @@ async function takeShot(ctx, a, out) {
     return tags.map((g) => g.text + ' ' + Math.round(g.x * 100) + '%,' + Math.round(g.y * 100) + '%');
   })()`) : null;
   const r = await screenshot(ctx, out, { canvasOnly: !!a.canvas, alpha: !!a.alpha, quality: a.quality });
+  const view = await stampView(ctx, out);
+  if (view) r.view = view;
   if (labels) { await ctx.page.eval('document.getElementById("__tw_labels")?.remove(), true'); r.labels = labels; }
   const { readFileSync } = await import('node:fs');
   const { decodePng, pixelStats, pixelWarnings, lookMetrics } = await import('./lib/png.mjs');

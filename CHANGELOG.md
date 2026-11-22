@@ -2,6 +2,10 @@
 
 Plugin versions. Skill-level changes are in each `skills/*/CHANGELOG.md`; the session record is `ai-docs/log.md`.
 
+## 1.14.0 · 2026-11-21
+
+- `tw shot` writes `<file>.view.json` beside every capture (camera type, position, quaternion, up, fov, zoom, page time) and prints a `view:` line; `--view <file>.view.json` on shot and sheet reopens that view. Measured on the html-importmap template: a reopened view differs from the original by 0.095% (the knot keeps spinning), the default view by 28.8%. threewright-debug Step 3 takes after-shots with `--view`; geospatial scenario notes that temporal AA must see the camera's travel when the origin is rebased. Technique from a Reddit post on a Claude Code planet renderer in Unity, written fresh.
+
 ## 1.13.0 · 2026-11-21
 
 - threewright-shaders `references/lighting-and-transparency.md`: rim lighting with matched spaces, Ashikhmin-Shirley hair, tangent requirements, one sRGB conversion, clamp order, stencil portals, double-sided alpha sorting and dithered distance fade, with three.js names checked in the 0.186.1 source. Methods from The Godot Shaders Bible (Espindola, v0.11, ch. 2 and 4), written fresh.

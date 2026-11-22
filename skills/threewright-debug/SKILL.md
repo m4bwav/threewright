@@ -30,7 +30,7 @@ Read `evergreen.json` next to this file. If `verify_at_use` is true, re-check th
 
 ## Step 3: fix and prove
 
-Make the smallest change that removes the cause, then run `TW check <page>` again. Done is `result: OK` plus the specific line that proves the fix (the warning gone, pixel coverage up, the request 200, draw calls down). For a look regression, `TW diff before.png after.png`. To match a reference mood (camera need not match), `TW look render.png reference.png --sheet s.png`: a 0-100 score from OKLab colour statistics with the penalty per part; `--fit look.cube` writes a LUT for `LUTPass` and re-scores.
+Make the smallest change that removes the cause, then run `TW check <page>` again. Done is `result: OK` plus the specific line that proves the fix (the warning gone, pixel coverage up, the request 200, draw calls down). For a look regression, `TW diff before.png after.png`; every `TW shot` writes `<file>.view.json` (camera pose, fov, page time), so take the after shot with `--view before.png.view.json` and both frames show the same view. When the user reports a wrong-looking spot, get or make that view file first and reproduce there before changing anything. To match a reference mood (camera need not match), `TW look render.png reference.png --sheet s.png`: a 0-100 score from OKLab colour statistics with the penalty per part; `--fit look.cube` writes a LUT for `LUTPass` and re-scores.
 
 ## Step 4: report
 

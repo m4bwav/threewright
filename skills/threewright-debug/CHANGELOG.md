@@ -2,6 +2,10 @@
 
 Every change to [SKILL.md](SKILL.md) and its companions, newest first, each with the reason. Reasons cite findings in [RESEARCH.md](RESEARCH.md) (`R-`), lessons in [LEARNINGS.md](LEARNINGS.md) (`L-`), and test runs in [TESTS.md](TESTS.md) (`T-`). State in `evergreen.json`. Protocol: the installed evergreen plugin (`protocol: "plugin"` in evergreen.json).
 
+### C-20261121-1 · 2026-11-21 · view stamp on shots
+- because: technique harvest, r/ClaudeGameDev 1y26mw1 (location line on every screenshot, reproduce at the exact view)
+- files: SKILL.md Step 3; scripts/tw.mjs; tests/browser.test.mjs
+
 Entry shape: `### C-20261110-1 · 2026-11-10 · tw look in Step 3
 - because: user request (technique harvest, post 1wvv7p9)
 - files: SKILL.md Step 3; scripts/lib/look.mjs
