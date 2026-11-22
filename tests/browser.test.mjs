@@ -161,6 +161,22 @@ test('sheet and shot write images and report their token cost', { skip, timeout:
   } finally { rmSync(dir, { recursive: true, force: true }); }
 });
 
+test('shot stamps its view and --view reopens it', { skip, timeout: 300000 }, () => {
+  const dir = mkdtempSync(join(tmpdir(), 'tw-view-'));
+  const page = join(ROOT, 'templates/html-importmap');
+  try {
+    const a = tw('shot', page, '--out', join(dir, 'a.png'), '--size', '480x270', '--json', '--eval', '(camera.position.set(4, 3, 6), camera.lookAt(0, 0, 0), 1)');
+    assert.equal(a.code, 0, a.err);
+    const v = JSON.parse(readFileSync(join(dir, 'a.png.view.json'), 'utf8'));
+    assert.deepEqual(v.position, [4, 3, 6]);
+    const b = tw('shot', page, '--out', join(dir, 'b.png'), '--size', '480x270', '--json', '--view', join(dir, 'a.png.view.json'));
+    assert.equal(b.code, 0, b.err);
+    assert.deepEqual(b.json.view.position, [4, 3, 6]);
+    const d = tw('diff', join(dir, 'a.png'), join(dir, 'b.png'), '--json');
+    assert.ok(d.json.share < 0.02, JSON.stringify(d.json));
+  } finally { rmSync(dir, { recursive: true, force: true }); }
+});
+
 test('scene prints a compact tree of the main scene', { skip, timeout: 300000 }, () => {
   const r = tw('scene', join(ROOT, 'templates/html-importmap'));
   assert.equal(r.code, 0, r.err);
