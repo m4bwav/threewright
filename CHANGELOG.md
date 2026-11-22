@@ -2,6 +2,10 @@
 
 Plugin versions. Skill-level changes are in each `skills/*/CHANGELOG.md`; the session record is `ai-docs/log.md`.
 
+## 1.15.0 · 2026-11-21
+
+- threewright-assets: free CC-BY sources now name vinish.dev/free-3d-models (469 GLB models, CC BY 4.0) and Poly Pizza, and point to polywright's list of big free libraries.
+
 ## 1.14.0 · 2026-11-21
 
 - `tw shot` writes `<file>.view.json` beside every capture (camera type, position, quaternion, up, fov, zoom, page time) and prints a `view:` line; `--view <file>.view.json` on shot and sheet reopens that view. Measured on the html-importmap template: a reopened view differs from the original by 0.095% (the knot keeps spinning), the default view by 28.8%. threewright-debug Step 3 takes after-shots with `--view`; geospatial scenario notes that temporal AA must see the camera's travel when the origin is rebased. Technique from a Reddit post on a Claude Code planet renderer in Unity, written fresh.
