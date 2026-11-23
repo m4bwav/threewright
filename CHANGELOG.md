@@ -2,6 +2,10 @@
 
 Plugin versions. Skill-level changes are in each `skills/*/CHANGELOG.md`; the session record is `ai-docs/log.md`.
 
+## 1.16.0 · 2026-11-22
+
+- kb `performance`: cull effects (particles, decals, fog volumes) by projected size like LOD levels, rebase the origin in large worlds (points to the geospatial TAA note), and render ray-marched fog at reduced resolution with r186 `setResolutionScale`. Measured in headless Chrome at 1920x1080: 3.29 ms full, 0.71 ms half, and empty-space clipping helps only when the step count follows the clipped length. Technique from a Reddit post on an underwater sandbox, re-measured.
+
 ## 1.15.0 · 2026-11-21
 
 - threewright-assets: free CC-BY sources now name vinish.dev/free-3d-models (469 GLB models, CC BY 4.0) and Poly Pizza, and point to polywright's list of big free libraries.

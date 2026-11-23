@@ -203,3 +203,4 @@ Technique harvest post 1vic0bw: kb recipe `fft-ocean` (CPU Tessendorf FFT, Jacob
 - 2026-11-21: threewright-shaders gained references/lighting-and-transparency.md from The Godot Shaders Bible (round 7 track 73); both renderers default stencil=false in r186.
 - 2026-11-21: 1.14.0 view stamp: tw shot writes <file>.view.json, --view reopens it (r/ClaudeGameDev 1y26mw1 harvest). --eval takes one expression, so chain with commas, not semicolons. Reopened view 0.095% diff vs 28.8% default.
 - 2026-11-21: threewright-assets names vinish.dev free 3D models (CC BY 4.0) and Poly Pizza; 1.15.0.
+- 2026-11-22: 1.16.0 kb performance: effect culling by projected size, origin rebase pointer, half-res fog (3.29 ms full vs 0.71 ms half at 1080p, RTX 5060 Ti headless Chrome; slab clip at fixed steps 3.68 ms, no gain). Bench lives in technique-harvest/scratch/fog-bench (raw WebGL2 + playwright-core).
