@@ -438,7 +438,7 @@
    "applies_to": ">=r183",
    "status": "current",
    "renderer": "both",
-   "last_verified": "2026-10-25",
+   "last_verified": "2026-11-22",
    "template": "html-importmap",
    "sections": [
     "Essentials",
@@ -446,7 +446,7 @@
     "Verify",
     "Notes"
    ],
-   "bytes": 8037
+   "bytes": 9917
   },
   {
    "slug": "post-processing",
