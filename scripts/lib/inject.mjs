@@ -29,6 +29,28 @@ function pageMain(cfg) {
   // scene -> { frames: distinct animation frames it was rendered in, screen: renders to the canvas, last: frame id }
   const use = new Map();
   let frameId = 0; // bumped once per animation frame (see the requestAnimationFrame wrapper below)
+  let inRaf = 0, looseId = 0; // inside an animation-frame callback; id for renders outside one
+
+  // harvestwright: 1y66rh1-render https://github.com/kevintngo/cinderwatch tier - 2026-11-28
+  // WebGLRenderer resets info.render at every render() while info.autoReset is on, so a page
+  // that draws the world to a target and a quad to the canvas reads "draw calls 1". Sum the
+  // counters over every outermost render() of one animation frame. A render outside a frame
+  // callback is its own frame; a nested render (a mirror) is already inside the outer count.
+  function tally(r) {
+    const info = r.info, rd = info && info.render;
+    if (!rd || !r.isWebGLRenderer || info.autoReset !== true || T._replay) return;
+    const key = inRaf ? frameId : -(++looseId);
+    let a = r.__twDraw;
+    if (!a || a.key !== key) a = r.__twDraw = { key, calls: 0, tris: 0, renders: 0 };
+    a.calls += rd.calls || 0; a.tris += rd.triangles || 0; a.renders++;
+  }
+  // [draw calls, triangles] of the latest frame, summed over its render() calls.
+  T.frameDraw = (r) => {
+    const rd = r && r.info && r.info.render;
+    if (!rd) return null;
+    const a = r.__twDraw;
+    return a && a.renders > 1 ? [a.calls, a.tris] : [rd.drawCalls ?? rd.calls ?? 0, rd.triangles ?? 0];
+  };
 
   function wrapRenderer(r) {
     if (r.__twWrapped || typeof r.render !== 'function') return;
@@ -46,8 +68,9 @@ function pageMain(cfg) {
         this.__twPasses.push([scene, camera]);
       }
       if (scene && scene.isScene && camera && camera.isCamera) {
-        const u0 = use.get(scene) || { frames: 0, screen: 0, last: -1, env: true };
-        if (u0.last !== frameId) { u0.frames++; u0.last = frameId; }
+        const u0 = use.get(scene) || { frames: 0, screen: 0, last: -1, env: true, inFrame: 0 };
+        if (u0.last !== frameId) { u0.frames++; u0.last = frameId; u0.inFrame = 0; }
+        u0.inFrame++;
         if (toScreen) u0.screen++;
         // Environment scenes are only ever seen through a CubeCamera (PMREM, reflections).
         if (!(camera.parent && camera.parent.isCubeCamera)) u0.env = false;
@@ -59,7 +82,11 @@ function pageMain(cfg) {
         u.n++; if (toScreen) u.screen++;
         m.set(camera, u);
       }
-      return orig.apply(this, arguments);
+      this.__twDepth = (this.__twDepth || 0) + 1;
+      let out;
+      try { out = orig.apply(this, arguments); } finally { this.__twDepth--; }
+      if (!this.__twDepth) { try { tally(this); } catch { /* ignore */ } }
+      return out;
     };
   }
 
@@ -96,7 +123,7 @@ function pageMain(cfg) {
   const wrapRaf = () => {
     const raf = window.requestAnimationFrame;
     window.requestAnimationFrame = function (cb) {
-      return raf.call(window, (t) => { if (T._rafTime !== t) { T._rafTime = t; frameId++; } return cb(t); });
+      return raf.call(window, (t) => { if (T._rafTime !== t) { T._rafTime = t; frameId++; } inRaf++; try { return cb(t); } finally { inRaf--; } });
     };
   };
 
@@ -131,12 +158,46 @@ function pageMain(cfg) {
   // the scene goes to a target), never an environment seen only by a CubeCamera
   // when anything else exists, then the largest.
   function mainScene() {
-    let best = null, bestKey = -1;
+    let best = null, bestKey = -1, world = null, worldKey = -1;
     for (const [s, u] of use) {
       const key = (u.env ? 0 : 1) * 1e12 + Math.min(u.frames, 1e5) * 1e6 + (u.screen ? 1 : 0) * 1e5 + Math.min(descendants(s), 99999);
       if (key > bestKey) { best = s; bestKey = key; }
+      if (!u.env && key > worldKey && !isPostQuad(s)) { world = s; worldKey = key; }
     }
+    // A full-screen quad drawn to the canvas loses to the world scene rendered in the same frames.
+    if (best && world && best !== world && isPostQuad(best) && use.get(world).last >= use.get(best).last - 1) return world;
     return best;
+  }
+
+  // harvestwright: 1y66rh1-render https://github.com/kevintngo/cinderwatch tier - 2026-11-28
+  // A post quad: at most two meshes, nothing else drawable, no lights, and either every mesh
+  // opts out of culling or depth testing, or every camera used with the scene is a parentless
+  // orthographic camera with a depth range of 2 or less.
+  function isPostQuad(scene) {
+    let meshes = 0, other = 0, flagged = true;
+    scene.traverse((o) => {
+      if (o.isLight || o.isPoints || o.isLine || o.isSprite) other++;
+      else if (o.isMesh) {
+        meshes++;
+        const ms = [].concat(o.material || []);
+        if (!(o.frustumCulled === false || (ms.length && ms.every((m) => m && m.depthTest === false)))) flagged = false;
+      }
+    });
+    if (!meshes || meshes > 2 || other) return false;
+    if (flagged) return true;
+    const m = cams.get(scene);
+    if (!m || !m.size) return false;
+    for (const c of m.keys()) if (!(c.isOrthographicCamera && !c.parent && Math.abs(c.far - c.near) <= 2)) return false;
+    return true;
+  }
+
+  // Full-screen passes drawn in the frame the main scene was last rendered in.
+  function postPasses(scene) {
+    const u = use.get(scene);
+    if (!u) return 0;
+    let n = 0;
+    for (const [s, v] of use) if (s !== scene && v.last >= u.last - 1 && isPostQuad(s)) n += v.inFrame;
+    return n;
   }
 
   // Lights render the scene from their shadow cameras (WebGPURenderer does it
@@ -260,6 +321,8 @@ function pageMain(cfg) {
     }
     walk(scene, 0, '');
     if (truncated) out.push(`… ${truncated} more nodes not shown (raise --max)`);
+    const post = postPasses(scene);
+    if (post) out.push(`post: ${post} full-screen pass(es) per frame (quad scene not shown)`);
     return out.join('\n');
   };
 
@@ -280,6 +343,8 @@ function pageMain(cfg) {
     // WebGPURenderer: render.drawCalls is per frame and render.calls counts render() calls since start.
     i.drawCalls = rd.drawCalls ?? rd.calls ?? null;
     i.triangles = rd.triangles ?? null;
+    // Several render() calls in one frame (world to a target, then a quad): the per-frame sum.
+    if (r.__twDraw && r.__twDraw.renders > 1) { i.drawCalls = r.__twDraw.calls; i.triangles = r.__twDraw.tris; i.passes = r.__twDraw.renders; }
     if (info.memory) { i.geometries = info.memory.geometries; i.textures = info.memory.textures; }
     if (info.programs) i.programs = info.programs.length;
     return i;
@@ -369,6 +434,8 @@ function pageMain(cfg) {
     scene.updateMatrixWorld(true);
     const st = sceneStats(scene);
     out.scene = st;
+    const post = postPasses(scene);
+    if (post) out.post = post;
     const warn = st.warn.slice();
     if (camera) camera.updateMatrixWorld(true);
     const box = boundsOf(scene, camera);
@@ -428,7 +495,8 @@ function pageMain(cfg) {
     const { renderer } = target();
     const c = renderer && renderer.domElement;
     if (c && since !== undefined && T.screenRenders === since && renderer.__twPasses) {
-      for (const [s, cam] of renderer.__twPasses) renderer.render(s, cam);
+      T._replay = true;
+      try { for (const [s, cam] of renderer.__twPasses) renderer.render(s, cam); } finally { T._replay = false; }
     }
     return c ? c.toDataURL(type, quality) : null;
   };

@@ -77,6 +77,9 @@ Static tools (no browser):
   look <render.png> <reference.png> [--min 70] [--sheet s.png] [--fit look.cube]   colour-grade match
                         0-100 from OKLab statistics (brightness, tint, chroma, hue, contrast, detail);
                         camera need not match; --fit writes a .cube LUT for LUTPass and re-scores
+  size <dir|file> [--budget <kB>] [--by raw|gzip|brotli]   raw, gzip 9 and brotli 11 bytes per file and
+                        in total, inline script and style bytes of HTML; exits 1 at or over the budget
+                        (1 kB = 1000 bytes, gzip unless --by); warns on a packed (self-extracting) payload
   glb <file.glb|.gltf> [--strict]   model report: size, draw calls, triangles, textures in px,
                         extensions and their decoders, animations, world bounds, web-budget warnings
                         --strict exits 1 on any warning
@@ -124,6 +127,7 @@ function formatCheck(r) {
     L.push(`  meshes ${s.meshes} · lights ${s.lights} · verts ${s.verts} · tris ${s.tris}${s.instances ? ' · instances ' + s.instances : ''} · materials ${s.materials} · textures ${s.textures} · environment ${s.environment} · background ${s.background}${s.fog ? ' · fog ' + s.fog : ''}`);
   }
   if (r.summary.bounds) L.push(`bounds: center ${r.summary.bounds.center} size ${r.summary.bounds.size}${r.summary.bounds.backdrop ? ` (${r.summary.bounds.backdrop} backdrop object(s) such as sky, moon or stars left out)` : ''}`);
+  if (r.summary.post) L.push(`post: ${r.summary.post} full-screen pass(es) per frame`);
   if (r.summary.camera) { const c = r.summary.camera; L.push(`camera: ${c.type} pos ${c.pos}${c.fov ? ' fov ' + c.fov : ''} near ${c.near} far ${c.far}${c.aspect ? ' aspect ' + c.aspect : ''}`); }
   if (r.pixels) L.push(formatPixels(r.pixels));
   if (r.eval !== undefined) L.push('eval: ' + JSON.stringify(r.eval).slice(0, 2000));
@@ -364,7 +368,7 @@ const commands = {
       const raw = await ctx.page.eval(`new Promise((done) => {
         const t = window.__tw && window.__tw.target ? window.__tw.target() : {};
         const fly = ${fly};
-        const info = () => { const r = t.renderer && t.renderer.info; return r ? [r.render.drawCalls ?? r.render.calls ?? 0, r.render.triangles ?? 0, r.memory.geometries ?? 0, r.memory.textures ?? 0] : null; };
+        const info = () => { const r = t.renderer && t.renderer.info; const d = r && window.__tw.frameDraw ? window.__tw.frameDraw(t.renderer) : null; return r ? [d ? d[0] : r.render.drawCalls ?? r.render.calls ?? 0, d ? d[1] : r.render.triangles ?? 0, r.memory.geometries ?? 0, r.memory.textures ?? 0] : null; };
         const heap = () => (performance.memory ? performance.memory.usedJSHeapSize : null);
         const frames = [], counts = [], start = { info: info(), heap: heap() };
         let last = performance.now();
@@ -518,6 +522,7 @@ const commands = {
 
   async play(a) { const m = await import('./lib/play.mjs'); return m.cmdPlay(a, print, pageOpts, list); },
   async feel(a) { const m = await import('./lib/feel.mjs'); return m.cmdFeel(a, print, pageOpts); },
+  async size(a) { const m = await import('./lib/size.mjs'); return m.cmdSize(a, print); },
   async lint(a) { const m = await import('./lib/lint.mjs'); return m.cmdLint(a, print); },
   async look(a) { const m = await import('./lib/look.mjs'); return m.cmdLook(a, print); },
   async glb(a) { const m = await import('./lib/glb.mjs'); return m.cmdGlb(a, print); },

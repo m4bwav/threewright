@@ -16,6 +16,9 @@ Topic: current three.js APIs and releases, WebGPU and TSL status, the verificati
 
 - When WebGPURenderer stops being called experimental in the manual, and whether r187 or later changes the default renderer advice.
 - Whether headless Chrome in CI gains a WebGPU adapter by default (SwiftShader has one on Linux with Vulkan; Chromium 141 fails r186 on texture view swizzle).
+- Not built, from the 2026-11-28 technique harvest. Touch emulation in `tw` (harvest 1y66rh1-render): page options `--touch` and `--safe-area top,right,bottom,left`, and `tap`, `pinch`, `swipe` and `rotate` actions. Test idea: the `mobile-shell` fixture at `--size 390x844 --touch` shows its turn-sideways card and hides it after `rotate 844x390`; a fixture counting `touchstart` and reading the two-finger distance proves tap and pinch arrive.
+- Not built, same harvest (1y66rh1-render): `tw pack <page|dir> --out one.html`, one self-contained HTML from an import-map page, loaded from a `file:///` URL to prove it. Test idea: pack the `html-importmap` template; one file, no network request, `result: OK` from the file URL, under 800 kB (measured by hand with rolldown 1.2.11 on r186: 743,435 bytes, 184,754 gzip). r186 ships no minified build and `three.module.js` imports `three.core.js`, so a bundler is needed.
+- Not built (harvest kevintngo-lumenwake): `tw perf --dpr-sweep 0.5,1` printing `fill-bound: yes|no` (yes when p50 falls over 15% at the lower ratio). Two `tw perf --dpr` runs by hand answer it today.
 
 ## Search plan
 

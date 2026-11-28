@@ -106,7 +106,7 @@
     "Verify",
     "Notes"
    ],
-   "bytes": 4937
+   "bytes": 6581
   },
   {
    "slug": "cameras-and-controls",
@@ -277,7 +277,7 @@
     "Verify",
     "Notes"
    ],
-   "bytes": 6759
+   "bytes": 7821
   },
   {
    "slug": "llm-mistakes",
@@ -438,7 +438,7 @@
    "applies_to": ">=r183",
    "status": "current",
    "renderer": "both",
-   "last_verified": "2026-11-22",
+   "last_verified": "2026-11-28",
    "template": "html-importmap",
    "sections": [
     "Essentials",
@@ -446,7 +446,7 @@
     "Verify",
     "Notes"
    ],
-   "bytes": 9917
+   "bytes": 10632
   },
   {
    "slug": "post-processing",
@@ -2007,6 +2007,34 @@
    "bytes": 3247
   },
   {
+   "slug": "adaptive-quality",
+   "kind": "recipe",
+   "path": "recipes/adaptive-quality.md",
+   "title": "Adaptive quality",
+   "summary": "Step quality down and up from measured frame time without flapping, pixel ratio first, with a guard for scenes that are not fill-bound.",
+   "tags": [
+    "adaptive quality",
+    "dynamic resolution",
+    "pixel ratio",
+    "frame time",
+    "hysteresis",
+    "governor",
+    "performance"
+   ],
+   "applies_to": "any",
+   "status": "current",
+   "renderer": "both",
+   "last_verified": "2026-11-28",
+   "template": "game-starter",
+   "sections": [
+    "Goal",
+    "Code",
+    "Verify",
+    "Notes"
+   ],
+   "bytes": 6144
+  },
+  {
    "slug": "bloom-webgl",
    "kind": "recipe",
    "path": "recipes/bloom-webgl.md",
@@ -2408,7 +2436,7 @@
     "Verify",
     "Notes"
    ],
-   "bytes": 6887
+   "bytes": 8123
   },
   {
    "slug": "raycast-hover-and-click",

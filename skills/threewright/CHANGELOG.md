@@ -4,6 +4,12 @@ Every change to [SKILL.md](SKILL.md) and its companions, newest first, each with
 
 Entry shape: `### C-YYYYMMDD-n · date · one-line summary`, then `because:` (IDs or "user request"), `files:` (file and section), and a sentence on what changed. Cite section headings, not line numbers.
 
+### C-20261128-1 · 2026-11-28 · harvest target r/TopologyAI; three tool ideas recorded as not built
+- because: user request (technique harvest 2026-11-28: 1y66rh1-render, kevintngo-lumenwake)
+- files: harvest.json, RESEARCH.md (Open questions)
+
+harvest.json gains the TopologyAI subreddit. RESEARCH.md records touch emulation, `tw pack` and `tw perf --dpr-sweep` with a test idea each. No skill text changed.
+
 ### C-20261110-1 · 2026-11-10 · harvest.json: technique-harvest targets for this unit
 - because: user request 2026-11-10: plugins store their own technique-harvest targets (evergreen 1.1.0 harvest.json)
 - files: harvest.json (new)
