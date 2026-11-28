@@ -12,7 +12,7 @@ Run each line that applies before calling a game done, and report the evidence (
 | 6 | replay | record inputs, reload, replay | the same hash across reloads |
 | 7 | pause | hide the tab (or press Escape) | the simulation and audio stop; resuming does not jump |
 | 8 | every input path | keyboard, gamepad (standard mapping), touch on a coarse pointer | each moves the player |
-| 9 | budgets | `tw check` draw calls and triangles; bundle size from the build | within `performance` budgets; first load under the portal's limit (for example Poki about 8 MB initial) |
+| 9 | budgets | `tw check` draw calls and triangles; `tw size dist --budget <kB>` (gzip; `--by raw` for a portal's upload limit) | within `performance` budgets; `tw size` exits 0 and prints no packed-payload warning; first load under the portal's limit (for example Poki about 8 MB initial) |
 | 10 | memory | restart the level several times with `tw check --eval` | geometries and textures in `renderer.info.memory` stay flat |
 | 11 | sizes | `tw check dist --size 390x844` and `--size 1920x1080` | both OK; UI inside safe areas |
 | 12 | full loop | title, play, pause, game over, restart; settings persist | every state reachable by input |

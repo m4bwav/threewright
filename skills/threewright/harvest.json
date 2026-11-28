@@ -13,6 +13,11 @@
       "keep": "three.js and web 3D game techniques built with Claude; drop showcases and how-do-I-start questions"
     },
     {
+      "kind": "reddit",
+      "sub": "TopologyAI",
+      "keep": "three.js and web 3D games and scenes built by coding models, with a repository or a method; drop showcases without one"
+    },
+    {
       "kind": "github",
       "query": "threejs game",
       "keep": "top 10 by stars; new entries and their owners' repos become harvest targets"

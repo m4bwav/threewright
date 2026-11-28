@@ -32,6 +32,7 @@ New effects default to TSL on WebGPURenderer: it compiles to WGSL or GLSL and ru
 - Game hit effects in GLSL (multi-hit hex shield, world-space capsule bullet holes, depth-Laplacian outline, nested beam, black-hole disc, fbm with octave offsets): [references/hit-effects.md](references/hit-effects.md); the same six in TSL for WebGPURenderer, with shield overcharge veins: [references/hit-effects-tsl.md](references/hit-effects-tsl.md).
 - A ray tracer, path tracer or ray marcher in a shader (shadow acne, stable ray/sphere, environment mip from ray spread, running-mean accumulation, delta tracking for volumes): [references/ray-tracing-in-shaders.md](references/ray-tracing-in-shaders.md); which sampler and pdf (cosine, cone, disk, triangle, environment CDF, VNDF), fireflies and three-gpu-pathtracer's `filterGlossyFactor`: [references/sampling.md](references/sampling.md).
 - Rim and fresnel with normal and view in one space, Ashikhmin-Shirley hair, the `computeTangents()` requirement, converting sRGB once, clamp argument order, stencil portals (`stencil: true` on the renderer), double-sided transparent sorting and dithered distance fade: [references/lighting-and-transparency.md](references/lighting-and-transparency.md).
+- Pencil hatching that does not swim when the camera turns (held paper axes, depth-nested stroke pitch; untested in three.js): [references/pencil-hatching.md](references/pencil-hatching.md).
 - Keep the old look reproducible: `TW shot <page> --out before.png --size 640x360` before changing a material.
 
 ## Step 3: verify

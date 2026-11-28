@@ -67,6 +67,7 @@ node scripts/tw.mjs video page/ --out turn.mp4 --seconds 3 --fps 30
 node scripts/tw.mjs lint src/                # stale APIs, with the release that changed them and the fix
 node scripts/tw.mjs look render.png ref.png --fit look.cube   # colour-grade match 0-100 (OKLab), sheet, LUT
 node scripts/tw.mjs glb model.glb            # size, triangles, textures, decoders needed
+node scripts/tw.mjs size dist --budget 300   # raw, gzip and brotli bytes per file; exit 1 over the budget; packed-payload warning
 node scripts/tw.mjs kb search "bloom webgpu" # then: kb show <slug> --section <name>
 node scripts/tw.mjs new game-starter my-game
 node scripts/tw.mjs vendor site/              # copy the pinned CDN modules the page imports (and the decoder files they fetch) into vendor/, rewrite the import map

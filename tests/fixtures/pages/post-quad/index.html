@@ -1,0 +1,54 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>fixture: world to a half-size target, one quad to the canvas</title>
+  <!-- harvestwright: 1y66rh1-render https://github.com/kevintngo/cinderwatch tier - 2026-11-28 -->
+  <!-- A hand-written post chain: tw check must report the world scene (40 meshes, 2 lights,
+       the perspective camera) and the draw calls of both passes (40 + 1), not the quad. -->
+  <script type="importmap">
+  { "imports": { "three": "https://cdn.jsdelivr.net/npm/three@0.186.1/build/three.module.js" } }
+  </script>
+</head>
+<body style="margin:0;overflow:hidden">
+<script type="module">
+import * as THREE from 'three';
+
+const renderer = new THREE.WebGLRenderer({ antialias: false });
+renderer.setPixelRatio(1);
+renderer.setSize(innerWidth, innerHeight);
+document.body.appendChild(renderer.domElement);
+
+// World: 40 named boxes on a 8 x 5 grid, two lights.
+const world = new THREE.Scene();
+world.background = new THREE.Color(0x1b2330);
+const camera = new THREE.PerspectiveCamera(50, innerWidth / innerHeight, 0.1, 100);
+camera.position.set(0, 7, 13);
+camera.lookAt(0, 0, 0);
+world.add(new THREE.HemisphereLight(0xbfd4ff, 0x30281c, 1.2));
+const sun = new THREE.DirectionalLight(0xffffff, 2);
+sun.position.set(4, 8, 3);
+world.add(sun);
+const box = new THREE.BoxGeometry(1, 1, 1);
+for (let i = 0; i < 40; i++) {
+  const m = new THREE.Mesh(box, new THREE.MeshStandardMaterial({ color: new THREE.Color().setHSL(i / 40, 0.6, 0.55) }));
+  m.name = 'box-' + String(i).padStart(2, '0');
+  m.position.set((i % 8) * 1.6 - 5.6, 0.5 + (i % 3) * 0.3, Math.floor(i / 8) * 1.6 - 3.2);
+  world.add(m);
+}
+
+// Half-size target, shown by one quad in its own scene.
+const target = new THREE.WebGLRenderTarget(Math.max(1, innerWidth >> 1), Math.max(1, innerHeight >> 1), { magFilter: THREE.NearestFilter });
+const quadScene = new THREE.Scene();
+const quadCamera = new THREE.OrthographicCamera(-1, 1, 1, -1, 0, 1);
+quadScene.add(new THREE.Mesh(new THREE.PlaneGeometry(2, 2), new THREE.MeshBasicMaterial({ map: target.texture })));
+
+renderer.setAnimationLoop(() => {
+  renderer.setRenderTarget(target);
+  renderer.render(world, camera);
+  renderer.setRenderTarget(null);
+  renderer.render(quadScene, quadCamera);
+});
+</script>
+</body>
+</html>

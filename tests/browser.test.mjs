@@ -292,3 +292,29 @@ test('mobile shell loads the game and hides its cards on a landscape desktop', {
   assert.match(r.out, /result: OK/, r.out);
   assert.match(r.out, /eval: true/, r.out);
 });
+
+// harvestwright: 1y66rh1-render https://github.com/kevintngo/cinderwatch tier - 2026-11-28
+// A hand-written post chain (world to a target, one quad to the canvas): the summary is the
+// world's, and draw calls are summed over both render() calls of the frame. Before the fix
+// this page read meshes 1, lights 0, draw calls 1 and an orthographic camera.
+test('post-quad page: check and scene report the world scene, draw calls of the whole frame', { skip, timeout: 300000 }, () => {
+  const page = join(ROOT, 'tests/fixtures/pages/post-quad');
+  const r = tw('check', page, '--json', '--size', '640x360');
+  assert.ok(r.json, r.err || r.out);
+  assert.equal(r.json.ok, true, r.out);
+  assert.equal(r.json.summary.scene.meshes, 40);
+  assert.equal(r.json.summary.scene.lights, 2);
+  assert.equal(r.json.summary.camera.type, 'PerspectiveCamera');
+  assert.equal(r.json.summary.post, 1);
+  assert.equal(r.json.summary.renderers[0].drawCalls, 41);
+  assert.equal(r.json.summary.renderers[0].triangles, 482);
+  const text = tw('check', page, '--size', '640x360').out;
+  assert.match(text, /meshes 40 · lights 2/);
+  assert.match(text, /post: 1 full-screen pass\(es\) per frame/);
+  const tree = tw('scene', page).out;
+  assert.match(tree, /Mesh "box-00"/);
+  assert.match(tree, /and 39 more like it/);
+  assert.match(tree, /post: 1 full-screen pass/);
+  const perf = tw('perf', page, '--seconds', '1', '--json');
+  assert.deepEqual(perf.json.drawCalls, [41, 41], perf.out);
+});

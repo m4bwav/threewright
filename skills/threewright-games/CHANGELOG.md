@@ -4,6 +4,12 @@ Every change to [SKILL.md](SKILL.md) and its companions, newest first, each with
 
 Entry shape: `### C-YYYYMMDD-n · date · one-line summary`, then `because:` (IDs or "user request"), `files:` (file and section), and a sentence on what changed. Cite section headings, not line numbers.
 
+### C-20261128-1 · 2026-11-28 · tw size on the done checklist; run-time interface pictures
+- because: user request (technique harvest 2026-11-28: kevintngo-voidlight, kevintngo-lumenwake)
+- files: references/done-checklist.md (line 9), references/hud-and-minimap.md (new last note)
+
+Line 9 names `tw size dist --budget <kB>` and its pass rule instead of "bundle size from the build". The HUD notes gain a method for drawing icons and portraits with the game's own renderer under a 10 ms frame budget. Not built in a threewright page.
+
 ### C-20261120-2 · 2026-11-20 · tw feel, two-speed play, look numbers, active-play shots
 - because: user request (technique harvest of web games, 2026-11: five adopt-partly verdicts merged into one command)
 - files: SKILL.md (Step 3), references/done-checklist.md (lines 12a, 14, 14b, 14c, 15b; tw feel section)

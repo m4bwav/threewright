@@ -136,3 +136,10 @@ Choices:
   upscale) and Cole Cecil's sharp-bilinear method, as a technique harvest. A Python model of the sampling at
   2.5x on a 24x24 sprite: nearest gives uneven 2 and 3 pixel runs; sharp-bilinear gives even runs with about
   30% of pixels blended, all in one-pixel edge bands; plain bilinear blends 97%.
+- 2026-11-28: recipe candidate, a "miniature" look on the same low-resolution target, as one MIT game chains it (read from code, not rebuilt or measured here). <!-- harvestwright: 1y66rh1-render https://github.com/kevintngo/cinderwatch tier - 2026-11-28 -->
+  Internal size: texel = max(2, sqrt(canvas pixels / 690,000), short side / 620), so 640x360 on a 1280x720 canvas. Scene to a half-float target with a depth texture, nearest filter, no MSAA, no tone mapping. Then:
+  (1) normals from depth, 10 spiral taps of ambient occlusion rotated per pixel by a 4x4 Bayer value, height mist;
+  (2) depth of field as the tilt-shift: blur radius from distance to a focus plane (starts 3.2 units behind it, full at 11.5, near side 0.6 as strong), at most 1.45% of the height, up to 40 golden-angle taps, early out for sharp pixels;
+  (3) bloom: threshold 1.1 with a 1.6 knee at half size, 5-tap separable blur there and twice at a quarter, added at 0.35 and 0.5;
+  (4) composite: vignette 0.55, filmic curve, saturation 0.92, blue lift in shadows, gamma, then an 8x8 Bayer threshold quantising each channel to 28 levels;
+  (5) the sharp-bilinear upscale of this recipe, plus hash grain of 0.035 weighted to dark pixels and reseeded each frame.

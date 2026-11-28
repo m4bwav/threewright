@@ -1,6 +1,6 @@
 # HANDOFF
 
-Updated 2026-11-20 (v1.11.0: `tw feel` game-feel numbers, `tw play --delays/--softlock`, `tw shot --metrics`, SwiftShader warnings; earlier: v1.6.0 hit effects in TSL; next: r187 curate pass, three 0.187.0 is out). Start at `ai-docs/INDEX.md`, then this file and the matching notes.
+Updated 2026-11-28 (v1.17.0: post-quad scene fix in `tw check`/`scene`/`perf`, `tw size`, kb `adaptive-quality` with `game-starter/src/quality.ts`; not built and recorded in `skills/threewright/RESEARCH.md`: touch emulation, `tw pack`, `--dpr-sweep`; the wiki does not list `tw size` yet). Before that 2026-11-20 (v1.11.0: `tw feel` game-feel numbers, `tw play --delays/--softlock`, `tw shot --metrics`, SwiftShader warnings; earlier: v1.6.0 hit effects in TSL; next: r187 curate pass, three 0.187.0 is out). Start at `ai-docs/INDEX.md`, then this file and the matching notes.
 
 ## Goal (from the owner)
 
